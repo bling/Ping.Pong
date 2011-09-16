@@ -37,7 +37,7 @@ namespace PingPong
             }
             else
             {
-                ActivateItem(new InstallViewModel());
+                ActivateItem(IoC.Get<InstallViewModel>());
             }
         }
 
