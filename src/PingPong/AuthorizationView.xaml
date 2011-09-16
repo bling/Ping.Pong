@@ -8,12 +8,11 @@
 
     <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="600" />
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <WebBrowser MinWidth="640" MinHeight="600" cal:Message.Attach="[Event Loaded] = [LoadWebBrowser($source)]" />
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
@@ -31,5 +30,6 @@
                     HorizontalAlignment="Right"
                     Content="OK" />
         </Grid>
+        <WebBrowser Grid.Row="1" MinWidth="640" MinHeight="600" cal:Message.Attach="[Event Loaded] = [LoadWebBrowser($source)]" />
     </Grid>
 </UserControl>
