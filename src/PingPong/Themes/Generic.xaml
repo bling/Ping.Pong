@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ctrl="clr-namespace:PingPong.Controls">
+
+    <Style TargetType="ctrl:TweetTextBlock">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ctrl:TweetTextBlock">
+                    <RichTextBox x:Name="PART_TextBlock"
+                                 Background="{TemplateBinding Background}"
+                                 BorderThickness="0"
+                                 FontFamily="{TemplateBinding FontFamily}"
+                                 FontSize="{TemplateBinding FontSize}"
+                                 Foreground="{TemplateBinding Foreground}"
+                                 IsReadOnly="True"
+                                 TextOptions.TextHintingMode="Fixed" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

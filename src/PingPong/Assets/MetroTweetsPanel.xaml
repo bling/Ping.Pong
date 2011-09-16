@@ -1,0 +1,72 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ctrl="clr-namespace:PingPong.Controls"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="d">
+    <DataTemplate x:Key="MetroTweetDataTemplate">
+        <Grid Margin="5,0,5,10" d:DataContext="{d:DesignData /SampleData/TweetSampleData.xaml}" d:DesignHeight="120" d:DesignWidth="414">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Image Grid.RowSpan="2"
+                   Width="48"
+                   Height="48"
+                   Margin="2"
+                   VerticalAlignment="Top"
+                   Source="{Binding ProfileImgUrl}" />
+            <TextBlock Grid.Column="1"
+                       Margin="2,0,0,0"
+                       HorizontalAlignment="Left"
+                       FontFamily="Segoe UI"
+                       FontSize="14.667"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource TweetTextBrush}"
+                       Text="{Binding ScreenName}" />
+            <ctrl:TweetTextBlock Grid.Row="1"
+                                 Grid.Column="1"
+                                 FontFamily="Segoe UI"
+                                 FontSize="13.333"
+                                 Foreground="{StaticResource TweetTextBrush}"
+                                 Text="{Binding Text}" />
+            <TextBlock Grid.Row="2"
+                       Grid.Column="1"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Bottom"
+                       FontFamily="Segoe UI"
+                       FontSize="9.333"
+                       Foreground="{StaticResource TweetTextBrush}"
+                       Text="{Binding CreatedAt}" />
+        </Grid>
+    </DataTemplate>
+    <Style x:Key="MetroTweetsPanel" TargetType="ItemsControl">
+        <Setter Property="Background" Value="#FF111111" />
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel VirtualizingStackPanel.VirtualizationMode="Recycling" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <ScrollViewer Margin="0"
+                                  Background="{TemplateBinding Background}"
+                                  Padding="0"
+                                  Style="{StaticResource ScrollViewerStyle}"
+                                  VerticalScrollBarVisibility="Visible">
+                        <ItemsPresenter />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate" Value="{StaticResource MetroTweetDataTemplate}" />
+    </Style>
+</ResourceDictionary>

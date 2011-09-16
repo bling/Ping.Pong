@@ -1,0 +1,5 @@
+﻿<Models:Tweet xmlns:Models="clr-namespace:PingPong.Models"
+              Id="0"
+              ProfileImgUrl="https://si0.twimg.com/profile_images/1188386482/Untitled_normal.png"
+              ScreenName="blingcoder"
+              Text="Whoa, @blingcoder, did you see that link?  It's at http://blingcode.blogspot.com. He talks about building a Twitter application using Silverlight, and making it look half decent at the same time!" />

@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="PingPong.AuthorizationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="600" />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <WebBrowser MinWidth="640" MinHeight="600" cal:Message.Attach="[Event Loaded] = [LoadWebBrowser($source)]" />
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Authorize Ping.Pong to have access to your account by logging into Twitter to get the PIN.  Once you get it, fill out your PIN in the text box below and click OK." TextWrapping="Wrap" />
+
+            <TextBox x:Name="Pin"
+                     Grid.Row="1"
+                     Width="100"
+                     Margin="0,0,70,0"
+                     HorizontalAlignment="Right" />
+            <Button x:Name="AuthenticatePin"
+                    Grid.Row="1"
+                    Width="70"
+                    HorizontalAlignment="Right"
+                    Content="OK" />
+        </Grid>
+    </Grid>
+</UserControl>

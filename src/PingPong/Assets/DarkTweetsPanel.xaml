@@ -1,0 +1,125 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:conv="clr-namespace:PingPong.Converters"
+                    xmlns:ctrl="clr-namespace:PingPong.Controls"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="d">
+
+    <SolidColorBrush x:Key="ScreenNameTextBrush" Color="#FFBE7C44" />
+    <SolidColorBrush x:Key="ScreenNameBorderBrush" Color="#FF272D45" />
+    <SolidColorBrush x:Key="ScreenNameBackgroundBrush" Color="#FF1B1B1B" />
+    <SolidColorBrush x:Key="TweetTextBrush" Color="#FF9B9B9B" />
+    <SolidColorBrush x:Key="TweetTextBorderBrush" Color="#FF393939" />
+    <SolidColorBrush x:Key="TweetTextBackgroundBrush" Color="#FF212121" />
+    <SolidColorBrush x:Key="DateTextBrush" Color="#FFA5784B" />
+    <SolidColorBrush x:Key="DateBorderBrush" Color="#FF2D2D2D" />
+    <SolidColorBrush x:Key="DateBackgroundBrush" Color="#FF141414" />
+    <SolidColorBrush x:Key="ImageBorderBrush" Color="#FF3F3F3F" />
+
+    <conv:RelativeTimeConverter x:Key="RelativeTimeConverter" />
+    <conv:SourceToUriConverter x:Key="SourceToUriConverter" />
+    <DataTemplate x:Key="DarkTweetDataTemplate">
+        <Grid Margin="2,5,8,5" d:DataContext="{d:DesignData /SampleData/TweetSampleData.xaml}" d:DesignHeight="78" d:DesignWidth="356">
+            <Grid.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
+                    <Setter Property="Foreground" Value="LightGray" />
+                </Style>
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid Margin="0,5,0,0" VerticalAlignment="Top">
+                <Border Background="#55000000" CornerRadius="4">
+                    <Border.RenderTransform>
+                        <CompositeTransform TranslateX="3" TranslateY="2" />
+                    </Border.RenderTransform>
+                </Border>
+                <Border VerticalAlignment="Top" CornerRadius="4">
+                    <Border.Clip>
+                        <RectangleGeometry RadiusX="4" RadiusY="4" Rect="0,0,52,48" />
+                    </Border.Clip>
+                    <Image Width="48" Height="48" Source="{Binding ProfileImgUrl}" />
+                </Border>
+                <Border Height="48"
+                        VerticalAlignment="Top"
+                        BorderBrush="{StaticResource ImageBorderBrush}"
+                        BorderThickness="1,1,0,1"
+                        CornerRadius="4,0,0,4" />
+            </Grid>
+
+            <Grid Grid.Column="1" Grid.ColumnSpan="2" MinHeight="67">
+                <Border Background="#33000000" CornerRadius="7">
+                    <Border.RenderTransform>
+                        <CompositeTransform TranslateX="3" TranslateY="3" />
+                    </Border.RenderTransform>
+                </Border>
+                <Border Background="{StaticResource TweetTextBackgroundBrush}" BorderBrush="{StaticResource TweetTextBorderBrush}" BorderThickness="1" CornerRadius="7">
+                    <ctrl:TweetTextBlock Margin="0,0,0,10"
+                                         FontFamily="{StaticResource DefaultFontFamily}"
+                                         FontSize="12"
+                                         Foreground="{StaticResource TweetTextBrush}"
+                                         ScreenName="{Binding ScreenName}"
+                                         Text="{Binding Text}" />
+                </Border>
+            </Grid>
+
+
+            <Grid Grid.Column="1" Margin="-10,-3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Border Background="#55000000" CornerRadius="5">
+                    <Border.RenderTransform>
+                        <CompositeTransform TranslateX="2" TranslateY="2" />
+                    </Border.RenderTransform>
+                </Border>
+                <Border Background="{StaticResource ScreenNameBackgroundBrush}" BorderBrush="{StaticResource ScreenNameBorderBrush}" BorderThickness="1" CornerRadius="4">
+                    <TextBlock Margin="5,2"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Bottom"
+                               FontFamily="Ubuntu Light"
+                               FontSize="13"
+                               Foreground="{StaticResource ScreenNameTextBrush}"
+                               Text="{Binding ScreenName}" />
+                </Border>
+            </Grid>
+
+            <TextBlock Grid.Row="0"
+                       Grid.Column="1"
+                       Grid.ColumnSpan="2"
+                       Margin="0,0,10,0"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom"
+                       FontSize="10"
+                       Foreground="{StaticResource DateTextBrush}"
+                       Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}" />
+        </Grid>
+    </DataTemplate>
+    <Style x:Key="DarkTweetsPanel" TargetType="ItemsControl">
+        <Setter Property="Background" Value="#FF181818" />
+        <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <ScrollViewer Margin="0" Background="{TemplateBinding Background}" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Visible">
+                        <ItemsPresenter />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate" Value="{StaticResource DarkTweetDataTemplate}" />
+    </Style>
+</ResourceDictionary>
