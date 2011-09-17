@@ -1,8 +1,8 @@
-﻿using Caliburn.Micro;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Json;
+using Caliburn.Micro;
 
 namespace PingPong.Models
 {
@@ -14,10 +14,6 @@ namespace PingPong.Models
                 return new Tweet((JsonObject)value);
 
             return null;
-        }
-
-        public Tweet()
-        {
         }
 
         private Tweet(JsonObject json)

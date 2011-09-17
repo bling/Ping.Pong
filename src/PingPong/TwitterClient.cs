@@ -23,7 +23,7 @@ namespace PingPong
         private const string UserStreamingAuthority = "https://userstream.twitter.com";
 
         private readonly OAuthCredentials _credentials;
-        private readonly ILog _log = LogManager.GetLog(typeof(TwitterClient));
+        private static readonly ILog _log = LogManager.GetLog(typeof(TwitterClient));
 
         public TwitterClient()
         {
@@ -63,7 +63,7 @@ namespace PingPong
 
         public void DirectMessage(string username, string text)
         {
-            var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/statuses/update.json" };
+            var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/direct_messages/new.format" };
             request.AddParameter("screen_name", username);
             request.AddParameter("text", text);
             CreateClient(ApiAuthority).BeginRequest(request);
@@ -147,7 +147,7 @@ namespace PingPong
                 .SelectMany(x => x);
         }
 
-        private IEnumerable<Tweet> ToTweets(RestResponse response)
+        private static IEnumerable<Tweet> ToTweets(RestResponse response)
         {
             JsonValue json = null;
             try
@@ -162,7 +162,7 @@ namespace PingPong
             return ToTweets(json).Where(x => x != null);
         }
 
-        private IEnumerable<Tweet> ToTweets(JsonValue json)
+        private static IEnumerable<Tweet> ToTweets(JsonValue json)
         {
             var array = json as JsonArray;
             if (array != null)

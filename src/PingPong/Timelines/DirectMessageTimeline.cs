@@ -12,7 +12,7 @@ namespace PingPong.Timelines
             return CreateTimerObservable()
                 .SelectMany(_ => Client.GetDirectMessages(_sinceId))
                 .Do(tweet => _sinceId = tweet.Id)
-                .DispatcherSubscribe(this.AddToEnd);
+                .DispatcherSubscribe(AddToEnd);
         }
     }
 }
