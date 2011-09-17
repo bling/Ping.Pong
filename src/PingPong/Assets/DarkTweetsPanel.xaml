@@ -19,6 +19,7 @@
 
     <conv:RelativeTimeConverter x:Key="RelativeTimeConverter" />
     <conv:SourceToUriConverter x:Key="SourceToUriConverter" />
+    <conv:SourceToContentConverter x:Key="SourceToContentConverter" />
     <DataTemplate x:Key="DarkTweetDataTemplate">
         <Grid Margin="2,5,8,5" d:DataContext="{d:DesignData /SampleData/TweetSampleData.xaml}" d:DesignHeight="78" d:DesignWidth="356">
             <Grid.Resources>
@@ -90,6 +91,16 @@
                 </Border>
             </Grid>
 
+            <HyperlinkButton Grid.Row="0"
+                             Grid.Column="1"
+                             Grid.ColumnSpan="2"
+                             Margin="10,0,0,0"
+                             HorizontalAlignment="Left"
+                             VerticalAlignment="Bottom"
+                             Content="{Binding Source, Converter={StaticResource SourceToContentConverter}}"
+                             FontSize="9"
+                             Foreground="#FF6A6A6A"
+                             NavigateUri="{Binding Source, Converter={StaticResource SourceToUriConverter}}" />
             <TextBlock Grid.Row="0"
                        Grid.Column="1"
                        Grid.ColumnSpan="2"

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows.Data;
 using Caliburn.Micro;
 
 namespace PingPong.Converters
 {
-    public class SourceToUriConverter : IValueConverter
+    public class SourceToContentConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -13,14 +13,13 @@ namespace PingPong.Converters
             {
                 string link = value != null ? value.ToString() : string.Empty;
                 if (link == "web")
-                    return new Uri("http://www.twitter.com");
+                    return "via web";
 
                 if (link.StartsWith("<a href"))
                 {
                     var parts = link.Split('"');
-                    Uri uri;
-                    if (Uri.TryCreate(parts[1], UriKind.Absolute, out uri))
-                        return uri;
+                    var name = parts[parts.Length - 1].Split(new[] { '<', '>' }, StringSplitOptions.RemoveEmptyEntries);
+                    return "via " + name[0];
                 }
             }
             catch (Exception e)

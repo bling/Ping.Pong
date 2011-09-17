@@ -114,6 +114,7 @@
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
     <Compile Include="Converters\RelativeTimeConverter.cs" />
     <Compile Include="AppBootstrapper.Keys.cs" />
+    <Compile Include="Converters\SourceToContentConverter.cs" />
     <Compile Include="Converters\SourceToUriConverter.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="InstallViewModel.cs" />
