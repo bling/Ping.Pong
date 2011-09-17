@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Controls;
@@ -42,23 +41,10 @@ namespace PingPong
             _windowManager = windowManager;
 
             Timelines = new ObservableCollection<object>();
-            Timelines.CollectionChanged += (sender, e) =>
-            {
-                switch (e.Action)
-                {
-                    case NotifyCollectionChangedAction.Remove:
-                    case NotifyCollectionChangedAction.Replace:
-                    case NotifyCollectionChangedAction.Reset:
-                        if (e.OldItems != null)
-                            e.OldItems.Cast<IDisposable>().ForEach(i => i.Dispose());
-                        break;
-                }
-            };
+            Timelines.Add(timelineFactory.StatusFactory(StatusType.Home));
+            Timelines.Add(timelineFactory.StatusFactory(StatusType.Mentions));
 
-            Timelines.Add(CreateStatusTimeline(StatusType.Home));
-            Timelines.Add(CreateStatusTimeline(StatusType.Mentions));
-
-            _refreshSubscription = Observable.Interval(TimeSpan.FromMinutes(1))
+            _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(30))
                 .DispatcherSubscribe(_ =>
                 {
                     foreach (var tweet in Timelines.Cast<dynamic>().Select(x => (Timeline)x.Value).SelectMany(x => x))
@@ -98,8 +84,9 @@ namespace PingPong
             else
             {
                 var old = Timelines.OfType<Owned<StreamingTimeline>>().ToArray();
+                old.ForEach(t => t.Dispose());
                 old.ForEach(t => Timelines.Remove(t));
-                
+
                 var allTerms = SearchText.Split(' ', ',', ';', '|');
                 var allParts = SearchText.Split(' ', ',', ';');
                 var ob = _client.GetStreamingFilter(allTerms).Publish();
@@ -121,13 +108,6 @@ namespace PingPong
         public void Stop()
         {
             _streamingSubscription.DisposeIfNotNull();
-        }
-
-        private object CreateStatusTimeline(StatusType statusType)
-        {
-            var timeline = _timelineFactory.StatusFactory(statusType);
-            timeline.Value.Start();
-            return timeline;
         }
     }
 }

@@ -23,15 +23,16 @@ namespace PingPong
             var b = new ContainerBuilder();
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .AsSelf()
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .Where(t => t.IsAssignableTo<Timeline>())
                 .AsSelf()
-                .PropertiesAutowired();
+                .PropertiesAutowired()
+                .OnActivated(x => ((dynamic)x.Instance).Start());
             b.Register(_ => new TwitterClient()).SingleInstance();
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
-            b.Register(_ => new TimelineFactory()).PropertiesAutowired().SingleInstance();
 
             _container = b.Build();
         }

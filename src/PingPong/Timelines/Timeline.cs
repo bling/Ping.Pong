@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using PingPong.Models;
 
 namespace PingPong.Timelines
 {
-    using System.Collections.Generic;
-
     public abstract class Timeline : TweetCollection, IDisposable
     {
         protected const int MaxTweets = 1000;
