@@ -1,21 +1,24 @@
+using System;
+using System.Linq;
+using System.Reactive.Subjects;
+using PingPong.Models;
+
 namespace PingPong.Timelines
 {
-    using System;
-    using System.Linq;
-    using System.Reactive.Subjects;
-    using PingPong.Models;
-
     public class StreamingTimeline : Timeline
     {
-        private IDisposable _subscription;
+        private readonly IConnectableObservable<Tweet> _observable;
 
         public string[] FilterTerms { get; set; }
 
+        public StreamingTimeline(IConnectableObservable<Tweet> observable)
+        {
+            _observable = observable;
+        }
+
         protected override IDisposable StartSubscription()
         {
-            if (_subscription == null) throw new InvalidOperationException();
-
-            return _subscription;
+            return _observable.DispatcherSubscribe(Subscribe);
         }
 
         private void Subscribe(Tweet tweet)
@@ -27,12 +30,6 @@ namespace PingPong.Timelines
             }
 
             AddToFront(tweet);
-        }
-
-        public void Start(IConnectableObservable<Tweet> observable)
-        {
-            _subscription = observable.DispatcherSubscribe(Subscribe);
-            Start();
         }
     }
 }

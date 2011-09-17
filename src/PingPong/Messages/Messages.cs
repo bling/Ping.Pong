@@ -23,8 +23,4 @@
     public class ShowTimelinesMessage
     {
     }
-
-    public class ShowAuthorizationMessage
-    {
-    }
 }

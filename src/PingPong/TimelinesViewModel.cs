@@ -94,9 +94,8 @@ namespace PingPong
                 for (int i = 0; i < allParts.Length; i++)
                 {
                     string[] terms = allParts[i].Split('|');
-                    var streamline = _timelineFactory.StreamingFactory();
+                    var streamline = _timelineFactory.StreamingFactory(ob);
                     streamline.Value.FilterTerms = terms;
-                    streamline.Value.Start(ob);
                     Timelines.Add(streamline);
                 }
 

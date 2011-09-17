@@ -24,17 +24,22 @@ namespace PingPong
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .AsSelf()
                 .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                .PropertiesAutowired()
+                .OnActivated(x => x.Context.Resolve<IEventAggregator>().Subscribe(x.Instance));
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .Where(t => t.IsAssignableTo<Timeline>())
                 .AsSelf()
                 .PropertiesAutowired()
-                .OnActivated(x => ((dynamic)x.Instance).Start());
+                .OnActivated(x => ((dynamic)x.Instance).Start())
+                .OnActivated(x => x.Context.Resolve<IEventAggregator>().Subscribe(x.Instance));
             b.Register(_ => new TwitterClient()).SingleInstance();
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
 
             _container = b.Build();
+            b = new ContainerBuilder();
+            b.RegisterInstance(_container);
+            b.Update(_container);
         }
 
         protected override object GetInstance(Type serviceType, string key)

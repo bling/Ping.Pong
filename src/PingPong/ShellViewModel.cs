@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Autofac;
 using Caliburn.Micro;
 using PingPong.Messages;
 
@@ -8,17 +9,15 @@ namespace PingPong
                                   IShell,
                                   IHandle<NavigateToUserMessage>,
                                   IHandle<NavigateToTopicMessage>,
-                                  IHandle<ShowAuthorizationMessage>,
                                   IHandle<ShowTimelinesMessage>
     {
-        private readonly IEventAggregator _eventAggregator;
+        private readonly IContainer _container;
         private readonly IWindowManager _windowManager;
 
-        public ShellViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
+        public ShellViewModel(IContainer container, IWindowManager windowManager)
         {
-            _eventAggregator = eventAggregator;
+            _container = container;
             _windowManager = windowManager;
-            _eventAggregator.Subscribe(this);
         }
 
         protected override void OnActivate()
@@ -31,24 +30,19 @@ namespace PingPong
             }
             else if (Application.Current.IsRunningOutOfBrowser)
             {
-                _eventAggregator.Publish(AppSettings.HasAuthToken
-                                             ? (object)new ShowTimelinesMessage()
-                                             : new ShowAuthorizationMessage());
+                ActivateItem(AppSettings.HasAuthToken
+                                 ? (object)_container.Resolve<TimelinesViewModel>()
+                                 : _container.Resolve<AuthorizationViewModel>());
             }
             else
             {
-                ActivateItem(IoC.Get<InstallViewModel>());
+                ActivateItem(_container.Resolve<InstallViewModel>());
             }
-        }
-
-        void IHandle<ShowAuthorizationMessage>.Handle(ShowAuthorizationMessage message)
-        {
-            ActivateItem(IoC.Get<AuthorizationViewModel>());
         }
 
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
-            ActivateItem(IoC.Get<TimelinesViewModel>());
+            ActivateItem(_container.Resolve<TimelinesViewModel>());
         }
 
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
