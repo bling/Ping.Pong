@@ -6,12 +6,15 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
+using PingPong.Models;
 using PingPong.Timelines;
 
 namespace PingPong
 {
     public class TimelinesViewModel : Screen
     {
+        private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
+
         private readonly TwitterClient _client;
         private readonly TimelineFactory _timelineFactory;
         private readonly IWindowManager _windowManager;
@@ -19,6 +22,7 @@ namespace PingPong
         private IDisposable _streamingSubscription;
         private string _searchText;
         private bool _showUpdateStatus;
+        private DateTime _streamStartTime = DateTime.MinValue;
 
         public ObservableCollection<object> Timelines { get; private set; }
 
@@ -68,7 +72,7 @@ namespace PingPong
         public void OnStatusTextBoxChanged(TextBox sender, TextChangedEventArgs e)
         {
             string text = sender.Text;
-            if (text.Contains("\r"))
+            if (text.Contains("\r") && text.Length <= Tweet.MaxLength)
             {
                 ShowUpdateStatus = false;
                 _client.UpdateStatus(text);
@@ -77,12 +81,18 @@ namespace PingPong
 
         public void Search()
         {
-            if (string.IsNullOrEmpty(SearchText))
+            if (DateTime.UtcNow - _streamStartTime < StreamThrottleRate)
+            {
+                _windowManager.ShowDialog(new ErrorViewModel("You are initiating too many connections in a short period of time.  Twitter doesn't like that :("));
+            }
+            else if (string.IsNullOrEmpty(SearchText))
             {
                 _windowManager.ShowDialog(new ErrorViewModel("Search terms are required."));
             }
             else
             {
+                _streamStartTime = DateTime.UtcNow;
+
                 var old = Timelines.OfType<Owned<StreamingTimeline>>().ToArray();
                 old.ForEach(t => t.Dispose());
                 old.ForEach(t => Timelines.Remove(t));

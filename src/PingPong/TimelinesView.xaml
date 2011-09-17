@@ -3,12 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:b="clr-namespace:PingPong.Behaviors"
              xmlns:cal="http://www.caliburnproject.org"
+             xmlns:conv="clr-namespace:PingPong.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              d:DesignHeight="392"
              d:DesignWidth="592"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <conv:CharactersRemainingConverter x:Key="CharactersRemainingConverter" />
+    </UserControl.Resources>
     <Grid x:Name="LayoutRoot" Background="#FF111111" d:DataContext="{d:DesignData /SampleData/Tweets.xaml}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -33,21 +37,33 @@
                         BorderThickness="1"
                         CornerRadius="10"
                         Padding="5">
-                    <TextBox Width="300"
-                             Height="100"
-                             AcceptsReturn="True"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             cal:Message.Attach="[Event TextChanged] = [OnStatusTextBoxChanged($source, $eventArgs)];
-                                                 [Event TextInput] = [OnStatusTextBoxTextInput($eventArgs)]"
-                             FontFamily="{StaticResource DefaultFontFamily}"
-                             Foreground="#FF8EBCE7"
-                             TextWrapping="Wrap" />
+                    <Grid>
+                        <Grid.Resources>
+                            <conv:IsValidTweetLengthToBrushConverter x:Key="IsValidTweetLengthToColorConverter" Negative="#49AF3C3C" Positive="#155EBC2B" />
+                        </Grid.Resources>
+                        <TextBlock Margin="0,0,0,-20"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Bottom"
+                                   FontSize="60"
+                                   FontWeight="Bold"
+                                   Foreground="{Binding Text, ElementName=StatusText, Converter={StaticResource IsValidTweetLengthToColorConverter}}"
+                                   Text="{Binding Text, ElementName=StatusText, Converter={StaticResource CharactersRemainingConverter}}" />
+                        <TextBox x:Name="StatusText"
+                                 Width="300"
+                                 Height="100"
+                                 AcceptsReturn="True"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 cal:Message.Attach="[Event TextChanged] = [OnStatusTextBoxChanged($source, $eventArgs)];                                                      [Event TextInput] = [OnStatusTextBoxTextInput($eventArgs)]"
+                                 FontFamily="{StaticResource DefaultFontFamily}"
+                                 Foreground="#FF8EBCE7"
+                                 TextWrapping="Wrap" FontSize="12" />
+                    </Grid>
                 </Border>
             </Popup>
 
             <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-            	<TextBox x:Name="SearchText"
+                <TextBox x:Name="SearchText"
                          Width="200"
                          HorizontalAlignment="Right"
                          Background="Transparent"

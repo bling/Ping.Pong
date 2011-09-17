@@ -104,10 +104,12 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
+    <Compile Include="Converters\CharactersRemainingConverter.cs" />
     <Compile Include="Converters\RelativeTimeConverter.cs" />
     <Compile Include="AppBootstrapper.Keys.cs" />
     <Compile Include="Converters\SourceToContentConverter.cs" />
     <Compile Include="Converters\SourceToUriConverter.cs" />
+    <Compile Include="Converters\IsValidTweetLengthToBrushConverter.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
