@@ -14,6 +14,8 @@ namespace PingPong.Timelines
         private IDisposable _subscription;
         private readonly IDictionary<string, Tweet> _tweets = new Dictionary<string, Tweet>();
 
+        public event Action<Exception> OnError;
+
         public TwitterClient Client { get; set; }
 
         protected void AddToEnd(Tweet tweet)
@@ -55,6 +57,7 @@ namespace PingPong.Timelines
         protected virtual void Dispose(bool disposing)
         {
             Clear();
+            OnError = null;
             _subscription.DisposeIfNotNull();
         }
 
@@ -68,6 +71,12 @@ namespace PingPong.Timelines
         protected IObservable<long> CreateTimerObservable()
         {
             return Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(DefaultPollSeconds));
+        }
+
+        protected void RaiseOnError(Exception ex)
+        {
+            var e = OnError;
+            if (e != null) e(ex);
         }
     }
 }

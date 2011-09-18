@@ -21,14 +21,14 @@ namespace PingPong.Timelines
                     .ObserveOnDispatcher()
                     .Do(AddToEnd)
                     .Concat(Client.GetStreamingHomeline())
-                    .DispatcherSubscribe(AddToFront);
+                    .DispatcherSubscribe(AddToFront, RaiseOnError);
             }
 
             if (_statusType == StatusType.Mentions)
                 return CreateTimerObservable()
                     .SelectMany(_ => Client.GetMentions(_sinceId))
                     .Do(tweet => _sinceId = tweet.Id)
-                    .DispatcherSubscribe(AddToEnd);
+                    .DispatcherSubscribe(AddToEnd, RaiseOnError);
 
             throw new NotSupportedException(_statusType.ToString());
         }

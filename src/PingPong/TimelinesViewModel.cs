@@ -45,8 +45,8 @@ namespace PingPong
             _windowManager = windowManager;
 
             Timelines = new ObservableCollection<object>();
-            Timelines.Add(timelineFactory.StatusFactory(StatusType.Home));
-            Timelines.Add(timelineFactory.StatusFactory(StatusType.Mentions));
+            Add(timelineFactory.StatusFactory(StatusType.Home));
+            Add(timelineFactory.StatusFactory(StatusType.Mentions));
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(30))
                 .DispatcherSubscribe(_ =>
@@ -106,7 +106,7 @@ namespace PingPong
                     string[] terms = allParts[i].Split('|');
                     var streamline = _timelineFactory.StreamingFactory(ob);
                     streamline.Value.FilterTerms = terms;
-                    Timelines.Add(streamline);
+                    Add(streamline);
                 }
 
                 _streamingSubscription.DisposeIfNotNull();
@@ -117,6 +117,13 @@ namespace PingPong
         public void Stop()
         {
             _streamingSubscription.DisposeIfNotNull();
+        }
+        
+        private void Add<T>(Owned<T> owned)
+        {
+            var line = (Timeline)((dynamic)owned).Value;
+            line.OnError += ex => _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
+            Timelines.Add(owned);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace PingPong.Timelines
 
         protected override IDisposable StartSubscription()
         {
-            return _observable.DispatcherSubscribe(Subscribe);
+            return _observable.DispatcherSubscribe(Subscribe, RaiseOnError);
         }
 
         private void Subscribe(Tweet tweet)

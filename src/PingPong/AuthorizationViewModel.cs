@@ -12,6 +12,7 @@ namespace PingPong
     public class AuthorizationViewModel : Screen
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly IWindowManager _windowManager;
 
         private AuthInfo _auth;
         private string _pin;
@@ -22,9 +23,10 @@ namespace PingPong
             set { this.SetValue("Pin", value, ref _pin); }
         }
 
-        public AuthorizationViewModel(IEventAggregator eventAggregator)
+        public AuthorizationViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
         {
             _eventAggregator = eventAggregator;
+            _windowManager = windowManager;
         }
 
         public void LoadWebBrowser(WebBrowser browser)
@@ -57,7 +59,9 @@ namespace PingPong
                     return new AuthInfo { AuthToken = query["oauth_token"], AuthTokenSecret = query["oauth_token_secret"] };
                 })
                 .Do(auth => _auth = auth)
-                .DispatcherSubscribe(auth => browser.Navigate(new Uri("https://api.twitter.com/oauth/authorize?oauth_token=" + auth.AuthToken)));
+                .DispatcherSubscribe(
+                    auth => browser.Navigate(new Uri("https://api.twitter.com/oauth/authorize?oauth_token=" + auth.AuthToken)),
+                    OnError);
         }
 
         public void AuthenticatePin()
@@ -92,12 +96,19 @@ namespace PingPong
                     var query = x.Content.ToQueryParameters();
                     return new AuthInfo { AuthToken = query["oauth_token"], AuthTokenSecret = query["oauth_token_secret"] };
                 })
-                .Subscribe(auth =>
-                {
-                    AppSettings.UserOAuthToken = auth.AuthToken;
-                    AppSettings.UserOAuthTokenSecret = auth.AuthTokenSecret;
-                    _eventAggregator.Publish(new ShowTimelinesMessage());
-                });
+                .DispatcherSubscribe(
+                    auth =>
+                    {
+                        AppSettings.UserOAuthToken = auth.AuthToken;
+                        AppSettings.UserOAuthTokenSecret = auth.AuthTokenSecret;
+                        _eventAggregator.Publish(new ShowTimelinesMessage());
+                    },
+                    OnError);
+        }
+
+        private void OnError(Exception ex)
+        {
+            _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
         }
     }
 

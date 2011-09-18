@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using Caliburn.Micro;
+using Action = System.Action;
 
 namespace PingPong
 {
@@ -24,12 +25,12 @@ namespace PingPong
         /// <summary>
         /// Applies the default SubscribeOnThreadPool/ObserveOnDispatcher/Subscribe(action) pattern.
         /// </summary>
-        public static IDisposable DispatcherSubscribe<T>(this IObservable<T> observable, Action<T> onNext)
+        public static IDisposable DispatcherSubscribe<T>(this IObservable<T> observable, Action<T> onNext, Action<Exception> onError = null, Action onCompleted = null)
         {
             return observable
                 .SubscribeOnThreadPool()
                 .ObserveOnDispatcher()
-                .Subscribe(onNext);
+                .Subscribe(onNext, onError ?? (e => { throw e; }), onCompleted ?? (() => { }));
         }
 
         public static void DisposeIfNotNull(this IDisposable disposable)

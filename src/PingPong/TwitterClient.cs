@@ -122,9 +122,7 @@ namespace PingPong
 
                     CreateClient(authority).BeginRequest(request, (_, r, __) =>
                     {
-                        foreach (var tweet in ToTweets(r))
-                            ob.OnNext(tweet);
-
+                        ToTweets(r).ForEach(ob.OnNext);
                         ob.OnCompleted();
                     });
                     return Disposable.Empty;
