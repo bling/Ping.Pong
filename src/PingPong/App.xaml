@@ -14,6 +14,7 @@
                 <ResourceDictionary Source="Assets/MetroTweetsPanel.xaml" />
                 <ResourceDictionary Source="Assets/DarkTweetsPanel.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <local:Router x:Key="router" />
             <FontFamily x:Key="DefaultFontFamily">Ubuntu Light</FontFamily>
             <local:AppBootstrapper x:Key="bootstrapper" />
         </ResourceDictionary>

@@ -114,6 +114,7 @@
     <Compile Include="InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="ErrorViewModel.cs" />
+    <Compile Include="Router.cs" />
     <Compile Include="TimelinesViewModel.cs" />
     <Compile Include="Timelines\TimelineFactory.cs" />
     <Compile Include="Messages\Messages.cs" />

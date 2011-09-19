@@ -14,10 +14,10 @@ namespace PingPong
         private readonly IContainer _container;
         private readonly IWindowManager _windowManager;
 
-        public ShellViewModel(IContainer container, IWindowManager windowManager)
+        public ShellViewModel(IContainer container)
         {
             _container = container;
-            _windowManager = windowManager;
+            _windowManager = container.Resolve<IWindowManager>();
         }
 
         protected override void OnActivate()

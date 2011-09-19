@@ -6,12 +6,13 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
+using PingPong.Messages;
 using PingPong.Models;
 using PingPong.Timelines;
 
 namespace PingPong
 {
-    public class TimelinesViewModel : Screen
+    public class TimelinesViewModel : Screen, IHandle<ReplyMessage>, IHandle<RetweetMessage>, IHandle<QuoteMessage>
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
@@ -21,6 +22,7 @@ namespace PingPong
         private readonly IDisposable _refreshSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
+        private string _statusText;
         private bool _showUpdateStatus;
         private DateTime _streamStartTime = DateTime.MinValue;
 
@@ -36,6 +38,12 @@ namespace PingPong
         {
             get { return _searchText; }
             set { this.SetValue("SearchText", value, ref _searchText); }
+        }
+
+        public string StatusText
+        {
+            get { return _statusText; }
+            set { this.SetValue("StatusText", value, ref _statusText); }
         }
 
         public TimelinesViewModel(TwitterClient client, TimelineFactory timelineFactory, IWindowManager windowManager)
@@ -118,12 +126,30 @@ namespace PingPong
         {
             _streamingSubscription.DisposeIfNotNull();
         }
-        
+
         private void Add<T>(Owned<T> owned)
         {
             var line = (Timeline)((dynamic)owned).Value;
             line.OnError += ex => _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
             Timelines.Add(owned);
+        }
+
+        void IHandle<ReplyMessage>.Handle(ReplyMessage message)
+        {
+            StatusText = '@' + message.Tweet.ScreenName;
+            ShowUpdateStatus = true;
+        }
+
+        void IHandle<RetweetMessage>.Handle(RetweetMessage message)
+        {
+            StatusText = string.Format("RT @{0} {1}", message.Tweet.ScreenName, message.Tweet.Text);
+            ShowUpdateStatus = true;
+        }
+
+        void IHandle<QuoteMessage>.Handle(QuoteMessage message)
+        {
+            StatusText = string.Format("RT @{0} {1}", message.Tweet.ScreenName, message.Tweet.Text);
+            ShowUpdateStatus = true;
         }
     }
 }

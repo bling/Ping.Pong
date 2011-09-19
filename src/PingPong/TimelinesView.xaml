@@ -54,6 +54,7 @@
                                  AcceptsReturn="True"
                                  Background="Transparent"
                                  BorderThickness="0"
+                                 Text="{Binding StatusText, Mode=TwoWay}"
                                  cal:Message.Attach="[Event TextChanged] = [OnStatusTextBoxChanged($source, $eventArgs)];                                                      [Event TextInput] = [OnStatusTextBoxTextInput($eventArgs)]"
                                  FontFamily="{StaticResource DefaultFontFamily}"
                                  Foreground="#FF8EBCE7"

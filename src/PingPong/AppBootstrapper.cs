@@ -35,11 +35,11 @@ namespace PingPong
             b.Register(_ => new TwitterClient()).SingleInstance();
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
+            b.Register(_ => new ShellViewModel(_container)).As<IShell>();
 
             _container = b.Build();
-            b = new ContainerBuilder();
-            b.RegisterInstance(_container);
-            b.Update(_container);
+
+            Application.Exit += delegate { _container.Dispose(); };
         }
 
         protected override object GetInstance(Type serviceType, string key)
