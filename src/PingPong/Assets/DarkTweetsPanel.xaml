@@ -31,7 +31,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="border" Background="#FF1B1B1B" CornerRadius="5">
+                    <Border x:Name="border" Background="#FF1B1B1B" CornerRadius="5" BorderBrush="#FF1D304E" BorderThickness="1">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
                                 <VisualStateGroup.Transitions>
@@ -209,43 +209,11 @@
                 <Grid.RenderTransform>
                     <CompositeTransform TranslateY="30" />
                 </Grid.RenderTransform>
-                <StackPanel VerticalAlignment="Bottom" cal:Bind.Model="shell" Orientation="Horizontal">
-                    <Button Content="R" Style="{StaticResource DarkTweetButtonStyle}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Click">
-                                <cal:ActionMessage MethodName="Reply">
-                                    <cal:Parameter Value="{Binding DataContext, ElementName=actions}" />
-                                </cal:ActionMessage>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Button>
-                    <Button Content="RT" Style="{StaticResource DarkTweetButtonStyle}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Click">
-                                <cal:ActionMessage MethodName="Retweet">
-                                    <cal:Parameter Value="{Binding DataContext, ElementName=actions}" />
-                                </cal:ActionMessage>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Button>
-                    <Button Content="Q" Style="{StaticResource DarkTweetButtonStyle}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Click">
-                                <cal:ActionMessage MethodName="Quote">
-                                    <cal:Parameter Value="{Binding DataContext, ElementName=actions}" />
-                                </cal:ActionMessage>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Button>
-                    <Button Content="DM" Style="{StaticResource DarkTweetButtonStyle}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Click">
-                                <cal:ActionMessage MethodName="DirectMessage">
-                                    <cal:Parameter Value="{Binding DataContext, ElementName=actions}" />
-                                </cal:ActionMessage>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Button>
+                <StackPanel VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="shell" Orientation="Horizontal">
+                    <Button Content="R" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[Reply($dataContext)]" />
+                    <Button Content="RT" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[Retweet($dataContext)]" />
+                    <Button Content="Q" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[Quote($dataContext)]" />
+                    <Button Content="DM" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[DirectMessage($dataContext)]" />
                 </StackPanel>
             </Grid>
         </Grid>
