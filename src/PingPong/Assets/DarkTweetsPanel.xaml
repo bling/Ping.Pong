@@ -209,7 +209,7 @@
                 <Grid.RenderTransform>
                     <CompositeTransform TranslateY="30" />
                 </Grid.RenderTransform>
-                <StackPanel VerticalAlignment="Bottom" cal:Bind.Model="{StaticResource router}" Orientation="Horizontal">
+                <StackPanel VerticalAlignment="Bottom" cal:Bind.Model="shell" Orientation="Horizontal">
                     <Button Content="R" Style="{StaticResource DarkTweetButtonStyle}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
@@ -232,6 +232,15 @@
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <cal:ActionMessage MethodName="Quote">
+                                    <cal:Parameter Value="{Binding DataContext, ElementName=actions}" />
+                                </cal:ActionMessage>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Content="DM" Style="{StaticResource DarkTweetButtonStyle}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <cal:ActionMessage MethodName="DirectMessage">
                                     <cal:Parameter Value="{Binding DataContext, ElementName=actions}" />
                                 </cal:ActionMessage>
                             </i:EventTrigger>

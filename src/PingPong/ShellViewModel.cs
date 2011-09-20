@@ -2,6 +2,7 @@
 using Autofac;
 using Caliburn.Micro;
 using PingPong.Messages;
+using PingPong.Models;
 
 namespace PingPong
 {
@@ -50,9 +51,29 @@ namespace PingPong
             _windowManager.ShowDialog(new ErrorViewModel("not done yet"));
         }
 
-        public void Handle(NavigateToTopicMessage message)
+        void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
         {
             _windowManager.ShowDialog(new ErrorViewModel("not done yet"));
+        }
+
+        public void Reply(Tweet tweet)
+        {
+            ((TimelinesViewModel)ActiveItem).ReplyTo(tweet);
+        }
+
+        public void Retweet(Tweet tweet)
+        {
+            ((TimelinesViewModel)ActiveItem).Retweet(tweet);
+        }
+
+        public void Quote(Tweet tweet)
+        {
+            ((TimelinesViewModel)ActiveItem).Quote(tweet);
+        }
+
+        public void DirectMessage(Tweet tweet)
+        {
+            ((TimelinesViewModel)ActiveItem).DirectMessage(tweet);
         }
     }
 }

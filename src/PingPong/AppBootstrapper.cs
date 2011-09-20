@@ -44,6 +44,9 @@ namespace PingPong
 
         protected override object GetInstance(Type serviceType, string key)
         {
+            if ("shell".Equals(key))
+                return _container.Resolve<IShell>();
+            
             return string.IsNullOrEmpty(key) ? _container.Resolve(serviceType) : _container.ResolveNamed(key, serviceType);
         }
 

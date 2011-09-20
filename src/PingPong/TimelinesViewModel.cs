@@ -12,7 +12,7 @@ using PingPong.Timelines;
 
 namespace PingPong
 {
-    public class TimelinesViewModel : Screen, IHandle<ReplyMessage>, IHandle<RetweetMessage>, IHandle<QuoteMessage>
+    public class TimelinesViewModel : Screen
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
@@ -25,6 +25,7 @@ namespace PingPong
         private string _statusText;
         private bool _showUpdateStatus;
         private DateTime _streamStartTime = DateTime.MinValue;
+        private OutgoingContext _outgoing;
 
         public ObservableCollection<object> Timelines { get; private set; }
 
@@ -83,7 +84,34 @@ namespace PingPong
             if (text.Contains("\r") && text.Length <= Tweet.MaxLength)
             {
                 ShowUpdateStatus = false;
-                _client.UpdateStatus(text);
+
+                if (_outgoing != null)
+                {
+                    switch(_outgoing.Type)
+                    {
+                        case OutgoingType.Reply:
+                            // TODO: check text has screen name
+                            _client.UpdateStatus(text, _outgoing.Tweet.Id);
+                            break;
+                        case OutgoingType.Retweet:
+                            _client.Retweet(_outgoing.Tweet.Id);
+                            break;
+                        case OutgoingType.Quote:
+                            _client.UpdateStatus(text, _outgoing.Tweet.Id);
+                            break;
+                        case OutgoingType.DirectMessage:
+                            _client.DirectMessage(_outgoing.ScreenName, text);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                else
+                {
+                    _client.UpdateStatus(text);
+                }
+
+                _outgoing = null;
             }
         }
 
@@ -134,22 +162,48 @@ namespace PingPong
             Timelines.Add(owned);
         }
 
-        void IHandle<ReplyMessage>.Handle(ReplyMessage message)
+        public void ReplyTo(Tweet tweet)
         {
-            StatusText = '@' + message.Tweet.ScreenName;
+            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Reply };
+            StatusText = '@' + tweet.ScreenName;
             ShowUpdateStatus = true;
         }
 
-        void IHandle<RetweetMessage>.Handle(RetweetMessage message)
+        public void Retweet(Tweet tweet)
         {
-            StatusText = string.Format("RT @{0} {1}", message.Tweet.ScreenName, message.Tweet.Text);
+            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Retweet };
+            StatusText = string.Format("RT @{0} {1}", tweet.ScreenName, tweet.Text);
             ShowUpdateStatus = true;
         }
 
-        void IHandle<QuoteMessage>.Handle(QuoteMessage message)
+        public void Quote(Tweet tweet)
         {
-            StatusText = string.Format("RT @{0} {1}", message.Tweet.ScreenName, message.Tweet.Text);
+            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Quote };
+            StatusText = string.Format("RT @{0} {1}", tweet.ScreenName, tweet.Text);
             ShowUpdateStatus = true;
         }
+
+        public void DirectMessage(Tweet tweet)
+        {
+            _outgoing = new OutgoingContext { ScreenName = tweet.ScreenName, Type = OutgoingType.DirectMessage };
+            StatusText = string.Empty;
+            ShowUpdateStatus = true;
+        }
+    }
+
+    /// <summary>Holds metadata for the next status of the user.</summary>
+    internal class OutgoingContext
+    {
+        public Tweet Tweet { get; set; }
+        public OutgoingType Type { get; set; }
+        public string ScreenName { get; set; }
+    }
+
+    internal enum OutgoingType
+    {
+        Reply,
+        Retweet,
+        Quote,
+        DirectMessage,
     }
 }

@@ -54,16 +54,36 @@ namespace PingPong
             };
         }
 
-        public void UpdateStatus(string text)
+        public void UpdateStatus(string text, string inReplyToStatusId = null)
         {
+            Enforce.NotNullOrEmpty(text);
             var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/statuses/update.json" };
             request.AddParameter("status", text);
+            request.AddParameter("wrap_links", "true");
+            if (!string.IsNullOrEmpty(inReplyToStatusId))
+                request.AddParameter("in_reply_to_status_id", inReplyToStatusId);
+
+            CreateClient(ApiAuthority).BeginRequest(request);
+        }
+
+        public void Retweet(string statusId)
+        {
+            Enforce.NotNullOrEmpty(statusId);
+            var request = new RestRequest
+            {
+                Credentials = _credentials,
+                Method = WebMethod.Post,
+                Path = string.Format("/1/statuses/retweet/{0}.json", statusId),
+            };
             CreateClient(ApiAuthority).BeginRequest(request);
         }
 
         public void DirectMessage(string username, string text)
         {
-            var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/direct_messages/new.format" };
+            Enforce.NotNullOrEmpty(username);
+            Enforce.NotNullOrEmpty(text);
+
+            var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/direct_messages/new.json" };
             request.AddParameter("screen_name", username);
             request.AddParameter("text", text);
             CreateClient(ApiAuthority).BeginRequest(request);
