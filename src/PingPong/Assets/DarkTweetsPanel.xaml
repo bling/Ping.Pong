@@ -31,7 +31,11 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="border" Background="#FF1B1B1B" CornerRadius="5" BorderBrush="#FF1D304E" BorderThickness="1">
+                    <Border x:Name="border"
+                            Background="#FF1B1B1B"
+                            BorderBrush="#FF1D304E"
+                            BorderThickness="1"
+                            CornerRadius="5">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
                                 <VisualStateGroup.Transitions>
@@ -93,21 +97,9 @@
                     </VisualStateGroup.Transitions>
                     <VisualState x:Name="MouseOver">
                         <Storyboard>
-                            <DoubleAnimation d:IsOptimized="True"
-                                             Duration="0"
-                                             Storyboard.TargetName="actions"
-                                             Storyboard.TargetProperty="(UIElement.Opacity)"
-                                             To="1" />
-                            <DoubleAnimation d:IsOptimized="True"
-                                             Duration="0"
-                                             Storyboard.TargetName="viaLink"
-                                             Storyboard.TargetProperty="(UIElement.Opacity)"
-                                             To="0" />
-                            <DoubleAnimation d:IsOptimized="True"
-                                             Duration="0"
-                                             Storyboard.TargetName="actions"
-                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"
-                                             To="0">
+                            <DoubleAnimation d:IsOptimized="True" Storyboard.TargetName="date" Storyboard.TargetProperty="(UIElement.Opacity)" To="0" />
+                            <DoubleAnimation d:IsOptimized="True" Storyboard.TargetName="actions" Storyboard.TargetProperty="(UIElement.Opacity)" To="1" />
+                            <DoubleAnimation d:IsOptimized="True" Storyboard.TargetName="actions" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" To="3">
                                 <DoubleAnimation.EasingFunction>
                                     <ExponentialEase EasingMode="EaseInOut" />
                                 </DoubleAnimation.EasingFunction>
@@ -190,7 +182,8 @@
                              FontSize="9"
                              Foreground="#FF6A6A6A"
                              NavigateUri="{Binding Source, Converter={StaticResource SourceToUriConverter}}" />
-            <TextBlock Grid.Row="0"
+            <TextBlock x:Name="date"
+                       Grid.Row="0"
                        Grid.Column="1"
                        Grid.ColumnSpan="2"
                        Margin="0,0,10,0"
@@ -198,22 +191,26 @@
                        VerticalAlignment="Bottom"
                        FontSize="10"
                        Foreground="{StaticResource DateTextBrush}"
+                       Opacity="1"
                        Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}" />
 
             <Grid x:Name="actions"
                   Grid.Column="1"
                   Grid.ColumnSpan="2"
-                  Margin="10,0,0,-3"
+                  Margin="10,0"
                   Opacity="0"
                   RenderTransformOrigin="0.5,0.5">
+                <Grid.Projection>
+                    <PlaneProjection />
+                </Grid.Projection>
                 <Grid.RenderTransform>
                     <CompositeTransform TranslateY="30" />
                 </Grid.RenderTransform>
-                <StackPanel VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="shell" Orientation="Horizontal">
-                    <Button Content="R" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[Reply($dataContext)]" />
-                    <Button Content="RT" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[Retweet($dataContext)]" />
-                    <Button Content="Q" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[Quote($dataContext)]" />
-                    <Button Content="DM" Style="{StaticResource DarkTweetButtonStyle}" cal:Message.Attach="[DirectMessage($dataContext)]" />
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="shell" Orientation="Horizontal">
+                    <Button cal:Message.Attach="[Reply($dataContext)]" Content="R" Style="{StaticResource DarkTweetButtonStyle}" />
+                    <Button cal:Message.Attach="[Retweet($dataContext)]" Content="RT" Style="{StaticResource DarkTweetButtonStyle}" />
+                    <Button cal:Message.Attach="[Quote($dataContext)]" Content="Q" Style="{StaticResource DarkTweetButtonStyle}" />
+                    <Button cal:Message.Attach="[DirectMessage($dataContext)]" Content="DM" Style="{StaticResource DarkTweetButtonStyle}" />
                 </StackPanel>
             </Grid>
         </Grid>
