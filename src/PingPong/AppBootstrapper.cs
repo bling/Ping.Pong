@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Autofac;
+using Autofac.Core;
 using Caliburn.Micro;
 using PingPong.Timelines;
+using Parameter = Autofac.Core.Parameter;
 
 namespace PingPong
 {
@@ -36,6 +38,7 @@ namespace PingPong
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
             b.Register(_ => new ShellViewModel(_container)).As<IShell>().SingleInstance();
+            b.Register(_ => _.Resolve<IShell>()).Named<IShell>("shell").SingleInstance();
 
             _container = b.Build();
 
@@ -44,10 +47,16 @@ namespace PingPong
 
         protected override object GetInstance(Type serviceType, string key)
         {
-            if ("shell".Equals(key))
-                return _container.Resolve<IShell>();
-            
-            return string.IsNullOrEmpty(key) ? _container.Resolve(serviceType) : _container.ResolveNamed(key, serviceType);
+            if (string.IsNullOrEmpty(key))
+                return _container.Resolve(serviceType);
+
+            var registration = (from r in _container.ComponentRegistry.Registrations
+                                from s in r.Services
+                                let ks = s as KeyedService
+                                where ks != null
+                                where ks.ServiceKey.Equals(key)
+                                select r).First();
+            return _container.ResolveComponent(registration, Enumerable.Empty<Parameter>());
         }
 
         protected override IEnumerable<object> GetAllInstances(Type serviceType)
