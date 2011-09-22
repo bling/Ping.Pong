@@ -12,7 +12,7 @@ using Hammock.Streaming;
 using Hammock.Web;
 using PingPong.Models;
 
-namespace PingPong
+namespace PingPong.Core
 {
     public class TwitterClient
     {

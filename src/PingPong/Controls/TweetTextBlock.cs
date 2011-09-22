@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using Caliburn.Micro;
+using PingPong.Core;
 using PingPong.Messages;
 
 namespace PingPong.Controls

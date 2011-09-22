@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using PingPong.Models;
 
-namespace PingPong
+namespace PingPong.Core
 {
     public static class TwitterSubscriptions
     {

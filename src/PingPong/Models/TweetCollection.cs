@@ -1,10 +1,10 @@
-﻿using System;
+using System;
+using System.Collections.ObjectModel;
 using System.Reactive.Subjects;
-using PingPong.Models;
 
-namespace PingPong
+namespace PingPong.Models
 {
-    public class Timeline : TweetCollection, IDisposable, IObservable<Tweet>
+    public class TweetCollection : ObservableCollection<Tweet>, IDisposable, IObservable<Tweet>
     {
         protected const int MaxTweets = 1000;
 

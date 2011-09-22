@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
+using PingPong.Core;
 using PingPong.Models;
 
 namespace PingPong
@@ -16,7 +17,7 @@ namespace PingPong
 
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
-        private readonly Func<Owned<Timeline>> _timelineFactory;
+        private readonly Func<Owned<TweetCollection>> _timelineFactory;
         private readonly IDisposable _refreshSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
@@ -45,7 +46,7 @@ namespace PingPong
             set { this.SetValue("StatusText", value, ref _statusText); }
         }
 
-        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<Timeline>> timelineFactory)
+        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
         {
             _client = client;
             _windowManager = windowManager;
@@ -55,7 +56,7 @@ namespace PingPong
             Timelines.CollectionChanged += (sender, e) =>
             {
                 if (e.OldItems != null)
-                    e.OldItems.Cast<Owned<Timeline>>().ForEach(t => t.Dispose());
+                    e.OldItems.Cast<Owned<TweetCollection>>().ForEach(t => t.Dispose());
             };
 
             Add(timelineFactory(), tl => tl.Subscribe(client.GetStatuses(StatusType.Home)));
@@ -64,7 +65,7 @@ namespace PingPong
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(30))
                 .DispatcherSubscribe(_ =>
                 {
-                    foreach (var tweet in Timelines.Cast<dynamic>().Select(x => (Timeline)x.Value).SelectMany(x => x))
+                    foreach (var tweet in Timelines.Cast<dynamic>().Select(x => (TweetCollection)x.Value).SelectMany(x => x))
                         tweet.NotifyOfPropertyChange("CreatedAt");
                 });
         }
@@ -137,7 +138,7 @@ namespace PingPong
             {
                 _streamStartTime = DateTime.UtcNow;
 
-                Timelines.Skip(2).Cast<Owned<Timeline>>().ToArray().ForEach(t => Timelines.Remove(t));
+                Timelines.Skip(2).Cast<Owned<TweetCollection>>().ToArray().ForEach(t => Timelines.Remove(t));
 
                 var allTerms = SearchText.Split(' ', ',', ';', '|');
                 var allParts = SearchText.Split(' ', ',', ';');
@@ -161,9 +162,9 @@ namespace PingPong
             _streamingSubscription.DisposeIfNotNull();
         }
 
-        private void Add<T>(Owned<T> owned, Action<Timeline> setup) where T : Timeline
+        private void Add<T>(Owned<T> owned, Action<TweetCollection> setup) where T : TweetCollection
         {
-            var line = (Timeline)((dynamic)owned).Value;
+            var line = (TweetCollection)((dynamic)owned).Value;
             line.OnError += ex => _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
             setup(line);
             Timelines.Add(owned);

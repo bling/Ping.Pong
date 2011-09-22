@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using Caliburn.Micro;
+using PingPong.Core;
 
 namespace PingPong.Converters
 {

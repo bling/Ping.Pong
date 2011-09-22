@@ -48,7 +48,8 @@ namespace PingPong
 
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
         {
-            _windowManager.ShowDialog(new ErrorViewModel("not done yet"));
+            _windowManager.ShowDialog(new TweetCollection());
+            //_windowManager.ShowDialog(new ErrorViewModel("not done yet"));
         }
 
         void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)

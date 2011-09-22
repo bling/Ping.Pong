@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
 using Caliburn.Micro;
+using PingPong.Core;
 
 namespace PingPong.Converters
 {

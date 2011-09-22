@@ -6,6 +6,7 @@ using System.Linq;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
+using PingPong.Core;
 using Parameter = Autofac.Core.Parameter;
 
 namespace PingPong
@@ -26,9 +27,6 @@ namespace PingPong
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .AsSelf()
                 .AsImplementedInterfaces();
-            b.RegisterAssemblyTypes(GetType().Assembly)
-                .Where(t => t.IsAssignableTo<Timeline>())
-                .AsSelf();
             b.Register(_ => new TwitterClient()).SingleInstance();
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace PingPong
+namespace PingPong.Core
 {
     public class DelegateCommand<T> : ICommand
     {

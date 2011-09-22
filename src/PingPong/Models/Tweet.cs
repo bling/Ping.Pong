@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Json;
 using Caliburn.Micro;
@@ -48,9 +47,5 @@ namespace PingPong.Models
         public string InReplyToStatusId { get; set; }
 
         public string InReplyToScreenName { get; set; }
-    }
-
-    public class TweetCollection : ObservableCollection<Tweet>
-    {
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PingPong
+namespace PingPong.Core
 {
     public class TweetParser
     {

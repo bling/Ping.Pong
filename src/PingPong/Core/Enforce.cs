@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PingPong
+namespace PingPong.Core
 {
     public static class Enforce
     {
