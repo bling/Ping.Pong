@@ -54,21 +54,20 @@ namespace PingPong
             };
         }
 
-        public void UpdateStatus(string text, string inReplyToStatusId = null)
+        public void UpdateStatus(string text, ulong? inReplyToStatusId = null)
         {
             Enforce.NotNullOrEmpty(text);
             var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/statuses/update.json" };
             request.AddParameter("status", text);
             request.AddParameter("wrap_links", "true");
-            if (!string.IsNullOrEmpty(inReplyToStatusId))
-                request.AddParameter("in_reply_to_status_id", inReplyToStatusId);
+            if (inReplyToStatusId != null)
+                request.AddParameter("in_reply_to_status_id", inReplyToStatusId.ToString());
 
             CreateClient(ApiAuthority).BeginRequest(request);
         }
 
-        public void Retweet(string statusId)
+        public void Retweet(ulong statusId)
         {
-            Enforce.NotNullOrEmpty(statusId);
             var request = new RestRequest
             {
                 Credentials = _credentials,
@@ -94,6 +93,11 @@ namespace PingPong
             return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", null, Tuple.Create("include_rts", "1"));
         }
 
+        public IObservable<Tweet> GetUserTimeline(string screenName, ulong? sinceId = null)
+        {
+            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", sinceId, Tuple.Create("screen_name", screenName), Tuple.Create("include_rts", "1"));
+        }
+
         public IObservable<Tweet> GetSearch(string query)
         {
             return GetSnapshot(SearchAuthority, "/search.json", null, Tuple.Create("q", query));
@@ -104,17 +108,17 @@ namespace PingPong
             return GetStreaming(UserStreamingAuthority, "/2/user.json");
         }
 
-        public IObservable<Tweet> GetMentions(string sinceId)
+        public IObservable<Tweet> GetMentions(ulong? sinceId)
         {
             return GetSnapshot(ApiAuthority, "/statuses/mentions.json", sinceId, Tuple.Create("include_rts", "1"));
         }
 
-        public IObservable<Tweet> GetDirectMessages(string sinceId)
+        public IObservable<Tweet> GetDirectMessages(ulong? sinceId)
         {
             return GetSnapshot(ApiAuthority, "/direct_messages.json", sinceId);
         }
 
-        public IObservable<Tweet> GetFavorites(string sinceId)
+        public IObservable<Tweet> GetFavorites(ulong? sinceId)
         {
             return GetSnapshot(ApiAuthority, "/favorites.json", sinceId);
         }
@@ -129,7 +133,7 @@ namespace PingPong
             return GetStreaming(StreamingAuthority, "/1/statuses/filter.json", Tuple.Create("track", string.Join(",", terms)));
         }
 
-        private IObservable<Tweet> GetSnapshot(string authority, string path, string sinceId, params Tuple<string, string>[] queryParameters)
+        private IObservable<Tweet> GetSnapshot(string authority, string path, ulong? sinceId, params Tuple<string, string>[] queryParameters)
         {
             return Observable.Create<Tweet>(
                 ob =>
@@ -137,8 +141,8 @@ namespace PingPong
                     var request = new RestRequest { Path = path };
                     queryParameters.Where(qp => qp != null).ForEach(qp => request.AddParameter(qp.Item1, qp.Item2));
                     request.AddParameter("count", RequestCount);
-                    if (!string.IsNullOrEmpty(sinceId))
-                        request.AddParameter("since_id", sinceId);
+                    if (sinceId != null)
+                        request.AddParameter("since_id", sinceId.ToString());
 
                     CreateClient(authority).BeginRequest(request, (_, r, __) =>
                     {

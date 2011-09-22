@@ -6,9 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
-using PingPong.Messages;
 using PingPong.Models;
-using PingPong.Timelines;
 
 namespace PingPong
 {
@@ -17,8 +15,8 @@ namespace PingPong
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
         private readonly TwitterClient _client;
-        private readonly TimelineFactory _timelineFactory;
         private readonly IWindowManager _windowManager;
+        private readonly Func<Owned<Timeline>> _timelineFactory;
         private readonly IDisposable _refreshSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
@@ -47,15 +45,21 @@ namespace PingPong
             set { this.SetValue("StatusText", value, ref _statusText); }
         }
 
-        public TimelinesViewModel(TwitterClient client, TimelineFactory timelineFactory, IWindowManager windowManager)
+        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<Timeline>> timelineFactory)
         {
             _client = client;
-            _timelineFactory = timelineFactory;
             _windowManager = windowManager;
+            _timelineFactory = timelineFactory;
 
             Timelines = new ObservableCollection<object>();
-            Add(timelineFactory.StatusFactory(StatusType.Home));
-            Add(timelineFactory.StatusFactory(StatusType.Mentions));
+            Timelines.CollectionChanged += (sender, e) =>
+            {
+                if (e.OldItems != null)
+                    e.OldItems.Cast<Owned<Timeline>>().ForEach(t => t.Dispose());
+            };
+
+            Add(timelineFactory(), tl => tl.Subscribe(client.GetStatuses(StatusType.Home)));
+            Add(timelineFactory(), tl => tl.Subscribe(client.GetStatuses(StatusType.Mentions)));
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(30))
                 .DispatcherSubscribe(_ =>
@@ -87,7 +91,7 @@ namespace PingPong
 
                 if (_outgoing != null)
                 {
-                    switch(_outgoing.Type)
+                    switch (_outgoing.Type)
                     {
                         case OutgoingType.Reply:
                             // TODO: check text has screen name
@@ -113,6 +117,10 @@ namespace PingPong
 
                 _outgoing = null;
             }
+            else if (_outgoing != null && _outgoing.Type == OutgoingType.Retweet)
+            {
+                _outgoing.Type = OutgoingType.Quote;
+            }
         }
 
         public void Search()
@@ -129,20 +137,18 @@ namespace PingPong
             {
                 _streamStartTime = DateTime.UtcNow;
 
-                var old = Timelines.OfType<Owned<StreamingTimeline>>().ToArray();
-                old.ForEach(t => t.Dispose());
-                old.ForEach(t => Timelines.Remove(t));
+                Timelines.Skip(2).Cast<Owned<Timeline>>().ToArray().ForEach(t => Timelines.Remove(t));
 
                 var allTerms = SearchText.Split(' ', ',', ';', '|');
                 var allParts = SearchText.Split(' ', ',', ';');
                 var ob = _client.GetStreamingFilter(allTerms).Publish();
 
-                for (int i = 0; i < allParts.Length; i++)
+                foreach (string part in allParts)
                 {
-                    string[] terms = allParts[i].Split('|');
-                    var streamline = _timelineFactory.StreamingFactory(ob);
-                    streamline.Value.FilterTerms = terms;
-                    Add(streamline);
+                    string[] terms = part.Split('|');
+                    var line = _timelineFactory();
+                    var sub = ob.Where(t => terms.Any(term => t.Text.Contains(term)));
+                    Add(line, tl => tl.Subscribe(sub));
                 }
 
                 _streamingSubscription.DisposeIfNotNull();
@@ -155,10 +161,11 @@ namespace PingPong
             _streamingSubscription.DisposeIfNotNull();
         }
 
-        private void Add<T>(Owned<T> owned)
+        private void Add<T>(Owned<T> owned, Action<Timeline> setup) where T : Timeline
         {
             var line = (Timeline)((dynamic)owned).Value;
             line.OnError += ex => _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
+            setup(line);
             Timelines.Add(owned);
         }
 

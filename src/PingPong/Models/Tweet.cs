@@ -20,7 +20,7 @@ namespace PingPong.Models
 
         private Tweet(JsonObject json)
         {
-            Id = json["id"].ToString();
+            Id = json["id"];
             Text = json["text"]; // explicit conversion will unescape json
             Text = Text.UnescapeXml(); // unescape again for & escapes
             ScreenName = json["user"]["screen_name"];
@@ -33,7 +33,7 @@ namespace PingPong.Models
                                             "ddd MMM d HH:mm:ss zzzzz yyyy", CultureInfo.InvariantCulture);
         }
 
-        public string Id { get; set; }
+        public ulong Id { get; set; }
 
         public string Text { get; set; }
 
