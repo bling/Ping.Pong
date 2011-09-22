@@ -7,11 +7,12 @@ using System.Windows.Input;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using PingPong.Core;
+using PingPong.Messages;
 using PingPong.Models;
 
 namespace PingPong
 {
-    public class TimelinesViewModel : Screen
+    public class TimelinesViewModel : Screen, IHandle<NavigateToUserMessage>, IHandle<NavigateToTopicMessage>
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
@@ -59,8 +60,8 @@ namespace PingPong
                     e.OldItems.Cast<Owned<TweetCollection>>().ForEach(t => t.Dispose());
             };
 
-            Add(timelineFactory(), tl => tl.Subscribe(client.GetStatuses(StatusType.Home)));
-            Add(timelineFactory(), tl => tl.Subscribe(client.GetStatuses(StatusType.Mentions)));
+            Add(timelineFactory(), tl => tl.Subscribe(client.GetPollingStatuses(StatusType.Home)));
+            Add(timelineFactory(), tl => tl.Subscribe(client.GetPollingStatuses(StatusType.Mentions)));
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(30))
                 .DispatcherSubscribe(_ =>
@@ -138,7 +139,10 @@ namespace PingPong
             {
                 _streamStartTime = DateTime.UtcNow;
 
-                Timelines.Skip(2).Cast<Owned<TweetCollection>>().ToArray().ForEach(t => Timelines.Remove(t));
+                Timelines.Cast<Owned<TweetCollection>>()
+                    .Where(line => line.Value.Tag is string[])
+                    .ToArray()
+                    .ForEach(t => Timelines.Remove(t));
 
                 var allTerms = SearchText.Split(' ', ',', ';', '|');
                 var allParts = SearchText.Split(' ', ',', ';');
@@ -148,6 +152,7 @@ namespace PingPong
                 {
                     string[] terms = part.Split('|');
                     var line = _timelineFactory();
+                    line.Value.Tag = terms;
                     var sub = ob.Where(t => terms.Any(term => t.Text.Contains(term)));
                     Add(line, tl => tl.Subscribe(sub));
                 }
@@ -196,6 +201,18 @@ namespace PingPong
             _outgoing = new OutgoingContext { ScreenName = tweet.ScreenName, Type = OutgoingType.DirectMessage };
             StatusText = string.Empty;
             ShowUpdateStatus = true;
+        }
+
+        void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
+        {
+            var collection = _timelineFactory();
+            Add(collection, tl => tl.Subscribe(_client.GetPollingUserTimeline(message.User)));
+        }
+
+        void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
+        {
+            var collection = _timelineFactory();
+            Add(collection, tl => tl.Subscribe(_client.GetPollingSearch(message.Topic)));
         }
     }
 

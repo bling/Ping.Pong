@@ -8,17 +8,13 @@ namespace PingPong
 {
     public class ShellViewModel : Conductor<object>,
                                   IShell,
-                                  IHandle<NavigateToUserMessage>,
-                                  IHandle<NavigateToTopicMessage>,
                                   IHandle<ShowTimelinesMessage>
     {
         private readonly IContainer _container;
-        private readonly IWindowManager _windowManager;
 
         public ShellViewModel(IContainer container)
         {
             _container = container;
-            _windowManager = container.Resolve<IWindowManager>();
         }
 
         protected override void OnActivate()
@@ -44,17 +40,6 @@ namespace PingPong
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
             ActivateItem(_container.Resolve<TimelinesViewModel>());
-        }
-
-        void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
-        {
-            _windowManager.ShowDialog(new TweetCollection());
-            //_windowManager.ShowDialog(new ErrorViewModel("not done yet"));
-        }
-
-        void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
-        {
-            _windowManager.ShowDialog(new ErrorViewModel("not done yet"));
         }
 
         public void Reply(Tweet tweet)

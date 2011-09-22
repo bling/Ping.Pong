@@ -1,4 +1,6 @@
-﻿namespace PingPong.Messages
+﻿using PingPong.Core;
+
+namespace PingPong.Messages
 {
     public class NavigateToUserMessage
     {
@@ -6,7 +8,7 @@
 
         public NavigateToUserMessage(string user)
         {
-            User = user;
+            User = user.Trim(TweetParser.PunctuationChars).Trim('@');
         }
     }
 
@@ -16,7 +18,7 @@
 
         public NavigateToTopicMessage(string topic)
         {
-            Topic = topic;
+            Topic = topic.Trim(TweetParser.PunctuationChars).Trim('@', '#');
         }
     }
 

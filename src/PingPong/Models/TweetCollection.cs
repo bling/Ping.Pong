@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 namespace PingPong.Models
@@ -13,6 +14,9 @@ namespace PingPong.Models
 
         public event Action<Exception> OnError;
 
+        /// <summary>Object to get or set metadata on the collection.</summary>
+        public object Tag { get; set; }
+
         IDisposable IObservable<Tweet>.Subscribe(IObserver<Tweet> observer)
         {
             return _subject.Subscribe(observer);
@@ -22,7 +26,7 @@ namespace PingPong.Models
         {
             _subscription.DisposeIfNotNull();
             _subscription = tweets
-                //.Do(t => _subject.OnNext(t))
+                .Do(t => _subject.OnNext(t))
                 .DispatcherSubscribe(Append, RaiseOnError);
         }
 
@@ -43,7 +47,7 @@ namespace PingPong.Models
             Tweet first = Count > 0 ? this[0] : null;
             if (first != null)
             {
-                if ((ulong)tweet.Id > first.Id)
+                if (tweet.Id > first.Id)
                 {
                     Insert(0, tweet);
                     return;

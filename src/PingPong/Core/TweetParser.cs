@@ -8,9 +8,9 @@ namespace PingPong.Core
         public const int MaximumTcoLinkLength = 20;
         public const int MaxLength = 140;
 
-        private readonly char[] PunctuationChars = new[]
+        public static readonly char[] PunctuationChars = new[]
         {
-            '.', '?', '!'
+            '.', '?', '!', ':', ';', '$', '%', '^', '&', '*', '(', ')', '-', '='
         };
 
         public IList<TweetPart> Parse(string text, out int characters)

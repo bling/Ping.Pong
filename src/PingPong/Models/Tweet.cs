@@ -10,7 +10,16 @@ namespace PingPong.Models
         public static Tweet TryParse(JsonValue value)
         {
             if (value is JsonObject && value.ContainsKey("text") && value.ContainsKey("user"))
-                return new Tweet((JsonObject)value);
+            {
+                try
+                {
+                    return new Tweet((JsonObject)value);
+                }
+                catch (Exception e)
+                {
+                    LogManager.GetLog(typeof(Tweet)).Error(e);
+                }
+            }
 
             return null;
         }

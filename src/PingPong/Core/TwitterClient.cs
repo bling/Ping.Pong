@@ -16,7 +16,7 @@ namespace PingPong.Core
 {
     public class TwitterClient
     {
-        private const string RequestCount = "200";
+        private const string RequestCount = "20";
         private const string ApiAuthority = "https://api.twitter.com";
         private const string SearchAuthority = "https://search.twitter.com";
         private const string StreamingAuthority = "https://stream.twitter.com";
@@ -98,9 +98,9 @@ namespace PingPong.Core
             return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", sinceId, Tuple.Create("screen_name", screenName), Tuple.Create("include_rts", "1"));
         }
 
-        public IObservable<Tweet> GetSearch(string query)
+        public IObservable<Tweet> GetSearch(string query, ulong? sinceId = null)
         {
-            return GetSnapshot(SearchAuthority, "/search.json", null, Tuple.Create("q", query));
+            return GetSnapshot(SearchAuthority, "/search.json", sinceId, Tuple.Create("q", query));
         }
 
         public IObservable<Tweet> GetStreamingHomeline()
