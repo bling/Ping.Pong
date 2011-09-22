@@ -123,6 +123,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Models\Tweet.cs" />
     <Compile Include="Controls\TweetTextBlock.cs" />
+    <Compile Include="TweetParser.cs" />
     <Compile Include="TwitterClient.cs" />
     <Compile Include="TwitterSubscriptions.cs" />
   </ItemGroup>

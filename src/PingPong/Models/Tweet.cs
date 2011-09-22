@@ -8,8 +8,6 @@ namespace PingPong.Models
 {
     public class Tweet : PropertyChangedBase
     {
-        public const int MaxLength = 140;
-        
         public static Tweet TryParse(JsonValue value)
         {
             if (value is JsonObject && value.ContainsKey("text") && value.ContainsKey("user"))

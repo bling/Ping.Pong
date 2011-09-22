@@ -85,7 +85,7 @@ namespace PingPong
         public void OnStatusTextBoxChanged(TextBox sender, TextChangedEventArgs e)
         {
             string text = sender.Text;
-            if (text.Contains("\r") && text.Length <= Tweet.MaxLength)
+            if (text.Contains("\r") && text.Length <= TweetParser.MaxLength)
             {
                 ShowUpdateStatus = false;
 

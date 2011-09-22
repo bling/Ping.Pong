@@ -2,20 +2,31 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using PingPong.Models;
+using Caliburn.Micro;
 
 namespace PingPong.Converters
 {
     public class IsValidTweetLengthToBrushConverter : IValueConverter
     {
+        private readonly TweetParser _parser;
+
         public Brush Positive { get; set; }
         public Brush Negative { get; set; }
+
+        public IsValidTweetLengthToBrushConverter()
+        {
+            _parser = Execute.InDesignMode ? new TweetParser() : IoC.Get<TweetParser>();
+        }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var text = value as string;
             if (text != null)
-                return text.Length <= Tweet.MaxLength ? Positive : Negative;
+            {
+                int count;
+                _parser.Parse(text, out count);
+                return count <= TweetParser.MaxLength ? Positive : Negative;
+            }
 
             return Negative;
         }

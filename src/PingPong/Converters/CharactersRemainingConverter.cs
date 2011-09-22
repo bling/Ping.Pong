@@ -1,16 +1,27 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using PingPong.Models;
+using Caliburn.Micro;
 
 namespace PingPong.Converters
 {
     public class CharactersRemainingConverter : IValueConverter
     {
+        private readonly TweetParser _parser;
+
+        public CharactersRemainingConverter()
+        {
+            _parser = Execute.InDesignMode ? new TweetParser() : IoC.Get<TweetParser>();
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int length = value != null ? value.ToString().Length : 0;
-            return Tweet.MaxLength - length;
+            int length = 0;
+            var text = value as string;
+            if (text != null)
+                _parser.Parse(text, out length);
+
+            return TweetParser.MaxLength - length;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

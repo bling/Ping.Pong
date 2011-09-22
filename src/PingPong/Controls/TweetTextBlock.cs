@@ -9,11 +9,6 @@ namespace PingPong.Controls
 {
     public class TweetTextBlock : Control
     {
-        private readonly char[] PunctuationChars = new[]
-        {
-            '.', '?', '!'
-        };
-
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(TweetTextBlock), new PropertyMetadata(OnTextChanged));
 
@@ -22,8 +17,8 @@ namespace PingPong.Controls
             get { return (string)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
-		
-		public static readonly DependencyProperty ScreenNameProperty =
+
+        public static readonly DependencyProperty ScreenNameProperty =
             DependencyProperty.Register("ScreenName", typeof(string), typeof(TweetTextBlock), new PropertyMetadata(null));
 
         public string ScreenName
@@ -34,12 +29,14 @@ namespace PingPong.Controls
 
         private RichTextBox _block;
         private readonly IEventAggregator _ea;
+        private readonly TweetParser _parser;
 
         public TweetTextBlock()
         {
             DefaultStyleKey = typeof(TweetTextBlock);
-            if (!Execute.InDesignMode)
-                _ea = IoC.Get<IEventAggregator>();
+
+            _ea = Execute.InDesignMode ? new EventAggregator() : IoC.Get<IEventAggregator>();
+            _parser = Execute.InDesignMode ? new TweetParser() : IoC.Get<TweetParser>();
         }
 
         public override void OnApplyTemplate()
@@ -62,55 +59,41 @@ namespace PingPong.Controls
 
             var para = new Paragraph();
             if (!string.IsNullOrEmpty(ScreenName)) para.Inlines.Add(ScreenName + "  ");
-            
-			_block.Blocks.Clear();
+
+            _block.Blocks.Clear();
             _block.Blocks.Add(para);
 
-            var parts = Text.Split(' ');
-            foreach (var p in parts)
+            int totalCharacters;
+            foreach (var part in _parser.Parse(Text, out totalCharacters))
             {
-                if (p.StartsWith("#"))
+                string text = part.Text;
+                switch (part.Type)
                 {
-                    var topic = p.TrimEnd(PunctuationChars);
-                    var link = new Hyperlink();
-                    link.TextDecorations = null;
-                    link.Command = new DelegateCommand<string>(_ => _ea.Publish(new NavigateToTopicMessage(topic)));
-                    link.Inlines.Add(p);
-                    para.Inlines.Add(link);
-                    para.Inlines.Add(" ");
-                }
-                else if (p.StartsWith("http://"))
-                {
-                    string cleanLink = p.TrimEnd(PunctuationChars);
-
-                    Uri uri;
-                    if (Uri.TryCreate(cleanLink, UriKind.RelativeOrAbsolute, out uri))
-                    {
-                        var link = new Hyperlink { NavigateUri = new Uri(cleanLink), TargetName = "_blank" };
+                    case TweetPartType.Topic:
+                        var topic = new Hyperlink();
+                        topic.TextDecorations = null;
+                        topic.Command = new DelegateCommand<string>(_ => _ea.Publish(new NavigateToTopicMessage(text)));
+                        topic.Inlines.Add(text);
+                        para.Inlines.Add(topic);
+                        break;
+                    case TweetPartType.Hyperlink:
+                        var link = new Hyperlink { NavigateUri = (Uri)part.State, TargetName = "_blank" };
                         link.TextDecorations = null;
-                        link.Inlines.Add(p);
+                        link.Inlines.Add(text);
                         para.Inlines.Add(link);
-                        para.Inlines.Add(" ");
-                    }
-                    else
-                    {
-                        para.Inlines.Add(p + ' ');
-                    }
+                        break;
+                    case TweetPartType.Text:
+                        para.Inlines.Add(text);
+                        break;
+                    case TweetPartType.User:
+                        var user = new Hyperlink();
+                        user.Command = new DelegateCommand<string>(_ => _ea.Publish(new NavigateToUserMessage(text)));
+                        user.TextDecorations = null;
+                        user.Inlines.Add(text);
+                        para.Inlines.Add(user);
+                        break;
                 }
-                else if (p.StartsWith("@"))
-                {
-                    var user = p.Substring(1).TrimEnd(PunctuationChars);
-                    var link = new Hyperlink();
-                    link.Command = new DelegateCommand<string>(_ => _ea.Publish(new NavigateToUserMessage(user)));
-                    link.TextDecorations = null;
-                    link.Inlines.Add(p);
-                    para.Inlines.Add(link);
-                    para.Inlines.Add(" ");
-                }
-                else
-                {
-                    para.Inlines.Add(p + ' ');
-                }
+                para.Inlines.Add(" ");
             }
         }
     }
