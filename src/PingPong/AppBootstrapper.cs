@@ -6,7 +6,6 @@ using System.Linq;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
-using PingPong.Timelines;
 using Parameter = Autofac.Core.Parameter;
 
 namespace PingPong
@@ -23,17 +22,13 @@ namespace PingPong
             LogManager.GetLog = t => new DebugLog();
 
             var b = new ContainerBuilder();
+            b.RegisterModule<AutoWireModule>();
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .AsSelf()
-                .AsImplementedInterfaces()
-                .PropertiesAutowired()
-                .OnActivated(x => x.Context.Resolve<IEventAggregator>().Subscribe(x.Instance));
+                .AsImplementedInterfaces();
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .Where(t => t.IsAssignableTo<Timeline>())
-                .AsSelf()
-                .PropertiesAutowired()
-                .OnActivated(x => ((dynamic)x.Instance).Start())
-                .OnActivated(x => x.Context.Resolve<IEventAggregator>().Subscribe(x.Instance));
+                .AsSelf();
             b.Register(_ => new TwitterClient()).SingleInstance();
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
@@ -79,6 +74,19 @@ namespace PingPong
             public void Error(Exception exception)
             {
                 Debug.WriteLine("[ERROR] " + exception);
+            }
+        }
+
+        public class AutoWireModule : Module
+        {
+            protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration)
+            {
+                base.AttachToComponentRegistration(componentRegistry, registration);
+                registration.Activated += (sender, e) =>
+                {
+                    e.Context.Resolve<IEventAggregator>().Subscribe(e.Instance);
+                    e.Context.InjectUnsetProperties(e.Instance);
+                };
             }
         }
     }
