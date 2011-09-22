@@ -54,11 +54,12 @@
                                  AcceptsReturn="True"
                                  Background="Transparent"
                                  BorderThickness="0"
-                                 Text="{Binding StatusText, Mode=TwoWay}"
                                  cal:Message.Attach="[Event TextChanged] = [OnStatusTextBoxChanged($source, $eventArgs)];                                                      [Event TextInput] = [OnStatusTextBoxTextInput($eventArgs)]"
                                  FontFamily="{StaticResource DefaultFontFamily}"
+                                 FontSize="14"
                                  Foreground="#FF8EBCE7"
-                                 TextWrapping="Wrap" FontSize="12" />
+                                 Text="{Binding StatusText, Mode=TwoWay}"
+                                 TextWrapping="Wrap" />
                     </Grid>
                 </Border>
             </Popup>

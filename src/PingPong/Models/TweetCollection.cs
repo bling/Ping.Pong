@@ -17,6 +17,9 @@ namespace PingPong.Models
         /// <summary>Object to get or set metadata on the collection.</summary>
         public object Tag { get; set; }
 
+        /// <summary>Gets or sets the header text to display.</summary>
+        public string Description { get; set; }
+
         IDisposable IObservable<Tweet>.Subscribe(IObserver<Tweet> observer)
         {
             return _subject.Subscribe(observer);

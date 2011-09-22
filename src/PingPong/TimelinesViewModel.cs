@@ -60,8 +60,18 @@ namespace PingPong
                     e.OldItems.Cast<Owned<TweetCollection>>().ForEach(t => t.Dispose());
             };
 
-            Add(timelineFactory(), tl => tl.Subscribe(client.GetPollingStatuses(StatusType.Home)));
-            Add(timelineFactory(), tl => tl.Subscribe(client.GetPollingStatuses(StatusType.Mentions)));
+            Add(timelineFactory(), tl =>
+            {
+                tl.Tag = StatusType.Home;
+                tl.Description = "Home";
+                tl.Subscribe(client.GetPollingStatuses(StatusType.Home));
+            });
+            Add(timelineFactory(), tl =>
+            {
+                tl.Tag = StatusType.Mentions;
+                tl.Description = "Mentions";
+                tl.Subscribe(client.GetPollingStatuses(StatusType.Mentions));
+            });
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(30))
                 .DispatcherSubscribe(_ =>
@@ -153,6 +163,7 @@ namespace PingPong
                     string[] terms = part.Split('|');
                     var line = _timelineFactory();
                     line.Value.Tag = terms;
+                    line.Value.Description = part;
                     var sub = ob.Where(t => terms.Any(term => t.Text.Contains(term)));
                     Add(line, tl => tl.Subscribe(sub));
                 }
@@ -206,12 +217,14 @@ namespace PingPong
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
         {
             var collection = _timelineFactory();
+            collection.Value.Description = "@" + message.User;
             Add(collection, tl => tl.Subscribe(_client.GetPollingUserTimeline(message.User)));
         }
 
         void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
         {
             var collection = _timelineFactory();
+            collection.Value.Description = "#" + message.Topic;
             Add(collection, tl => tl.Subscribe(_client.GetPollingSearch(message.Topic)));
         }
     }

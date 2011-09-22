@@ -19,6 +19,7 @@
     <SolidColorBrush x:Key="DateBorderBrush" Color="#FF2D2D2D" />
     <SolidColorBrush x:Key="DateBackgroundBrush" Color="#FF141414" />
     <SolidColorBrush x:Key="ImageBorderBrush" Color="#FF3F3F3F" />
+    <SolidColorBrush x:Key="TimelineHeaderBrush" Color="#FF3286C6" />
 
     <conv:RelativeTimeConverter x:Key="RelativeTimeConverter" />
     <conv:SourceToUriConverter x:Key="SourceToUriConverter" />
@@ -70,7 +71,7 @@
     </Style>
 
     <DataTemplate x:Key="DarkTweetDataTemplate">
-        <Grid Margin="2,5,8,5" d:DataContext="{d:DesignData /SampleData/TweetSampleData.xaml}" d:DesignHeight="78" d:DesignWidth="356">
+        <Grid Margin="2,5,8,5" d:DesignHeight="78" d:DesignWidth="356">
             <Grid.Resources>
                 <Style TargetType="TextBlock">
                     <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
@@ -215,8 +216,9 @@
             </Grid>
         </Grid>
     </DataTemplate>
+
     <Style x:Key="DarkTweetsPanel" TargetType="ItemsControl">
-        <Setter Property="Background" Value="#FF181818" />
+        <!--  <Setter Property="Background" Value="#FF181818" />  -->
         <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
@@ -228,9 +230,31 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <ScrollViewer Margin="0" Background="{TemplateBinding Background}" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Visible">
-                        <ItemsPresenter />
-                    </ScrollViewer>
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <ScrollViewer Grid.RowSpan="2" Margin="0" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Visible">
+                            <ItemsPresenter />
+                        </ScrollViewer>
+                        <Border Grid.Row="1" Grid.RowSpan="2">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Offset="1" Color="#FF000000" />
+                                    <GradientStop Color="#00000000" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <TextBlock Grid.Row="2"
+                                   Margin="0,0,14,0"
+                                   HorizontalAlignment="Right"
+                                   FontFamily="{StaticResource DefaultFontFamily}"
+                                   FontSize="18"
+                                   Foreground="{StaticResource TimelineHeaderBrush}"
+                                   Text="{Binding Value.Description}" />
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
