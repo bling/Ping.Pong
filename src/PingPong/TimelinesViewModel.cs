@@ -17,6 +17,7 @@ namespace PingPong
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
         private readonly TwitterClient _client;
+        private readonly TweetParser _tweetParser;
         private readonly IWindowManager _windowManager;
         private readonly Func<Owned<TweetCollection>> _timelineFactory;
         private readonly IDisposable _refreshSubscription;
@@ -47,9 +48,10 @@ namespace PingPong
             set { this.SetValue("StatusText", value, ref _statusText); }
         }
 
-        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
+        public TimelinesViewModel(TwitterClient client, TweetParser tweetParser, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
         {
             _client = client;
+            _tweetParser = tweetParser;
             _windowManager = windowManager;
             _timelineFactory = timelineFactory;
 
@@ -96,8 +98,10 @@ namespace PingPong
 
         public void OnStatusTextBoxChanged(TextBox sender, TextChangedEventArgs e)
         {
+            int length;
             string text = sender.Text;
-            if (text.Contains("\r") && text.Length <= TweetParser.MaxLength)
+            _tweetParser.Parse(sender.Text, out length);
+            if (text.Contains("\r") && length <= TweetParser.MaxLength)
             {
                 ShowUpdateStatus = false;
 
