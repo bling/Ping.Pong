@@ -25,24 +25,11 @@ namespace PingPong.Core
             });
         }
 
-        public static IObservable<Tweet> GetPollingStatuses(this TwitterClient client, StatusType statusType)
+        public static IObservable<Tweet> GetPollingStatuses(this TwitterClient client)
         {
-            if (statusType == StatusType.Home)
-                return client.GetHomeTimeline().Concat(client.GetStreamingHomeline());
-
-            if (statusType == StatusType.Mentions)
-            {
-                return Observable.Create<Tweet>(obs =>
-                {
-                    ulong? sinceId = null;
-                    return CreateTimerObservable()
-                        .SelectMany(_ => client.GetMentions(sinceId))
-                        .Do(tweet => sinceId = tweet.Id)
-                        .Subscribe(obs.OnNext);
-                });
-            }
-
-            throw new NotSupportedException(statusType.ToString());
+            return client.GetHomeTimeline()
+                .Merge(client.GetMentions())
+                .Merge(client.GetStreamingHomeline());
         }
 
         public static IObservable<Tweet> GetPollingUserTimeline(this TwitterClient client, string screenName)
@@ -59,6 +46,8 @@ namespace PingPong.Core
 
         public static IObservable<Tweet> GetPollingSearch(this TwitterClient client, string query)
         {
+            Enforce.NotNullOrEmpty(query);
+
             return Observable.Create<Tweet>(obs =>
             {
                 ulong? sinceId = null;

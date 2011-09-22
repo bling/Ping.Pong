@@ -16,7 +16,7 @@ namespace PingPong.Core
 {
     public class TwitterClient
     {
-        private const string RequestCount = "20";
+        private const int RequestCount = 20;
         private const string ApiAuthority = "https://api.twitter.com";
         private const string SearchAuthority = "https://search.twitter.com";
         private const string StreamingAuthority = "https://stream.twitter.com";
@@ -88,19 +88,31 @@ namespace PingPong.Core
             CreateClient(ApiAuthority).BeginRequest(request);
         }
 
-        public IObservable<Tweet> GetHomeTimeline()
+        public IObservable<JsonValue> GetCredentialVerification()
         {
-            return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", null, Tuple.Create("include_rts", "1"));
+            return GetContents(false, ApiAuthority, "/1/account/verify_credentials.json")
+                .Select(ToJson)
+                .Where(x => x != null);
+        }
+
+        public IObservable<Tweet> GetHomeTimeline(int count = RequestCount)
+        {
+            return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", new { include_rts = "1" }, new { count });
+        }
+
+        public IObservable<Tweet> GetCurrentUserTimeline(int count = RequestCount)
+        {
+            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", new { include_rts = "1" }, new { count });
         }
 
         public IObservable<Tweet> GetUserTimeline(string screenName, ulong? sinceId = null)
         {
-            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", sinceId, Tuple.Create("screen_name", screenName), Tuple.Create("include_rts", "1"));
+            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", new { screen_name = screenName }, new { include_rts = "1" }, new { since_id = sinceId });
         }
 
-        public IObservable<Tweet> GetSearch(string query, ulong? sinceId = null)
+        public IObservable<Tweet> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
         {
-            return GetSnapshot(SearchAuthority, "/search.json", sinceId, Tuple.Create("q", query));
+            return GetSnapshot(SearchAuthority, "/search.json", new { q = query }, new { count }, new { since_id = sinceId });
         }
 
         public IObservable<Tweet> GetStreamingHomeline()
@@ -108,80 +120,75 @@ namespace PingPong.Core
             return GetStreaming(UserStreamingAuthority, "/2/user.json");
         }
 
-        public IObservable<Tweet> GetMentions(ulong? sinceId)
+        public IObservable<Tweet> GetMentions(int count = RequestCount)
         {
-            return GetSnapshot(ApiAuthority, "/statuses/mentions.json", sinceId, Tuple.Create("include_rts", "1"));
+            return GetSnapshot(ApiAuthority, "/statuses/mentions.json", new { include_rts = "1" }, new { count });
         }
 
-        public IObservable<Tweet> GetDirectMessages(ulong? sinceId)
+        public IObservable<Tweet> GetDirectMessages(ulong? sinceId = null)
         {
-            return GetSnapshot(ApiAuthority, "/direct_messages.json", sinceId);
+            return GetSnapshot(ApiAuthority, "/direct_messages.json", new { since_id = sinceId });
         }
 
-        public IObservable<Tweet> GetFavorites(ulong? sinceId)
+        public IObservable<Tweet> GetFavorites(ulong? sinceId = null)
         {
-            return GetSnapshot(ApiAuthority, "/favorites.json", sinceId);
+            return GetSnapshot(ApiAuthority, "/favorites.json", new { since_id = sinceId });
         }
 
         public IObservable<Tweet> GetStreamingSampling()
         {
-            return GetStreaming(StreamingAuthority, "/1/statuses/sample.json", Tuple.Create("delimited", "length"));
+            return GetStreaming(StreamingAuthority, "/1/statuses/sample.json", new { delimited = "length" });
         }
 
         public IObservable<Tweet> GetStreamingFilter(params string[] terms)
         {
-            return GetStreaming(StreamingAuthority, "/1/statuses/filter.json", Tuple.Create("track", string.Join(",", terms)));
+            return GetStreaming(StreamingAuthority, "/1/statuses/filter.json", new { track = string.Join(",", terms) });
         }
 
-        private IObservable<Tweet> GetSnapshot(string authority, string path, ulong? sinceId, params Tuple<string, string>[] queryParameters)
+        private IObservable<Tweet> GetSnapshot(string authority, string path, params object[] parameters)
         {
-            return Observable.Create<Tweet>(
-                ob =>
-                {
-                    var request = new RestRequest { Path = path };
-                    queryParameters.Where(qp => qp != null).ForEach(qp => request.AddParameter(qp.Item1, qp.Item2));
-                    request.AddParameter("count", RequestCount);
-                    if (sinceId != null)
-                        request.AddParameter("since_id", sinceId.ToString());
-
-                    CreateClient(authority).BeginRequest(request, (_, r, __) =>
-                    {
-                        ToTweets(r).ForEach(ob.OnNext);
-                        ob.OnCompleted();
-                    });
-                    return Disposable.Empty;
-                });
+            return GetContents(false, authority, path, parameters).SelectMany(ToTweets);
         }
 
-        private IObservable<Tweet> GetStreaming(string authority, string path, params Tuple<string, string>[] queryParameters)
+        private IObservable<Tweet> GetStreaming(string authority, string path, params object[] parameters)
         {
-            return Observable.Create<RestResponse>(
-                ob =>
-                {
-                    var request = new RestRequest { Path = path, Credentials = _credentials, Method = WebMethod.Get, StreamOptions = new StreamOptions { ResultsPerCallback = 1 } };
-                    queryParameters.Where(qp => qp != null).ForEach(qp => request.AddParameter(qp.Item1, qp.Item2));
-                    var client = CreateClient(authority);
-                    client.BeginRequest(request, (_, r, __) => ob.OnNext(r));
-                    return Disposable.Create(client.CancelStreaming);
-                })
+            return GetContents(true, authority, path, parameters)
                 .SelectMany(ToTweets)
                 .Buffer(TimeSpan.FromMilliseconds(100))
                 .SelectMany(x => x);
         }
 
-        private static IEnumerable<Tweet> ToTweets(RestResponse response)
+        private IObservable<string> GetContents(bool streaming, string authority, string path, params object[] parameters)
         {
-            JsonValue json = null;
-            try
-            {
-                json = JsonValue.Parse(response.Content);
-            }
-            catch (Exception e)
-            {
-                _log.Error(e);
-            }
+            return Observable.Create<string>(
+                ob =>
+                {
+                    var request = new RestRequest { Path = path };
+                    ParseParameters(request, parameters);
+                    if (streaming)
+                        request.StreamOptions = new StreamOptions { ResultsPerCallback = 1 };
 
-            return ToTweets(json).Where(x => x != null);
+                    var client = CreateClient(authority);
+                    client.BeginRequest(request, (_, r, __) => ob.OnNext(r.Content));
+
+                    return streaming ? Disposable.Create(client.CancelStreaming) : Disposable.Empty;
+                });
+        }
+
+        private static void ParseParameters(RestRequest request, IEnumerable<object> parameters)
+        {
+            foreach (var param in parameters)
+            {
+                var prop = param.GetType().GetProperties().Single();
+                var value = prop.GetValue(param, null);
+                if (value != null)
+                    request.AddParameter(prop.Name, value.ToString());
+            }
+        }
+
+        private static IEnumerable<Tweet> ToTweets(string content)
+        {
+            return ToTweets(ToJson(content)).Where(x => x != null);
         }
 
         private static IEnumerable<Tweet> ToTweets(JsonValue json)
@@ -196,6 +203,19 @@ namespace PingPong.Core
             {
                 yield return Tweet.TryParse(json);
             }
+        }
+
+        private static JsonValue ToJson(string content)
+        {
+            try
+            {
+                return JsonValue.Parse(content);
+            }
+            catch (Exception e)
+            {
+                _log.Error(e);
+            }
+            return null;
         }
     }
 }

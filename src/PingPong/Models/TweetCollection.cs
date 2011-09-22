@@ -1,3 +1,4 @@
+using Caliburn.Micro;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
@@ -5,7 +6,7 @@ using System.Reactive.Subjects;
 
 namespace PingPong.Models
 {
-    public class TweetCollection : ObservableCollection<Tweet>, IDisposable, IObservable<Tweet>
+    public class TweetCollection : ObservableCollection<Tweet>, IDisposable, IObservable<Tweet>, IClose
     {
         protected const int MaxTweets = 1000;
 
@@ -13,6 +14,7 @@ namespace PingPong.Models
         private readonly Subject<Tweet> _subject = new Subject<Tweet>();
 
         public event Action<Exception> OnError;
+        public event EventHandler Closed;
 
         /// <summary>Object to get or set metadata on the collection.</summary>
         public object Tag { get; set; }
@@ -36,6 +38,7 @@ namespace PingPong.Models
         public void Dispose()
         {
             OnError = null;
+            Closed = null;
             Clear();
             _subject.Dispose();
             _subscription.DisposeIfNotNull();
@@ -64,11 +67,11 @@ namespace PingPong.Models
             var e = OnError;
             if (e != null) e(ex);
         }
-    }
 
-    public enum StatusType
-    {
-        Home,
-        Mentions,
+        public void TryClose()
+        {
+            var e = Closed;
+            if (e != null) e(this, EventArgs.Empty);
+        }
     }
 }

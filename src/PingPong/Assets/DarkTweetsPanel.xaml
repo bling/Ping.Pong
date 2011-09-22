@@ -216,9 +216,67 @@
             </Grid>
         </Grid>
     </DataTemplate>
+    <Style x:Key="CloseButtonStyle" TargetType="Button">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="grid"
+                          Width="{TemplateBinding Width}"
+                          Height="{TemplateBinding Height}"
+                          Background="Transparent"
+                          RenderTransformOrigin="0.5,0.5">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimation d:IsOptimized="True"
+                                                         Duration="0"
+                                                         Storyboard.TargetName="highlight2"
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                         To="1" />
+                                        <DoubleAnimation d:IsOptimized="True"
+                                                         Duration="0"
+                                                         Storyboard.TargetName="highlight1"
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                         To="1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimation d:IsOptimized="True"
+                                                         Duration="0"
+                                                         Storyboard.TargetName="grid"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"
+                                                         To="0" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid.RenderTransform>
+                            <CompositeTransform Rotation="45" />
+                        </Grid.RenderTransform>
+                        <Border Width="2" HorizontalAlignment="Center" Background="{TemplateBinding Foreground}" />
+                        <Border x:Name="highlight1"
+                                Width="2"
+                                HorizontalAlignment="Center"
+                                Background="#FFFFFFFF"
+                                Opacity="0" />
+                        <Border Height="2" VerticalAlignment="Center" Background="{TemplateBinding Foreground}" />
+                        <Border x:Name="highlight2"
+                                Height="2"
+                                VerticalAlignment="Center"
+                                Background="#FFFFFFFF"
+                                Opacity="0" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style x:Key="DarkTweetsPanel" TargetType="ItemsControl">
-        <!--  <Setter Property="Background" Value="#FF181818" />  -->
+        <Setter Property="Background" Value="#FF181818" />
         <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
@@ -230,7 +288,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Grid Background="{TemplateBinding Background}">
+                    <Grid Background="{TemplateBinding Background}" cal:Bind.Model="{Binding Value}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="10" />
@@ -248,12 +306,20 @@
                             </Border.Background>
                         </Border>
                         <TextBlock Grid.Row="2"
-                                   Margin="0,0,14,0"
+                                   Margin="0,0,35,0"
                                    HorizontalAlignment="Right"
                                    FontFamily="{StaticResource DefaultFontFamily}"
                                    FontSize="18"
                                    Foreground="{StaticResource TimelineHeaderBrush}"
-                                   Text="{Binding Value.Description}" />
+                                   Text="{Binding Description}" />
+                        <Button x:Name="TryClose"
+                                Grid.Row="2"
+                                Width="12"
+                                Height="12"
+                                Margin="0,0,14,0"
+                                HorizontalAlignment="Right"
+                                Foreground="Gray"
+                                Style="{StaticResource CloseButtonStyle}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

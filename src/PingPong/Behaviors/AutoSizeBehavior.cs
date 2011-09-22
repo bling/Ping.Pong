@@ -39,7 +39,8 @@ namespace PingPong.Behaviors
 
         private void OnItemsControlSizeChanged(object sender, EventArgs e)
         {
-            AssociatedObject.Width = ItemsControl.ActualWidth / ItemsControl.Items.Count;
+            if (ItemsControl.Items.Count > 0)
+                AssociatedObject.Width = ItemsControl.ActualWidth / ItemsControl.Items.Count;
         }
     }
 }

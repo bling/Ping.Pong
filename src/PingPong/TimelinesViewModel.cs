@@ -28,7 +28,7 @@ namespace PingPong
         private DateTime _streamStartTime = DateTime.MinValue;
         private OutgoingContext _outgoing;
 
-        public ObservableCollection<object> Timelines { get; private set; }
+        public ObservableCollection<Owned<TweetCollection>> Timelines { get; private set; }
 
         public bool ShowUpdateStatus
         {
@@ -55,32 +55,36 @@ namespace PingPong
             _windowManager = windowManager;
             _timelineFactory = timelineFactory;
 
-            Timelines = new ObservableCollection<object>();
+            Timelines = new ObservableCollection<Owned<TweetCollection>>();
             Timelines.CollectionChanged += (sender, e) =>
             {
                 if (e.OldItems != null)
                     e.OldItems.Cast<Owned<TweetCollection>>().ForEach(t => t.Dispose());
             };
 
-            Add(timelineFactory(), tl =>
-            {
-                tl.Tag = StatusType.Home;
-                tl.Description = "Home";
-                tl.Subscribe(client.GetPollingStatuses(StatusType.Home));
-            });
-            Add(timelineFactory(), tl =>
-            {
-                tl.Tag = StatusType.Mentions;
-                tl.Description = "Mentions";
-                tl.Subscribe(client.GetPollingStatuses(StatusType.Mentions));
-            });
-
-            _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(30))
-                .DispatcherSubscribe(_ =>
+            client.GetCredentialVerification()
+                .DispatcherSubscribe(json =>
                 {
-                    foreach (var tweet in Timelines.Cast<dynamic>().Select(x => (TweetCollection)x.Value).SelectMany(x => x))
-                        tweet.NotifyOfPropertyChange("CreatedAt");
+                    string name = "@" + json["screen_name"];
+                    var statuses = client.GetPollingStatuses();
+
+                    Add(timelineFactory(), tl =>
+                    {
+                        tl.Description = "Home";
+                        tl.Subscribe(statuses.Where(t => !t.Text.Contains(name)));
+                    });
+                    Add(timelineFactory(), tl =>
+                    {
+                        tl.Description = "Mentions";
+                        tl.Subscribe(statuses.Where(t => t.Text.Contains(name)));
+                    });
                 });
+
+            _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))
+                .DispatcherSubscribe(_ => Timelines
+                                              .Select(x => x.Value)
+                                              .SelectMany(x => x)
+                                              .ForEach(t => t.NotifyOfPropertyChange("CreatedAt")));
         }
 
         protected override void OnDeactivate(bool close)
@@ -153,7 +157,7 @@ namespace PingPong
             {
                 _streamStartTime = DateTime.UtcNow;
 
-                Timelines.Cast<Owned<TweetCollection>>()
+                Timelines
                     .Where(line => line.Value.Tag is string[])
                     .ToArray()
                     .ForEach(t => Timelines.Remove(t));
@@ -182,10 +186,11 @@ namespace PingPong
             _streamingSubscription.DisposeIfNotNull();
         }
 
-        private void Add<T>(Owned<T> owned, Action<TweetCollection> setup) where T : TweetCollection
+        private void Add(Owned<TweetCollection> owned, Action<TweetCollection> setup)
         {
-            var line = (TweetCollection)((dynamic)owned).Value;
+            var line = owned.Value;
             line.OnError += ex => _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
+            line.Closed += (sender, e) => Timelines.Remove(Timelines.Single(t => t.Value == sender));
             setup(line);
             Timelines.Add(owned);
         }
