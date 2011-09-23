@@ -4,16 +4,16 @@ namespace PingPong.Core
 {
     public static class Enforce
     {
-        public static void NotNull<T>(T value) where T : class
+        public static void NotNull<T>(T value, string argument = null) where T : class
         {
             if (value == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(argument);
         }
 
-        public static void NotNullOrEmpty(string value)
+        public static void NotNullOrEmpty(string value, string argument = null)
         {
             if (string.IsNullOrEmpty(value))
-                throw new ArgumentException();
+                throw new ArgumentException(argument);
         }
     }
 }

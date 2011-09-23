@@ -71,13 +71,9 @@
     <Reference Include="Caliburn.Micro, Version=1.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Caliburn.Micro.1.2.0\lib\SL40\Caliburn.Micro.dll</HintPath>
     </Reference>
-    <Reference Include="Hammock.Silverlight">
-      <HintPath>..\..\packages\Hammock.1.2.6\lib\sl4\Hammock.Silverlight.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Hammock.1.2.6\lib\sl4\Microsoft.CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Expression.Drawing" />
     <Reference Include="Microsoft.Expression.Interactions" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Json, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -93,8 +89,6 @@
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Controls.Toolkit" />
-    <Reference Include="System.Windows.Controls.Toolkit.Internals" />
     <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -104,13 +98,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppBootstrapper.cs" />
-    <Compile Include="AppInfo.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
-    <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
-    <Compile Include="Behaviors\RefreshDateBehavior.cs" />
-    <Compile Include="Controls\NotificationControl.cs" />
     <Compile Include="Converters\CharactersRemainingConverter.cs" />
     <Compile Include="Converters\RelativeTimeConverter.cs" />
     <Compile Include="AppBootstrapper.Keys.cs" />
@@ -122,12 +112,15 @@
     <Compile Include="InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="ErrorViewModel.cs" />
-    <Compile Include="Models\DirectMessage.cs" />
-    <Compile Include="Models\ExtendedUser.cs" />
-    <Compile Include="Models\JsonHelper.cs" />
-    <Compile Include="Models\Relationship.cs" />
-    <Compile Include="Models\User.cs" />
-    <Compile Include="StatusViewModel.cs" />
+    <Compile Include="OAuth\AsyncExtensions.cs" />
+    <Compile Include="OAuth\MethodType.cs" />
+    <Compile Include="OAuth\OAuthAuthorizer.cs" />
+    <Compile Include="OAuth\OAuthBase.cs" />
+    <Compile Include="OAuth\OAuthClient.cs" />
+    <Compile Include="OAuth\Parameter.cs" />
+    <Compile Include="OAuth\Token.cs" />
+    <Compile Include="OAuth\TokenResponse.cs" />
+    <Compile Include="OAuth\Utility.cs" />
     <Compile Include="TimelinesViewModel.cs" />
     <Compile Include="Messages\Messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -139,8 +132,6 @@
     <Compile Include="Core\TweetParser.cs" />
     <Compile Include="Core\TwitterClient.cs" />
     <Compile Include="Core\TwitterSubscriptions.cs" />
-    <Compile Include="TweetsPanelViewModel.cs" />
-    <Compile Include="UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -156,27 +147,17 @@
     <None Include="Properties\OutOfBrowserSettings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\DarkTweetsPanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Resource>
     <BlendEmbeddedFont Include="Fonts\Ubuntu-L.ttf">
       <IsSystemFont>True</IsSystemFont>
       <All>True</All>
       <AutoFill>True</AutoFill>
-      <Characters>
-      </Characters>
-      <Uppercase>True</Uppercase>
-      <Lowercase>True</Lowercase>
-      <Numbers>True</Numbers>
-      <Punctuation>True</Punctuation>
     </BlendEmbeddedFont>
+    <Resource Include="Assets\DarkTweetsPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Assets\BusyIndicatorStyle.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Assets\MetroTweetsPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -196,14 +177,6 @@
     <Page Include="AuthorizationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="TweetsPanelView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="StatusView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="ErrorView.xaml">
       <SubType>Designer</SubType>
@@ -230,7 +203,10 @@
     <None Include="Properties\InBrowserSettings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <DesignData Include="SampleData\UserSampleData.xaml">
+    <DesignData Include="SampleData\Tweets.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+    </DesignData>
+    <DesignData Include="SampleData\TweetSampleData.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
     </DesignData>
   </ItemGroup>
