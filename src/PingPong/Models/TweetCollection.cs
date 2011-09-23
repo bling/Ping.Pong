@@ -1,17 +1,20 @@
-using Caliburn.Micro;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using Caliburn.Micro;
 
 namespace PingPong.Models
 {
-    public class TweetCollection : ObservableCollection<Tweet>, IDisposable, IObservable<Tweet>, IClose
+    public class TweetCollection : ObservableCollection<Tweet>, IDisposable, IObservable<Tweet>, IClose, INotifyPropertyChangedEx
     {
         protected const int MaxTweets = 1000;
 
         private IDisposable _subscription;
         private readonly Subject<Tweet> _subject = new Subject<Tweet>();
+        private bool _canClose;
+        private bool _isNotifying;
 
         public event Action<Exception> OnError;
         public event EventHandler Closed;
@@ -21,6 +24,12 @@ namespace PingPong.Models
 
         /// <summary>Gets or sets the header text to display.</summary>
         public string Description { get; set; }
+
+        public bool CanClose
+        {
+            get { return _canClose; }
+            set { this.SetValue("CanClose", value, ref _canClose); }
+        }
 
         IDisposable IObservable<Tweet>.Subscribe(IObserver<Tweet> observer)
         {
@@ -72,6 +81,21 @@ namespace PingPong.Models
         {
             var e = Closed;
             if (e != null) e(this, EventArgs.Empty);
+        }
+
+        void INotifyPropertyChangedEx.NotifyOfPropertyChange(string propertyName)
+        {
+            base.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        }
+
+        void INotifyPropertyChangedEx.Refresh()
+        {
+        }
+
+        bool INotifyPropertyChangedEx.IsNotifying
+        {
+            get { return _isNotifying; }
+            set { _isNotifying = true; }
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Autofac.Features.OwnedInstances;
@@ -21,11 +22,14 @@ namespace PingPong
         private readonly IWindowManager _windowManager;
         private readonly Func<Owned<TweetCollection>> _timelineFactory;
         private readonly IDisposable _refreshSubscription;
+        private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
         private string _statusText;
+        private string _screenName;
         private bool _showUpdateStatus;
         private DateTime _streamStartTime = DateTime.MinValue;
+        private IConnectableObservable<Tweet> _tweetsStream;
         private OutgoingContext _outgoing;
 
         public ObservableCollection<Owned<TweetCollection>> Timelines { get; private set; }
@@ -34,6 +38,25 @@ namespace PingPong
         {
             get { return _showUpdateStatus; }
             set { this.SetValue("ShowUpdateStatus", value, ref _showUpdateStatus); }
+        }
+
+        public bool ShowMentions
+        {
+            get { return Timelines.Any(t => t.Value.Description.Equals("Mentions")); }
+            set
+            {
+                if (value)
+                {
+                    var mentions = _client.GetMentions().Merge(_tweetsStream.Where(t => t.Text.Contains(_screenName)));
+                    AddTimeline("Mentions", timeline => timeline.Subscribe(mentions));
+                }
+                else
+                {
+                    Timelines.Remove(Timelines.Single(t => t.Value.Description.Equals("Mentions")));
+                }
+
+                NotifyOfPropertyChange("ShowMentions");
+            }
         }
 
         public string SearchText
@@ -47,6 +70,8 @@ namespace PingPong
             get { return _statusText; }
             set { this.SetValue("StatusText", value, ref _statusText); }
         }
+
+        
 
         public TimelinesViewModel(TwitterClient client, TweetParser tweetParser, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
         {
@@ -63,21 +88,13 @@ namespace PingPong
             };
 
             client.GetCredentialVerification()
-                .DispatcherSubscribe(json =>
+                .Select(x => "@" + x["screen_name"])
+                .Select(name => new { name, tweets = client.GetStreamingStatuses().Publish() })
+                .DispatcherSubscribe(x =>
                 {
-                    string name = "@" + json["screen_name"];
-                    var statuses = client.GetPollingStatuses();
-
-                    Add(timelineFactory(), tl =>
-                    {
-                        tl.Description = "Home";
-                        tl.Subscribe(statuses.Where(t => !t.Text.Contains(name)));
-                    });
-                    Add(timelineFactory(), tl =>
-                    {
-                        tl.Description = "Mentions";
-                        tl.Subscribe(statuses.Where(t => t.Text.Contains(name)));
-                    });
+                    _screenName = x.name;
+                    _tweetsStream = x.tweets;
+                    OnInit(x.name, x.tweets);
                 });
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))
@@ -87,10 +104,22 @@ namespace PingPong
                                               .ForEach(t => t.NotifyOfPropertyChange("CreatedAt")));
         }
 
+        private void OnInit(string name, IConnectableObservable<Tweet> tweets)
+        {
+            _screenName = name;
+            _tweetsStream = tweets;
+
+            AddTimeline("Home", line => line.Subscribe(_tweetsStream.Where(t => !t.Text.Contains(_screenName))));
+
+            ShowMentions = true;
+            _tweetsSubscription = tweets.Connect();
+        }
+
         protected override void OnDeactivate(bool close)
         {
             base.OnDeactivate(close);
-            Stop();
+            _streamingSubscription.DisposeIfNotNull();
+            _tweetsSubscription.DisposeIfNotNull();
             _refreshSubscription.Dispose();
         }
 
@@ -169,11 +198,13 @@ namespace PingPong
                 foreach (string part in allParts)
                 {
                     string[] terms = part.Split('|');
-                    var line = _timelineFactory();
-                    line.Value.Tag = terms;
-                    line.Value.Description = part;
                     var sub = ob.Where(t => terms.Any(term => t.Text.Contains(term)));
-                    Add(line, tl => tl.Subscribe(sub));
+                    AddTimeline(part, tl =>
+                    {
+                        tl.Tag = terms;
+                        tl.CanClose = true;
+                        tl.Subscribe(sub);
+                    });
                 }
 
                 _streamingSubscription.DisposeIfNotNull();
@@ -186,13 +217,15 @@ namespace PingPong
             _streamingSubscription.DisposeIfNotNull();
         }
 
-        private void Add(Owned<TweetCollection> owned, Action<TweetCollection> setup)
+        private void AddTimeline(string description, Action<TweetCollection> setup)
         {
-            var line = owned.Value;
+            var timeline = _timelineFactory();
+            var line = timeline.Value;
+            line.Description = description;
             line.OnError += ex => _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
             line.Closed += (sender, e) => Timelines.Remove(Timelines.Single(t => t.Value == sender));
             setup(line);
-            Timelines.Add(owned);
+            Timelines.Add(timeline);
         }
 
         public void ReplyTo(Tweet tweet)
@@ -225,16 +258,20 @@ namespace PingPong
 
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
         {
-            var collection = _timelineFactory();
-            collection.Value.Description = "@" + message.User;
-            Add(collection, tl => tl.Subscribe(_client.GetPollingUserTimeline(message.User)));
+            AddTimeline("@" + message.User, timeline =>
+            {
+                timeline.CanClose = true;
+                timeline.Subscribe(_client.GetPollingUserTimeline(message.User));
+            });
         }
 
         void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
         {
-            var collection = _timelineFactory();
-            collection.Value.Description = "#" + message.Topic;
-            Add(collection, tl => tl.Subscribe(_client.GetPollingSearch(message.Topic)));
+            AddTimeline("#" + message.Topic, timeline =>
+            {
+                timeline.CanClose = true;
+                timeline.Subscribe(_client.GetPollingSearch(message.Topic));
+            });
         }
     }
 

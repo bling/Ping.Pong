@@ -13,7 +13,7 @@
     <UserControl.Resources>
         <conv:CharactersRemainingConverter x:Key="CharactersRemainingConverter" />
     </UserControl.Resources>
-    <Grid x:Name="LayoutRoot" Background="#FF111111" d:DataContext="{d:DesignData /SampleData/Tweets.xaml}">
+    <Grid x:Name="LayoutRoot" Background="#FF111111">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
@@ -23,15 +23,27 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <ToggleButton x:Name="ShowUpdateStatus"
-                          Background="Transparent"
-                          BorderBrush="#FF448FBE"
-                          BorderThickness="1"
-                          Content="Update Status"
-                          Foreground="#FF448FBE"
-                          Padding="5,2"
-                          Style="{StaticResource UpdateStatusButton}" />
-            <Popup Grid.Column="1" IsOpen="{Binding IsChecked, ElementName=ShowUpdateStatus}">
+            <StackPanel Orientation="Horizontal">
+                <ToggleButton x:Name="ShowUpdateStatus"
+                              Width="80"
+                              Background="Transparent"
+                              BorderBrush="#FF448FBE"
+                              BorderThickness="1"
+                              Content="Status"
+                              Foreground="#FF448FBE"
+                              Padding="5,2"
+                              Style="{StaticResource SimpleToggleButtonStyle}" />
+                <ToggleButton x:Name="ShowMentions"
+                              Width="80"
+                              Background="Transparent"
+                              BorderBrush="#FF448FBE"
+                              BorderThickness="1"
+                              Content="Mentions"
+                              Foreground="#FF448FBE"
+                              Padding="5,2"
+                              Style="{StaticResource SimpleToggleButtonStyle}" />
+            </StackPanel>
+            <Popup Grid.ColumnSpan="2" IsOpen="{Binding IsChecked, ElementName=ShowUpdateStatus}">
                 <Border Background="#FF1F1F1F"
                         BorderBrush="{StaticResource TweetTextBrush}"
                         BorderThickness="1"
@@ -92,7 +104,7 @@
                         Style="{StaticResource SimpleButtonStyle}" />
             </StackPanel>
         </Grid>
-        <ItemsControl x:Name="Timelines" Grid.Row="1" d:IsHidden="True">
+        <ItemsControl x:Name="Timelines" Grid.Row="1">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
