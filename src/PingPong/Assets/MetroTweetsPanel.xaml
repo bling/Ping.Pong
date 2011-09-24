@@ -34,7 +34,7 @@
                                  FontFamily="Segoe UI"
                                  FontSize="13.333"
                                  Foreground="{StaticResource TweetTextBrush}"
-                                 Text="{Binding Text}" />
+                                 Tweet="{Binding}" />
             <TextBlock Grid.Row="2"
                        Grid.Column="1"
                        HorizontalAlignment="Left"

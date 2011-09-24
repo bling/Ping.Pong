@@ -21,7 +21,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Image Width="48" Height="48" VerticalAlignment="Top" Source="{Binding ProfileImgUrl}" />
-            <ctrl:TweetTextBlock Grid.Column="1" FontFamily="{StaticResource DefaultFontFamily}" FontSize="12" Text="{Binding Text}" />
+            <ctrl:TweetTextBlock Grid.Column="1" FontFamily="{StaticResource DefaultFontFamily}" FontSize="12" Tweet="{Binding}" />
             <TextBlock Grid.Row="1"
                        Grid.ColumnSpan="2"
                        HorizontalAlignment="Right"

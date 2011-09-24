@@ -28,6 +28,25 @@ namespace PingPong
 
         public ObservableCollection<Owned<TweetCollection>> Timelines { get; private set; }
 
+        public bool ShowHome
+        {
+            get { return Timelines.Any(t => t.Value.Description.Equals("Home")); }
+            set
+            {
+                if (value)
+                {
+                    var home = _client.GetHomeTimeline().Merge(_tweetsStream.Where(t => !t.Text.Contains(_screenName)));
+                    AddTimeline("Home", timeline => timeline.Subscribe(home));
+                }
+                else
+                {
+                    Timelines.Remove(Timelines.Single(t => t.Value.Description.Equals("Home")));
+                }
+
+                NotifyOfPropertyChange("ShowHome");
+            }
+        }
+
         public bool ShowMentions
         {
             get { return Timelines.Any(t => t.Value.Description.Equals("Mentions")); }
@@ -46,7 +65,7 @@ namespace PingPong
                 NotifyOfPropertyChange("ShowMentions");
             }
         }
-
+        
         public string SearchText
         {
             get { return _searchText; }
@@ -78,12 +97,11 @@ namespace PingPong
             base.OnActivate();
             _client.GetAccountVerification()
                 .Select(x => "@" + x.ScreenName)
-                .Select(name => new { name, tweets = _client.GetStreamingStatuses().Publish() })
-                .Do(x => _screenName = x.name)
-                .Do(x => _tweetsStream = x.tweets)
+                .Do(x => _screenName = x)
+                .Do(_ => _tweetsStream = _client.GetStreamingStatuses().Publish())
                 .DispatcherSubscribe(_ =>
                 {
-                    AddTimeline("Home", line => line.Subscribe(_tweetsStream.Where(t => !t.Text.Contains(_screenName))));
+                    ShowHome = true;
                     ShowMentions = true;
                     _tweetsSubscription = _tweetsStream.Connect();
                 });

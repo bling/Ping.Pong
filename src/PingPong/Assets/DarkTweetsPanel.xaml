@@ -324,7 +324,7 @@
 
     <Style x:Key="DarkTweetsPanel" TargetType="ItemsControl">
         <Setter Property="Background" Value="#FF181818" />
-        <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
+        <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Standard" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>

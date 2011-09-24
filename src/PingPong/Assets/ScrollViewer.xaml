@@ -382,7 +382,7 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="ScrollViewer">
-					<Grid Background="{TemplateBinding Background}">
+					<Grid Background="Transparent">
 						<i:Interaction.Triggers>
 							<i:EventTrigger EventName="MouseEnter">
 								<ei:GoToStateAction StateName="MouseOver"/>

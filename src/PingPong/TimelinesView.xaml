@@ -30,6 +30,15 @@
                               IsChecked="{Binding IsOpen, Mode=TwoWay}"
                               Padding="5,2"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
+                <ToggleButton x:Name="ShowHome"
+                              Width="80"
+                              Background="Transparent"
+                              BorderBrush="#FF448FBE"
+                              BorderThickness="1"
+                              Content="Home"
+                              Foreground="#FF448FBE"
+                              Padding="5,2"
+                              Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowMentions"
                               Width="80"
                               Background="Transparent"
