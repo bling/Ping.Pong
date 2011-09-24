@@ -2,7 +2,6 @@
 using Autofac;
 using Caliburn.Micro;
 using PingPong.Messages;
-using PingPong.Models;
 
 namespace PingPong
 {
@@ -40,26 +39,6 @@ namespace PingPong
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
             ActivateItem(_container.Resolve<TimelinesViewModel>());
-        }
-
-        public void Reply(Tweet tweet)
-        {
-            ((TimelinesViewModel)ActiveItem).ReplyTo(tweet);
-        }
-
-        public void Retweet(Tweet tweet)
-        {
-            ((TimelinesViewModel)ActiveItem).Retweet(tweet);
-        }
-
-        public void Quote(Tweet tweet)
-        {
-            ((TimelinesViewModel)ActiveItem).Quote(tweet);
-        }
-
-        public void DirectMessage(Tweet tweet)
-        {
-            ((TimelinesViewModel)ActiveItem).DirectMessage(tweet);
         }
     }
 }

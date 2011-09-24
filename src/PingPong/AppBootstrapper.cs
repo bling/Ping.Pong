@@ -31,7 +31,6 @@ namespace PingPong
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
             b.Register(_ => new ShellViewModel(_container)).As<IShell>().SingleInstance();
-            b.Register(_ => _.Resolve<IShell>()).Named<IShell>("shell").SingleInstance();
 
             _container = b.Build();
 
@@ -42,6 +41,10 @@ namespace PingPong
         {
             if (string.IsNullOrEmpty(key))
                 return _container.Resolve(serviceType);
+
+            var type = Type.GetType(key);
+            if (type != null)
+                return _container.Resolve(type);
 
             var registration = (from r in _container.ComponentRegistry.Registrations
                                 from s in r.Services

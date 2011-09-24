@@ -3,8 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Windows.Controls;
-using System.Windows.Input;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using PingPong.Core;
@@ -18,27 +16,17 @@ namespace PingPong
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
         private readonly TwitterClient _client;
-        private readonly TweetParser _tweetParser;
         private readonly IWindowManager _windowManager;
         private readonly Func<Owned<TweetCollection>> _timelineFactory;
         private readonly IDisposable _refreshSubscription;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
-        private string _statusText;
         private string _screenName;
-        private bool _showUpdateStatus;
         private DateTime _streamStartTime = DateTime.MinValue;
         private IConnectableObservable<Tweet> _tweetsStream;
-        private OutgoingContext _outgoing;
 
         public ObservableCollection<Owned<TweetCollection>> Timelines { get; private set; }
-
-        public bool ShowUpdateStatus
-        {
-            get { return _showUpdateStatus; }
-            set { this.SetValue("ShowUpdateStatus", value, ref _showUpdateStatus); }
-        }
 
         public bool ShowMentions
         {
@@ -65,18 +53,9 @@ namespace PingPong
             set { this.SetValue("SearchText", value, ref _searchText); }
         }
 
-        public string StatusText
-        {
-            get { return _statusText; }
-            set { this.SetValue("StatusText", value, ref _statusText); }
-        }
-
-        
-
-        public TimelinesViewModel(TwitterClient client, TweetParser tweetParser, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
+        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
         {
             _client = client;
-            _tweetParser = tweetParser;
             _windowManager = windowManager;
             _timelineFactory = timelineFactory;
 
@@ -121,55 +100,6 @@ namespace PingPong
             _streamingSubscription.DisposeIfNotNull();
             _tweetsSubscription.DisposeIfNotNull();
             _refreshSubscription.Dispose();
-        }
-
-        public void OnStatusTextBoxTextInput(TextCompositionEventArgs e)
-        {
-            if (e.Text[0] == 27) // esc
-                ShowUpdateStatus = false;
-        }
-
-        public void OnStatusTextBoxChanged(TextBox sender, TextChangedEventArgs e)
-        {
-            int length;
-            string text = sender.Text;
-            _tweetParser.Parse(sender.Text, out length);
-            if (text.Contains("\r") && length <= TweetParser.MaxLength)
-            {
-                ShowUpdateStatus = false;
-
-                if (_outgoing != null)
-                {
-                    switch (_outgoing.Type)
-                    {
-                        case OutgoingType.Reply:
-                            // TODO: check text has screen name
-                            _client.UpdateStatus(text, _outgoing.Tweet.Id);
-                            break;
-                        case OutgoingType.Retweet:
-                            _client.Retweet(_outgoing.Tweet.Id);
-                            break;
-                        case OutgoingType.Quote:
-                            _client.UpdateStatus(text, _outgoing.Tweet.Id);
-                            break;
-                        case OutgoingType.DirectMessage:
-                            _client.DirectMessage(_outgoing.ScreenName, text);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-                else
-                {
-                    _client.UpdateStatus(text);
-                }
-
-                _outgoing = null;
-            }
-            else if (_outgoing != null && _outgoing.Type == OutgoingType.Retweet)
-            {
-                _outgoing.Type = OutgoingType.Quote;
-            }
         }
 
         public void Search()
@@ -228,34 +158,6 @@ namespace PingPong
             Timelines.Add(timeline);
         }
 
-        public void ReplyTo(Tweet tweet)
-        {
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Reply };
-            StatusText = '@' + tweet.ScreenName;
-            ShowUpdateStatus = true;
-        }
-
-        public void Retweet(Tweet tweet)
-        {
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Retweet };
-            StatusText = string.Format("RT @{0} {1}", tweet.ScreenName, tweet.Text);
-            ShowUpdateStatus = true;
-        }
-
-        public void Quote(Tweet tweet)
-        {
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Quote };
-            StatusText = string.Format("RT @{0} {1}", tweet.ScreenName, tweet.Text);
-            ShowUpdateStatus = true;
-        }
-
-        public void DirectMessage(Tweet tweet)
-        {
-            _outgoing = new OutgoingContext { ScreenName = tweet.ScreenName, Type = OutgoingType.DirectMessage };
-            StatusText = string.Empty;
-            ShowUpdateStatus = true;
-        }
-
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
         {
             AddTimeline("@" + message.User, timeline =>
@@ -273,21 +175,5 @@ namespace PingPong
                 timeline.Subscribe(_client.GetPollingSearch(message.Topic));
             });
         }
-    }
-
-    /// <summary>Holds metadata for the next status of the user.</summary>
-    internal class OutgoingContext
-    {
-        public Tweet Tweet { get; set; }
-        public OutgoingType Type { get; set; }
-        public string ScreenName { get; set; }
-    }
-
-    internal enum OutgoingType
-    {
-        Reply,
-        Retweet,
-        Quote,
-        DirectMessage,
     }
 }

@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="PingPong.StatusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:conv="clr-namespace:PingPong.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <conv:CharactersRemainingConverter x:Key="CharactersRemainingConverter" />
+    </UserControl.Resources>
+    <Border Background="#FF1F1F1F"
+            BorderBrush="{StaticResource TweetTextBrush}"
+            BorderThickness="1"
+            CornerRadius="10"
+            Padding="5">
+        <Grid>
+            <Grid.Resources>
+                <conv:IsValidTweetLengthToBrushConverter x:Key="IsValidTweetLengthToColorConverter" Negative="#49AF3C3C" Positive="#155EBC2B" />
+            </Grid.Resources>
+            <TextBlock Margin="0,0,0,-20"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom"
+                       FontSize="60"
+                       FontWeight="Bold"
+                       Foreground="{Binding Text, ElementName=StatusText, Converter={StaticResource IsValidTweetLengthToColorConverter}}"
+                       Text="{Binding Text, ElementName=StatusText, Converter={StaticResource CharactersRemainingConverter}}" />
+            <TextBox x:Name="StatusText"
+                     Width="300"
+                     Height="100"
+                     AcceptsReturn="True"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     cal:Message.Attach="[Event TextChanged] = [OnStatusTextBoxChanged($source, $eventArgs)];                                                      [Event TextInput] = [OnStatusTextBoxTextInput($eventArgs)]"
+                     FontFamily="{StaticResource DefaultFontFamily}"
+                     FontSize="14"
+                     Foreground="#FF8EBCE7"
+                     Text="{Binding StatusText, Mode=TwoWay}"
+                     TextWrapping="Wrap" />
+        </Grid>
+    </Border>
+</UserControl>

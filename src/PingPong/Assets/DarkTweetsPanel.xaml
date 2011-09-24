@@ -208,7 +208,7 @@
                 <Grid.RenderTransform>
                     <CompositeTransform TranslateY="30" />
                 </Grid.RenderTransform>
-                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="shell" Orientation="Horizontal">
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="PingPong.StatusViewModel" Orientation="Horizontal">
                     <Button cal:Message.Attach="[Reply($dataContext)]" Content="R" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Retweet($dataContext)]" Content="RT" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Quote($dataContext)]" Content="Q" Style="{StaticResource DarkTweetButtonStyle}" />
