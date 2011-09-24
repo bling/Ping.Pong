@@ -19,6 +19,8 @@ namespace PingPong
         private readonly IWindowManager _windowManager;
         private readonly Func<Owned<TweetCollection>> _timelineFactory;
         private readonly IDisposable _refreshSubscription;
+        private readonly Owned<TweetCollection> _homeline;
+        private readonly Owned<TweetCollection> _mentionline;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
@@ -30,39 +32,29 @@ namespace PingPong
 
         public bool ShowHome
         {
-            get { return Timelines.Any(t => t.Value.Description.Equals("Home")); }
+            get { return Timelines.Contains(_homeline); }
             set
             {
                 if (value)
-                {
-                    var home = _client.GetHomeTimeline().Merge(_tweetsStream.Where(t => !t.Text.Contains(_screenName)));
-                    AddTimeline("Home", timeline => timeline.Subscribe(home));
-                }
+                    Timelines.Add(_homeline);
                 else
-                {
-                    Timelines.Remove(Timelines.Single(t => t.Value.Description.Equals("Home")));
-                }
+                    Timelines.Remove(_homeline);
 
-                NotifyOfPropertyChange("ShowHome");
+                NotifyOfPropertyChange(() => ShowHome);
             }
         }
 
         public bool ShowMentions
         {
-            get { return Timelines.Any(t => t.Value.Description.Equals("Mentions")); }
+            get { return Timelines.Contains(_mentionline); }
             set
             {
                 if (value)
-                {
-                    var mentions = _client.GetMentions().Merge(_tweetsStream.Where(t => t.Text.Contains(_screenName)));
-                    AddTimeline("Mentions", timeline => timeline.Subscribe(mentions));
-                }
+                    Timelines.Add(_mentionline);
                 else
-                {
-                    Timelines.Remove(Timelines.Single(t => t.Value.Description.Equals("Mentions")));
-                }
+                    Timelines.Remove(_mentionline);
 
-                NotifyOfPropertyChange("ShowMentions");
+                NotifyOfPropertyChange(() => ShowMentions);
             }
         }
         
@@ -78,11 +70,19 @@ namespace PingPong
             _windowManager = windowManager;
             _timelineFactory = timelineFactory;
 
+            _homeline = timelineFactory();
+            _homeline.Value.Description = "Home";
+            
+            _mentionline = timelineFactory();
+            _mentionline.Value.Description = "Mentions";
+
             Timelines = new ObservableCollection<Owned<TweetCollection>>();
             Timelines.CollectionChanged += (sender, e) =>
             {
                 if (e.OldItems != null)
-                    e.OldItems.Cast<Owned<TweetCollection>>().ForEach(t => t.Dispose());
+                    e.OldItems.Cast<Owned<TweetCollection>>()
+                        .Except(new[] { _homeline, _mentionline })
+                        .ForEach(t => t.Dispose());
             };
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))
@@ -101,9 +101,12 @@ namespace PingPong
                 .Do(_ => _tweetsStream = _client.GetStreamingStatuses().Publish())
                 .DispatcherSubscribe(_ =>
                 {
+                    _homeline.Value.Subscribe(_tweetsStream);
+                    _mentionline.Value.Subscribe(_tweetsStream.Where(t => t.Text.Contains(_screenName)));
+                    _tweetsSubscription = _tweetsStream.Connect();
+
                     ShowHome = true;
                     ShowMentions = true;
-                    _tweetsSubscription = _tweetsStream.Connect();
                 });
         }
 
@@ -112,6 +115,8 @@ namespace PingPong
             base.OnDeactivate(close);
             _streamingSubscription.DisposeIfNotNull();
             _tweetsSubscription.DisposeIfNotNull();
+            _homeline.Dispose();
+            _mentionline.Dispose();
             _refreshSubscription.Dispose();
         }
 
