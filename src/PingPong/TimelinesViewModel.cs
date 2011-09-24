@@ -83,6 +83,9 @@ namespace PingPong
                     e.OldItems.Cast<Owned<TweetCollection>>()
                         .Except(new[] { _homeline, _mentionline })
                         .ForEach(t => t.Dispose());
+
+                if (!Timelines.Any(t=>t.Value.Tag is string[])) // streaming columns
+                    _streamingSubscription.DisposeIfNotNull();
             };
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))

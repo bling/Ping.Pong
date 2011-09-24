@@ -209,9 +209,6 @@
     <None Include="Properties\InBrowserSettings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <DesignData Include="SampleData\Tweets.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-    </DesignData>
     <DesignData Include="SampleData\TweetSampleData.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
     </DesignData>
