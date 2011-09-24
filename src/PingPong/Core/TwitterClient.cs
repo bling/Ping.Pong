@@ -88,11 +88,20 @@ namespace PingPong.Core
             CreateClient(ApiAuthority).BeginRequest(request);
         }
 
-        public IObservable<JsonValue> GetCredentialVerification()
+        public IObservable<AccountInfo> GetAccountVerification()
         {
             return GetContents(false, ApiAuthority, "/1/account/verify_credentials.json")
                 .Select(ToJson)
-                .Where(x => x != null);
+                .Where(x => x != null)
+                .Select(x => new AccountInfo(x));
+        }
+
+        public IObservable<AccountInfo> GetAccountInfo(string screenName)
+        {
+            return GetContents(false, ApiAuthority, "/1/users/lookup.json", new { screen_name = screenName })
+                .Select(ToJson)
+                .Where(x => x != null)
+                .Select(x => new AccountInfo(x));
         }
 
         public IObservable<Tweet> GetHomeTimeline(int count = RequestCount)

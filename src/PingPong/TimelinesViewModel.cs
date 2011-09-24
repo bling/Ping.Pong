@@ -66,16 +66,6 @@ namespace PingPong
                     e.OldItems.Cast<Owned<TweetCollection>>().ForEach(t => t.Dispose());
             };
 
-            client.GetCredentialVerification()
-                .Select(x => "@" + x["screen_name"])
-                .Select(name => new { name, tweets = client.GetStreamingStatuses().Publish() })
-                .DispatcherSubscribe(x =>
-                {
-                    _screenName = x.name;
-                    _tweetsStream = x.tweets;
-                    OnInit(x.name, x.tweets);
-                });
-
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))
                 .DispatcherSubscribe(_ => Timelines
                                               .Select(x => x.Value)
@@ -83,15 +73,20 @@ namespace PingPong
                                               .ForEach(t => t.NotifyOfPropertyChange("CreatedAt")));
         }
 
-        private void OnInit(string name, IConnectableObservable<Tweet> tweets)
+        protected override void OnActivate()
         {
-            _screenName = name;
-            _tweetsStream = tweets;
-
-            AddTimeline("Home", line => line.Subscribe(_tweetsStream.Where(t => !t.Text.Contains(_screenName))));
-
-            ShowMentions = true;
-            _tweetsSubscription = tweets.Connect();
+            base.OnActivate();
+            _client.GetAccountVerification()
+                .Select(x => "@" + x.ScreenName)
+                .Select(name => new { name, tweets = _client.GetStreamingStatuses().Publish() })
+                .Do(x => _screenName = x.name)
+                .Do(x => _tweetsStream = x.tweets)
+                .DispatcherSubscribe(_ =>
+                {
+                    AddTimeline("Home", line => line.Subscribe(_tweetsStream.Where(t => !t.Text.Contains(_screenName))));
+                    ShowMentions = true;
+                    _tweetsSubscription = _tweetsStream.Connect();
+                });
         }
 
         protected override void OnDeactivate(bool close)
@@ -128,12 +123,11 @@ namespace PingPong
                 foreach (string part in allParts)
                 {
                     string[] terms = part.Split('|');
-                    var sub = ob.Where(t => terms.Any(term => t.Text.Contains(term)));
                     AddTimeline(part, tl =>
                     {
                         tl.Tag = terms;
                         tl.CanClose = true;
-                        tl.Subscribe(sub);
+                        tl.Subscribe(ob.Where(t => terms.Any(term => t.Text.Contains(term))));
                     });
                 }
 

@@ -116,6 +116,7 @@
     <Compile Include="InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="ErrorViewModel.cs" />
+    <Compile Include="Models\AccountInfo.cs" />
     <Compile Include="StatusViewModel.cs" />
     <Compile Include="TimelinesViewModel.cs" />
     <Compile Include="Messages\Messages.cs" />
