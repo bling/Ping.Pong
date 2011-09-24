@@ -16,7 +16,7 @@ namespace PingPong.Core
 {
     public class TwitterClient
     {
-        private const int RequestCount = 20;
+        private const int RequestCount = 200;
         private const string ApiAuthority = "https://api.twitter.com";
         private const string SearchAuthority = "https://search.twitter.com";
         private const string StreamingAuthority = "https://stream.twitter.com";
