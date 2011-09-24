@@ -116,7 +116,7 @@
     <Compile Include="InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="ErrorViewModel.cs" />
-    <Compile Include="Models\AccountInfo.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="StatusViewModel.cs" />
     <Compile Include="TimelinesViewModel.cs" />
     <Compile Include="Messages\Messages.cs" />
@@ -129,6 +129,7 @@
     <Compile Include="Core\TweetParser.cs" />
     <Compile Include="Core\TwitterClient.cs" />
     <Compile Include="Core\TwitterSubscriptions.cs" />
+    <Compile Include="UserInfoViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -174,6 +175,10 @@
     <Page Include="AuthorizationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserInfoView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="StatusView.xaml">
       <Generator>MSBuild:Compile</Generator>

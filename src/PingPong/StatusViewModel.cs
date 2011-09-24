@@ -110,27 +110,27 @@ namespace PingPong
         public void Reply(Tweet tweet)
         {
             _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Reply };
-            StatusText = '@' + tweet.ScreenName;
+            StatusText = '@' + tweet.User.ScreenName;
             IsOpen = true;
         }
 
         public void Retweet(Tweet tweet)
         {
             _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Retweet };
-            StatusText = string.Format("RT @{0} {1}", tweet.ScreenName, tweet.Text);
+            StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
             IsOpen = true;
         }
 
         public void Quote(Tweet tweet)
         {
             _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Quote };
-            StatusText = string.Format("RT @{0} {1}", tweet.ScreenName, tweet.Text);
+            StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
             IsOpen = true;
         }
 
         public void DirectMessage(Tweet tweet)
         {
-            _outgoing = new OutgoingContext { ScreenName = tweet.ScreenName, Type = OutgoingType.DirectMessage };
+            _outgoing = new OutgoingContext { ScreenName = tweet.User.ScreenName, Type = OutgoingType.DirectMessage };
             StatusText = string.Empty;
             IsOpen = true;
         }

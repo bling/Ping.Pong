@@ -88,60 +88,62 @@ namespace PingPong.Core
             CreateClient(ApiAuthority).BeginRequest(request);
         }
 
-        public IObservable<AccountInfo> GetAccountVerification()
+        public IObservable<User> GetAccountVerification()
         {
             return GetContents(false, ApiAuthority, "/1/account/verify_credentials.json")
                 .Select(ToJson)
                 .Where(x => x != null)
-                .Select(x => new AccountInfo(x));
+                .Select(x => new User(x));
         }
 
-        public IObservable<AccountInfo> GetAccountInfo(string screenName)
+        public IObservable<User> GetAccountInfo(string screenName)
         {
             return GetContents(false, ApiAuthority, "/1/users/lookup.json", new { screen_name = screenName })
                 .Select(ToJson)
                 .Where(x => x != null)
-                .Select(x => new AccountInfo(x));
+                .Cast<JsonArray>()
+                .SelectMany(x => x)
+                .Select(x => new User(x));
         }
 
         public IObservable<Tweet> GetHomeTimeline(int count = RequestCount)
         {
-            return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", new { include_rts = "1" }, new { count });
+            return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", new { include_entities = "1" }, new { include_rts = "1" }, new { count });
         }
 
         public IObservable<Tweet> GetCurrentUserTimeline(int count = RequestCount)
         {
-            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", new { include_rts = "1" }, new { count });
+            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", new { include_entities = "1" }, new { include_rts = "1" }, new { count });
         }
 
         public IObservable<Tweet> GetUserTimeline(string screenName, ulong? sinceId = null)
         {
-            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", new { screen_name = screenName }, new { include_rts = "1" }, new { since_id = sinceId });
+            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", new { screen_name = screenName }, new { include_entities = "1" }, new { include_rts = "1" }, new { since_id = sinceId });
         }
 
         public IObservable<Tweet> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
         {
-            return GetSnapshot(SearchAuthority, "/search.json", new { q = query }, new { count }, new { since_id = sinceId });
+            return GetSnapshot(SearchAuthority, "/search.json", new { include_entities = "1" }, new { q = query }, new { count }, new { since_id = sinceId });
         }
 
         public IObservable<Tweet> GetStreamingHomeline()
         {
-            return GetStreaming(UserStreamingAuthority, "/2/user.json");
+            return GetStreaming(UserStreamingAuthority, "/2/user.json", new { include_entities = "1" });
         }
 
         public IObservable<Tweet> GetMentions(int count = RequestCount)
         {
-            return GetSnapshot(ApiAuthority, "/statuses/mentions.json", new { include_rts = "1" }, new { count });
+            return GetSnapshot(ApiAuthority, "/statuses/mentions.json", new { include_rts = "1" }, new { count }, new { include_entities = "1" });
         }
 
         public IObservable<Tweet> GetDirectMessages(ulong? sinceId = null)
         {
-            return GetSnapshot(ApiAuthority, "/direct_messages.json", new { since_id = sinceId });
+            return GetSnapshot(ApiAuthority, "/direct_messages.json", new { since_id = sinceId }, new { include_entities = "1" });
         }
 
         public IObservable<Tweet> GetFavorites(ulong? sinceId = null)
         {
-            return GetSnapshot(ApiAuthority, "/favorites.json", new { since_id = sinceId });
+            return GetSnapshot(ApiAuthority, "/favorites.json", new { since_id = sinceId }, new { include_entities = "1" });
         }
 
         public IObservable<Tweet> GetStreamingSampling()

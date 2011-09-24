@@ -180,7 +180,7 @@
                     <Border.Clip>
                         <RectangleGeometry RadiusX="4" RadiusY="4" Rect="0,0,52,48" />
                     </Border.Clip>
-                    <Image Width="48" Height="48" Source="{Binding ProfileImgUrl}" />
+                    <Image Width="48" Height="48" Source="{Binding User.ProfileImageUrl}" />
                 </Border>
                 <Border Height="48"
                         VerticalAlignment="Top"
@@ -200,8 +200,7 @@
                                          FontFamily="{StaticResource DefaultFontFamily}"
                                          FontSize="12"
                                          Foreground="{StaticResource TweetTextBrush}"
-                                         ScreenName="{Binding ScreenName}"
-                                         Text="{Binding Text}" />
+                                         Tweet="{Binding}" />
                 </Border>
             </Grid>
             <Button Grid.Column="1"
@@ -209,12 +208,12 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     cal:Action.TargetWithoutContext="PingPong.IShell"
-                    Content="{Binding ScreenName}"
+                    Content="{Binding User.ScreenName}"
                     Style="{StaticResource ScreenNameButtonStyle}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <cal:ActionMessage MethodName="NavigateToUserTimeline">
-                            <cal:Parameter Value="{Binding ScreenName}" />
+                            <cal:Parameter Value="{Binding User.ScreenName}" />
                         </cal:ActionMessage>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
