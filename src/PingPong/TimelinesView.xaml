@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
              d:DesignHeight="392"
              d:DesignWidth="592"
              mc:Ignorable="d">
@@ -21,9 +22,6 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal">
                 <ToggleButton Width="80"
-                              Background="Transparent"
-                              BorderBrush="#FF448FBE"
-                              BorderThickness="1"
                               cal:Bind.Model="PingPong.StatusViewModel"
                               Content="Status"
                               Foreground="#FF448FBE"
@@ -32,18 +30,12 @@
                               Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowHome"
                               Width="80"
-                              Background="Transparent"
-                              BorderBrush="#FF448FBE"
-                              BorderThickness="1"
                               Content="Home"
                               Foreground="#FF448FBE"
                               Padding="5,2"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowMentions"
                               Width="80"
-                              Background="Transparent"
-                              BorderBrush="#FF448FBE"
-                              BorderThickness="1"
                               Content="Mentions"
                               Foreground="#FF448FBE"
                               Padding="5,2"
@@ -55,27 +47,15 @@
                          Width="200"
                          HorizontalAlignment="Right"
                          Background="Transparent"
-                         BorderBrush="#FF448FBE"
+                         BorderBrush="#FF0B2739"
                          CaretBrush="White"
                          Foreground="#FF448FBE" />
-                <Button x:Name="Search"
-                        HorizontalAlignment="Right"
-                        Background="Transparent"
-                        BorderBrush="#FF448FBE"
-                        BorderThickness="1"
-                        Content="Stream"
-                        Foreground="#FF448FBE"
-                        Padding="5,0"
-                        Style="{StaticResource SimpleButtonStyle}" />
-                <Button x:Name="Stop"
-                        HorizontalAlignment="Right"
-                        Background="Transparent"
-                        BorderBrush="#FF448FBE"
-                        BorderThickness="1"
-                        Content="Stop"
-                        Foreground="#FF448FBE"
-                        Padding="5,0"
-                        Style="{StaticResource SimpleButtonStyle}" />
+                <ToggleButton x:Name="Streaming"
+                              Width="80"
+                              Content="Stream"
+                              Foreground="#FF448FBE"
+                              Padding="5,2"
+                              Style="{StaticResource SimpleToggleButtonStyle}" />
             </StackPanel>
         </Grid>
         <ItemsControl x:Name="Timelines" Grid.Row="1">
@@ -94,5 +74,6 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <toolkit:BusyIndicator Grid.RowSpan="2" IsBusy="{Binding IsBusy}" Style="{StaticResource BusyIndicatorStyle}" />
     </Grid>
 </UserControl>

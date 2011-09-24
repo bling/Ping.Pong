@@ -25,6 +25,8 @@ namespace PingPong
         private IDisposable _streamingSubscription;
         private string _searchText;
         private string _screenName;
+        private bool _streaming;
+        private bool _isBusy;
         private DateTime _streamStartTime = DateTime.MinValue;
         private IConnectableObservable<Tweet> _tweetsStream;
 
@@ -57,11 +59,30 @@ namespace PingPong
                 NotifyOfPropertyChange(() => ShowMentions);
             }
         }
-        
+
         public string SearchText
         {
             get { return _searchText; }
             set { this.SetValue("SearchText", value, ref _searchText); }
+        }
+
+        public bool Streaming
+        {
+            get { return _streaming; }
+            set
+            {
+                this.SetValue("Streaming", value, ref _streaming);
+                if (value)
+                    StartStreaming();
+                else
+                    _streamingSubscription.DisposeIfNotNull();
+            }
+        }
+
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            set { this.SetValue("IsBusy", value, ref _isBusy); }
         }
 
         public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
@@ -72,9 +93,11 @@ namespace PingPong
 
             _homeline = timelineFactory();
             _homeline.Value.Description = "Home";
-            
+
             _mentionline = timelineFactory();
             _mentionline.Value.Description = "Mentions";
+
+            IsBusy = true;
 
             Timelines = new ObservableCollection<Owned<TweetCollection>>();
             Timelines.CollectionChanged += (sender, e) =>
@@ -84,7 +107,7 @@ namespace PingPong
                         .Except(new[] { _homeline, _mentionline })
                         .ForEach(t => t.Dispose());
 
-                if (!Timelines.Any(t=>t.Value.Tag is string[])) // streaming columns
+                if (!Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
                     _streamingSubscription.DisposeIfNotNull();
             };
 
@@ -110,6 +133,7 @@ namespace PingPong
 
                     ShowHome = true;
                     ShowMentions = true;
+                    IsBusy = false;
                 });
         }
 
@@ -123,7 +147,7 @@ namespace PingPong
             _refreshSubscription.Dispose();
         }
 
-        public void Search()
+        private void StartStreaming()
         {
             if (DateTime.UtcNow - _streamStartTime < StreamThrottleRate)
             {
@@ -160,11 +184,6 @@ namespace PingPong
                 _streamingSubscription.DisposeIfNotNull();
                 _streamingSubscription = ob.Connect();
             }
-        }
-
-        public void Stop()
-        {
-            _streamingSubscription.DisposeIfNotNull();
         }
 
         private void AddTimeline(string description, Action<TweetCollection> setup)

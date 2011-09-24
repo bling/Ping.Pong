@@ -92,6 +92,8 @@
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Controls.Toolkit" />
+    <Reference Include="System.Windows.Controls.Toolkit.Internals" />
     <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -116,6 +118,7 @@
     <Compile Include="InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="ErrorViewModel.cs" />
+    <Compile Include="Models\JsonHelper.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="StatusViewModel.cs" />
     <Compile Include="TimelinesViewModel.cs" />
@@ -156,6 +159,10 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Assets\BusyIndicatorStyle.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Assets\MetroTweetsPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
