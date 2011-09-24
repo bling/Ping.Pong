@@ -1,4 +1,5 @@
-﻿using PingPong.Core;
+﻿using System.Linq;
+using PingPong.Core;
 
 namespace PingPong.Messages
 {
@@ -19,6 +20,16 @@ namespace PingPong.Messages
         public NavigateToTopicMessage(string topic)
         {
             Topic = topic.Trim(TweetParser.PunctuationChars).Trim('@', '#');
+        }
+    }
+
+    public class NavigateToConversationMessage
+    {
+        public string[] ScreenNames { get; private set; }
+
+        public NavigateToConversationMessage(params string[] screenNames)
+        {
+            ScreenNames = screenNames.Select(x => x.Trim(TweetParser.PunctuationChars).Trim('@', '#')).ToArray();
         }
     }
 

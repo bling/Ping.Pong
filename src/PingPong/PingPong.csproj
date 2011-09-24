@@ -104,6 +104,7 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
+    <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
     <Compile Include="Converters\CharactersRemainingConverter.cs" />
     <Compile Include="Converters\RelativeTimeConverter.cs" />
     <Compile Include="AppBootstrapper.Keys.cs" />
