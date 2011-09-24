@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Caliburn.Micro;
@@ -37,6 +38,18 @@ namespace PingPong
             _client = client;
             _tweetParser = tweetParser;
             _windowManager = windowManager;
+        }
+
+        protected override void OnViewAttached(object view, object context)
+        {
+            base.OnViewAttached(view, context);
+            ((FrameworkElement)view).LostFocus += OnViewLostFocus;
+        }
+
+        private void OnViewLostFocus(object sender, RoutedEventArgs e)
+        {
+            ((FrameworkElement)sender).LostFocus -= OnViewLostFocus;
+            TryClose();
         }
 
         protected override void OnDeactivate(bool close)
