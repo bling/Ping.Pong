@@ -115,8 +115,7 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Setter Property="FontFamily" Value="Ubuntu Light" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="{StaticResource ScreenNameTextBrush}" />
     </Style>
 
@@ -170,7 +169,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
 
-            <Grid Margin="0,5,0,0" VerticalAlignment="Top">
+            <Grid x:Name="image" Margin="0,5,0,0" VerticalAlignment="Top">
                 <Border Background="#55000000" CornerRadius="4">
                     <Border.RenderTransform>
                         <CompositeTransform TranslateX="3" TranslateY="2" />
@@ -189,26 +188,30 @@
                         CornerRadius="4,0,0,4" />
             </Grid>
 
-            <Grid Grid.Column="1" Grid.ColumnSpan="2" MinHeight="67">
+            <Grid x:Name="tweet" Grid.Column="1" Grid.ColumnSpan="2" MinHeight="70">
                 <Border Background="#33000000" CornerRadius="7">
                     <Border.RenderTransform>
                         <CompositeTransform TranslateX="3" TranslateY="3" />
                     </Border.RenderTransform>
                 </Border>
                 <Border Background="{StaticResource TweetTextBackgroundBrush}" BorderBrush="{StaticResource TweetTextBorderBrush}" BorderThickness="1" CornerRadius="7">
-                    <ctrl:TweetTextBlock Margin="0,0,0,10"
+                    <ctrl:TweetTextBlock Margin="2"
                                          FontFamily="{StaticResource DefaultFontFamily}"
-                                         FontSize="12"
+                                         FontSize="13.333"
                                          Foreground="{StaticResource TweetTextBrush}"
+                                         Padding="0,0,0,20"
                                          Tweet="{Binding}" />
                 </Border>
             </Grid>
-            <Button Grid.Column="1"
-                    Margin="-10,-2,0,0"
+            <Button x:Name="screenNameButton"
+                    Grid.Column="1"
+                    Margin="-8,-2,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     cal:Action.TargetWithoutContext="PingPong.IShell"
                     Content="{Binding User.ScreenName}"
+                    FontFamily="{StaticResource DefaultFontFamily}"
+                    FontSize="14.667"
                     Style="{StaticResource ScreenNameButtonStyle}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
@@ -227,7 +230,8 @@
                              HorizontalAlignment="Left"
                              VerticalAlignment="Bottom"
                              Content="{Binding Source, Converter={StaticResource SourceToContentConverter}}"
-                             FontSize="9"
+                             FontFamily="{StaticResource DefaultFontFamily}"
+                             FontSize="10.667"
                              Foreground="#FF6A6A6A"
                              NavigateUri="{Binding Source, Converter={StaticResource SourceToUriConverter}}" />
             <TextBlock x:Name="date"
@@ -237,7 +241,8 @@
                        Margin="0,0,10,0"
                        HorizontalAlignment="Right"
                        VerticalAlignment="Bottom"
-                       FontSize="10"
+                       FontFamily="{StaticResource DefaultFontFamily}"
+                       FontSize="10.667"
                        Foreground="{StaticResource DateTextBrush}"
                        Opacity="1"
                        Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}" />

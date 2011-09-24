@@ -12,7 +12,12 @@ namespace PingPong.Controls
     public class TweetTextBlock : Control
     {
         public static readonly DependencyProperty TweetProperty
-            = DependencyProperty.Register("Tweet", typeof(Tweet), typeof(TweetTextBlock), new PropertyMetadata(null));
+            = DependencyProperty.Register("Tweet", typeof(Tweet), typeof(TweetTextBlock), new PropertyMetadata(OnTweetChanged));
+
+        private static void OnTweetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((TweetTextBlock)d).UpdateText();
+        }
 
         public Tweet Tweet
         {
@@ -38,11 +43,6 @@ namespace PingPong.Controls
 
             _block = (RichTextBox)GetTemplateChild("PART_TextBlock");
             UpdateText();
-        }
-
-        private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((TweetTextBlock)d).UpdateText();
         }
 
         private void UpdateText()

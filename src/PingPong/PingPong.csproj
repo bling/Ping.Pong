@@ -148,11 +148,6 @@
     <None Include="Properties\OutOfBrowserSettings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <BlendEmbeddedFont Include="Fonts\Ubuntu-L.ttf">
-      <IsSystemFont>True</IsSystemFont>
-      <All>True</All>
-      <AutoFill>True</AutoFill>
-    </BlendEmbeddedFont>
     <Resource Include="Assets\DarkTweetsPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -214,11 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\InBrowserSettings.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <DesignData Include="SampleData\TweetSampleData.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-    </DesignData>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

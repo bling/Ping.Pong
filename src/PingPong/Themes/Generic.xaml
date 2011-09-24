@@ -11,7 +11,7 @@
                                  FontSize="{TemplateBinding FontSize}"
                                  Foreground="{TemplateBinding Foreground}"
                                  IsReadOnly="True"
-                                 TextOptions.TextHintingMode="Fixed" />
+                                 Padding="{TemplateBinding Padding}" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

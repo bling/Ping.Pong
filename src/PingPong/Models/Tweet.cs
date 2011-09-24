@@ -26,7 +26,6 @@ namespace PingPong.Models
 
         public Tweet(JsonObject json)
         {
-            User = new User(json["user"]);
             Id = json["id"];
             Text = json["text"]; // explicit conversion will unescape json
             Text = Text.UnescapeXml(); // unescape again for & escapes
@@ -40,25 +39,27 @@ namespace PingPong.Models
             JsonValue entities;
             if (json.TryGetValue("entities", out entities))
                 Entities = new Entities(entities);
+
+            User = new User(json["user"]);
         }
 
-        public ulong Id { get; set; }
+        public ulong Id { get; private set; }
 
-        public string Text { get; set; }
+        public string Text { get; private set; }
 
-        public User User { get; set; }
+        public User User { get; private set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; private set; }
 
-        public string Source { get; set; }
+        public string Source { get; private set; }
 
-        public bool IsRetweet { get; set; }
+        public bool IsRetweet { get; private set; }
 
-        public string InReplyToStatusId { get; set; }
+        public string InReplyToStatusId { get; private set; }
 
-        public string InReplyToScreenName { get; set; }
+        public string InReplyToScreenName { get; private set; }
 
-        public Entities Entities { get; set; }
+        public Entities Entities { get; private set; }
     }
 
     public class Entities
@@ -70,9 +71,9 @@ namespace PingPong.Models
             Hashtags = ((JsonArray)json["hashtags"]).Select(x => new Hashtag(x)).ToArray();
         }
 
-        public UrlInfo[] Urls { get; set; }
-        public UserMention[] UserMentions { get; set; }
-        public Hashtag[] Hashtags { get; set; }
+        public UrlInfo[] Urls { get; private set; }
+        public UserMention[] UserMentions { get; private set; }
+        public Hashtag[] Hashtags { get; private set; }
     }
 
     public class UrlInfo
@@ -84,9 +85,9 @@ namespace PingPong.Models
             Indices = ((JsonArray)json["indices"]).Select(x => (int)x).ToArray();
         }
 
-        public string ExpandedUrl { get; set; }
-        public string Url { get; set; }
-        public int[] Indices { get; set; }
+        public string ExpandedUrl { get; private set; }
+        public string Url { get; private set; }
+        public int[] Indices { get; private set; }
     }
 
     public class UserMention
@@ -99,10 +100,10 @@ namespace PingPong.Models
             Indices = ((JsonArray)json["indices"]).Select(x => (int)x).ToArray();
         }
 
-        public string Name { get; set; }
-        public string ScreenName { get; set; }
-        public ulong Id { get; set; }
-        public int[] Indices { get; set; }
+        public string Name { get; private set; }
+        public string ScreenName { get; private set; }
+        public ulong Id { get; private set; }
+        public int[] Indices { get; private set; }
     }
 
     public class Hashtag
@@ -113,7 +114,7 @@ namespace PingPong.Models
             Indices = ((JsonArray)json["indices"]).Select(x => (int)x).ToArray();
         }
 
-        public string Text { get; set; }
-        public int[] Indices { get; set; }
+        public string Text { get; private set; }
+        public int[] Indices { get; private set; }
     }
 }
