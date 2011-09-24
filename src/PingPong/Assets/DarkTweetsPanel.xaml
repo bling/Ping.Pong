@@ -11,7 +11,6 @@
 
     <SolidColorBrush x:Key="ScreenNameTextBrush" Color="#FFBE7C44" />
     <SolidColorBrush x:Key="ScreenNameBorderBrush" Color="#FF272D45" />
-    <SolidColorBrush x:Key="ScreenNameBackgroundBrush" Color="#FF1B1B1B" />
     <SolidColorBrush x:Key="TweetTextBrush" Color="#FF9B9B9B" />
     <SolidColorBrush x:Key="TweetTextBorderBrush" Color="#FF393939" />
     <SolidColorBrush x:Key="TweetTextBackgroundBrush" Color="#FF212121" />
@@ -69,6 +68,56 @@
             </Setter.Value>
         </Setter>
         <Setter Property="Foreground" Value="#FFB1B1B1" />
+    </Style>
+    <Style x:Key="ScreenNameButtonStyle" TargetType="Button">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="grid" Margin="0">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ColorAnimation d:IsOptimized="True"
+                                                        Duration="0"
+                                                        Storyboard.TargetName="border"
+                                                        Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                        To="#FF292929" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="grid" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Thickness>1</Thickness>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border Background="#55000000" CornerRadius="5">
+                            <Border.RenderTransform>
+                                <CompositeTransform TranslateX="2" TranslateY="2" />
+                            </Border.RenderTransform>
+                        </Border>
+                        <Border x:Name="border"
+                                Background="#FF1B1B1B"
+                                BorderBrush="{StaticResource ScreenNameBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4" />
+                        <ContentPresenter Margin="5,2" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontFamily" Value="Ubuntu Light" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{StaticResource ScreenNameTextBrush}" />
     </Style>
 
     <DataTemplate x:Key="DarkTweetDataTemplate">
@@ -155,23 +204,21 @@
                                          Text="{Binding Text}" />
                 </Border>
             </Grid>
-
-            <Grid Grid.Column="1" Margin="-10,-3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Border Background="#55000000" CornerRadius="5">
-                    <Border.RenderTransform>
-                        <CompositeTransform TranslateX="2" TranslateY="2" />
-                    </Border.RenderTransform>
-                </Border>
-                <Border Background="{StaticResource ScreenNameBackgroundBrush}" BorderBrush="{StaticResource ScreenNameBorderBrush}" BorderThickness="1" CornerRadius="4">
-                    <TextBlock Margin="5,2"
-                               HorizontalAlignment="Left"
-                               VerticalAlignment="Bottom"
-                               FontFamily="Ubuntu Light"
-                               FontSize="13"
-                               Foreground="{StaticResource ScreenNameTextBrush}"
-                               Text="{Binding ScreenName}" />
-                </Border>
-            </Grid>
+            <Button Grid.Column="1"
+                    Margin="-10,-2,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    cal:Action.TargetWithoutContext="PingPong.IShell"
+                    Content="{Binding ScreenName}"
+                    Style="{StaticResource ScreenNameButtonStyle}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <cal:ActionMessage MethodName="NavigateToUserTimeline">
+                            <cal:Parameter Value="{Binding ScreenName}" />
+                        </cal:ActionMessage>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
 
             <HyperlinkButton x:Name="viaLink"
                              Grid.Row="0"

@@ -40,5 +40,10 @@ namespace PingPong
         {
             ActivateItem(_container.Resolve<TimelinesViewModel>());
         }
+
+        public void NavigateToUserTimeline(string screenName)
+        {
+            _container.Resolve<IEventAggregator>().Publish(new NavigateToUserMessage(screenName));
+        }
     }
 }
