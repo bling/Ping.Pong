@@ -14,23 +14,12 @@ namespace PingPong
         private readonly TweetParser _tweetParser;
         private readonly IWindowManager _windowManager;
         private string _statusText;
-        private bool _isOpen;
         private OutgoingContext _outgoing;
 
         public string StatusText
         {
             get { return _statusText; }
             set { this.SetValue("StatusText", value, ref _statusText); }
-        }
-
-        public bool IsOpen
-        {
-            get { return _isOpen; }
-            set
-            {
-                if (this.SetValue("IsOpen", value, ref _isOpen) && value)
-                    _windowManager.ShowPopup(this);
-            }
         }
 
         public StatusViewModel(TwitterClient client, TweetParser tweetParser, IWindowManager windowManager)
@@ -50,12 +39,6 @@ namespace PingPong
         {
             ((FrameworkElement)sender).LostFocus -= OnViewLostFocus;
             TryClose();
-        }
-
-        protected override void OnDeactivate(bool close)
-        {
-            base.OnDeactivate(close);
-            IsOpen = false;
         }
 
         public void OnStatusTextBoxTextInput(TextCompositionEventArgs e)
@@ -109,30 +92,35 @@ namespace PingPong
 
         public void Reply(Tweet tweet)
         {
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Reply };
             StatusText = '@' + tweet.User.ScreenName;
-            IsOpen = true;
+            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Reply };
+            Show();
         }
 
         public void Retweet(Tweet tweet)
         {
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Retweet };
             StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
-            IsOpen = true;
+            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Retweet };
+            Show();
         }
 
         public void Quote(Tweet tweet)
         {
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Quote };
             StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
-            IsOpen = true;
+            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Quote };
+            Show();
         }
 
         public void DirectMessage(Tweet tweet)
         {
-            _outgoing = new OutgoingContext { ScreenName = tweet.User.ScreenName, Type = OutgoingType.DirectMessage };
             StatusText = string.Empty;
-            IsOpen = true;
+            _outgoing = new OutgoingContext { ScreenName = tweet.User.ScreenName, Type = OutgoingType.DirectMessage };
+            Show();
+        }
+
+        public void Show()
+        {
+            _windowManager.ShowPopup(this);
         }
     }
 

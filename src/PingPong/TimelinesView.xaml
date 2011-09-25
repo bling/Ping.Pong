@@ -21,15 +21,15 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal">
-                <ToggleButton Width="80"
-                              cal:Bind.Model="PingPong.StatusViewModel"
-                              Content="Status"
-                              FontFamily="{StaticResource DefaultFontFamily}"
-                              FontSize="13.333"
-                              Foreground="#FF448FBE"
-                              IsChecked="{Binding IsOpen, Mode=TwoWay}"
-                              Padding="5,2"
-                              Style="{StaticResource SimpleToggleButtonStyle}" />
+                <Button Width="80"
+                        cal:Action.Target="PingPong.StatusViewModel"
+                        cal:Message.Attach="Show"
+                        Content="Status"
+                        FontFamily="{StaticResource DefaultFontFamily}"
+                        FontSize="13.333"
+                        Foreground="#FF448FBE"
+                        Padding="5,2"
+                        Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowHome"
                               Width="80"
                               Content="Home"

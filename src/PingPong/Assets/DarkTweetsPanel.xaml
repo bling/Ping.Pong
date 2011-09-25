@@ -4,7 +4,6 @@
                     xmlns:conv="clr-namespace:PingPong.Converters"
                     xmlns:ctrl="clr-namespace:PingPong.Controls"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:ed="http://schemas.microsoft.com/expression/2010/drawing"
                     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -463,7 +462,7 @@
                             <Button.RenderTransform>
                                 <CompositeTransform ScaleX="-1" />
                             </Button.RenderTransform>
-                        </Button>						
+                        </Button>
                         <Button Grid.Row="2"
                                 Width="16"
                                 Margin="25,0,0,0"
