@@ -7,6 +7,7 @@
                     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:pp="clr-namespace:PingPong"
                     xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
                     mc:Ignorable="d">
 
@@ -20,6 +21,8 @@
     <SolidColorBrush x:Key="DateBackgroundBrush" Color="#FF141414" />
     <SolidColorBrush x:Key="ImageBorderBrush" Color="#FF3F3F3F" />
     <SolidColorBrush x:Key="TimelineHeaderBrush" Color="#FF3286C6" />
+    <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#FF448FBE" />
+    <SolidColorBrush x:Key="UserInfoCountsBrush" Color="#FF91819D" />
 
     <conv:RelativeTimeConverter x:Key="RelativeTimeConverter" />
     <conv:SourceToUriConverter x:Key="SourceToUriConverter" />
@@ -406,6 +409,79 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style x:Key="UserInfoContentStyle" TargetType="ContentControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid x:Name="userInfo"
+                          Margin="0,5"
+                          d:DataContext="{d:DesignData /SampleData/UserSampleData.xaml}"
+                          DataContext="{Binding User}"
+                          Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=IsUserInfoOpen}">
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
+                                <Setter Property="FontSize" Value="12" />
+                                <Setter Property="Foreground" Value="{StaticResource TweetTextBrush}" />
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <TextBlock FontSize="16" Foreground="{StaticResource ScreenNameTextBrush}" Text="{Binding Name}" />
+                            <TextBlock Foreground="#FF94AB88">
+                                <Run Text="{Binding ScreenName, StringFormat='{}@{0}'}" />
+                                <Run Text=" " />
+                                <Run Text="{Binding Location}" />
+                            </TextBlock>
+                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                            <HyperlinkButton Content="{Binding Url}" NavigateUri="{Binding Url}" />
+                        </StackPanel>
+                        <Grid Grid.Row="1" Margin="0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="tweets" />
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="following" />
+                            <TextBlock Grid.Column="2" HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="followers" />
+                            <TextBlock Grid.Row="1" HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="{Binding Statuses}" />
+                            <TextBlock Grid.Row="1"
+                                       Grid.Column="1"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{StaticResource UserInfoCountsBrush}"
+                                       Text="{Binding Friends}" />
+                            <TextBlock Grid.Row="1"
+                                       Grid.Column="2"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{StaticResource UserInfoCountsBrush}"
+                                       Text="{Binding Followers}" />
+                        </Grid>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Button Background="Transparent" Content="Follow" Foreground="{StaticResource ButtonForegroundBrush}" Style="{StaticResource SimpleToggleButtonStyle}" />
+                            <Button Grid.Column="1"
+                                    Background="Transparent"
+                                    Content="Unfollow"
+                                    Foreground="{StaticResource ButtonForegroundBrush}"
+                                    Style="{StaticResource SimpleToggleButtonStyle}" />
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style x:Key="DarkTweetsPanel" TargetType="ItemsControl">
         <Setter Property="Background" Value="#FF181818" />
@@ -426,10 +502,10 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <ScrollViewer Grid.RowSpan="2" Margin="0" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Visible">
+                        <ScrollViewer Margin="0" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Visible">
                             <ItemsPresenter />
                         </ScrollViewer>
-                        <Border Grid.Row="1" Height="5">
+                        <Border Grid.RowSpan="2" Height="5" VerticalAlignment="Bottom">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                                     <GradientStop Offset="1" Color="#FF000000" />
@@ -445,13 +521,17 @@
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
-                        <TextBlock Grid.Row="2"
-                                   Margin="0,0,35,0"
-                                   HorizontalAlignment="Right"
-                                   FontFamily="{StaticResource DefaultFontFamily}"
-                                   FontSize="18"
-                                   Foreground="{StaticResource TimelineHeaderBrush}"
-                                   Text="{Binding DisplayName}" />
+                        <ContentControl Grid.Row="1" Content="{Binding User}" Style="{StaticResource UserInfoContentStyle}" />
+                        <ToggleButton x:Name="IsUserInfoOpen"
+                                      Grid.Row="2"
+                                      Margin="0,0,35,0"
+                                      HorizontalAlignment="Right"
+                                      Content="{Binding DisplayName}"
+                                      FontFamily="{StaticResource DefaultFontFamily}"
+                                      FontSize="18"
+                                      Foreground="{StaticResource TimelineHeaderBrush}"
+                                      IsEnabled="{Binding CanOpenUserInfo}"
+                                      Style="{StaticResource SimpleToggleButtonStyle}" />
                         <Button x:Name="TryClose"
                                 Grid.Row="2"
                                 Width="12"
@@ -482,6 +562,7 @@
                                 </Button.RenderTransform>
                             </Button>
                         </StackPanel>
+
                         <toolkit:BusyIndicator Grid.RowSpan="3" IsBusy="{Binding IsBusy}" Style="{StaticResource BusyIndicatorStyle}" />
                     </Grid>
                 </ControlTemplate>

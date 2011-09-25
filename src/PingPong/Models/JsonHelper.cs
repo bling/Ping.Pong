@@ -42,6 +42,11 @@ namespace PingPong.Models
                        : null;
         }
 
+        public static User ToUser(JsonValue value)
+        {
+            return Activate(() => new User(value));
+        }
+
         private static T Activate<T>(Func<T> activator) where T : class
         {
             try

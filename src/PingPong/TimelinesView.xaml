@@ -28,7 +28,7 @@
                         Content="Status"
                         FontFamily="{StaticResource DefaultFontFamily}"
                         FontSize="13.333"
-                        Foreground="#FF448FBE"
+                        Foreground="{StaticResource ButtonForegroundBrush}"
                         Padding="5,2"
                         Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowHome"
@@ -36,7 +36,7 @@
                               Content="Home"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
-                              Foreground="#FF448FBE"
+                              Foreground="{StaticResource ButtonForegroundBrush}"
                               Padding="5,2"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowMentions"
@@ -44,7 +44,7 @@
                               Content="Mentions"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
-                              Foreground="#FF448FBE"
+                              Foreground="{StaticResource ButtonForegroundBrush}"
                               Padding="5,2"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
             </StackPanel>
@@ -58,12 +58,12 @@
                          BorderBrush="#FF0B2739"
                          CaretBrush="White"
                          FontFamily="{StaticResource DefaultFontFamily}"
-                         Foreground="#FF448FBE" />
+                         Foreground="{StaticResource ButtonForegroundBrush}" />
                 <ToggleButton x:Name="Streaming"
                               Width="100"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
-                              Foreground="#FF448FBE"
+                              Foreground="{StaticResource ButtonForegroundBrush}"
                               Padding="5,2"
                               Style="{StaticResource SimpleToggleButtonStyle}">
                     <TextBlock x:Name="text" Text="Start Stream">

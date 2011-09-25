@@ -90,7 +90,7 @@ namespace PingPong.Core
 
         public IObservable<User> GetAccountVerification()
         {
-            return GetContents(false, ApiAuthority, "/1/account/verify_credentials.json")
+            return GetContents(ApiAuthority, "/1/account/verify_credentials.json", false)
                 .Select(ToJson)
                 .Where(x => x != null)
                 .Select(x => new User(x));
@@ -98,7 +98,7 @@ namespace PingPong.Core
 
         public IObservable<User> GetAccountInfo(string screenName)
         {
-            return GetContents(false, ApiAuthority, "/1/users/lookup.json", new { screen_name = screenName })
+            return GetContents(ApiAuthority, "/1/users/lookup.json", false, new { screen_name = screenName })
                 .Select(ToJson)
                 .Where(x => x != null)
                 .Cast<JsonArray>()
@@ -108,10 +108,19 @@ namespace PingPong.Core
 
         public IObservable<Relationship> GetRelationship(string sourceScreenName, string targetScreenName)
         {
-            return GetContents(false, ApiAuthority, "/1/friendships/show.json", new { source_screen_name = sourceScreenName }, new { target_screen_name = targetScreenName })
+            return GetContents(ApiAuthority, "/1/friendships/show.json", false, new { source_screen_name = sourceScreenName }, new { target_screen_name = targetScreenName })
                 .Select(ToJson)
                 .Where(x => x != null)
                 .Select(JsonHelper.ToRelationship)
+                .Where(x => x != null);
+        }
+
+        public IObservable<User> GetUserInfo(string screenName)
+        {
+            return GetContents(ApiAuthority, "/1/users/show.json", false, new { include_entities = "1" }, new { screen_name = screenName })
+                .Select(ToJson)
+                .Where(x => x != null)
+                .Select(JsonHelper.ToUser)
                 .Where(x => x != null);
         }
 
@@ -174,21 +183,21 @@ namespace PingPong.Core
 
         private IObservable<JsonValue> GetSnapshot(string authority, string path, params object[] parameters)
         {
-            return GetContents(false, authority, path, parameters)
+            return GetContents(authority, path, false, parameters)
                 .Select(x => (JsonArray)ToJson(x))
                 .SelectMany(x => x);
         }
 
         private IObservable<Tweet> GetStreaming(string authority, string path, params object[] parameters)
         {
-            return GetContents(true, authority, path, parameters)
+            return GetContents(authority, path, true, parameters)
                 .Select(ToJson)
                 .SelectTweets()
                 .Buffer(TimeSpan.FromMilliseconds(100))
                 .SelectMany(x => x);
         }
 
-        private IObservable<string> GetContents(bool streaming, string authority, string path, params object[] parameters)
+        private IObservable<string> GetContents(string authority, string path, bool streaming, params object[] parameters)
         {
             return Observable.Create<string>(
                 ob =>

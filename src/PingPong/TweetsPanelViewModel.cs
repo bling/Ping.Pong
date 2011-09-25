@@ -8,12 +8,15 @@ namespace PingPong
 {
     public class TweetsPanelViewModel : Screen
     {
-        private readonly AppInfo _appInfo;
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
         private bool _isBusy;
         private bool _canClose;
+        private bool _canOpenUserInfo;
+        private bool _isUserInfoOpen;
         private IDisposable _subscription;
+        private string _currentUsername;
+        private User _user;
 
         /// <summary>Object to get or set metadata on the collection.</summary>
         public object Tag { get; set; }
@@ -32,9 +35,34 @@ namespace PingPong
             set { this.SetValue("CanClose", value, ref _canClose); }
         }
 
-        public TweetsPanelViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager)
+        public bool CanOpenUserInfo
         {
-            _appInfo = appInfo;
+            get { return _canOpenUserInfo; }
+            set { this.SetValue("CanOpenUserInfo", value, ref _canOpenUserInfo); }
+        }
+
+        public bool IsUserInfoOpen
+        {
+            get { return _isUserInfoOpen; }
+            set
+            {
+                if (this.SetValue("IsUserInfoOpen", value, ref _isUserInfoOpen) && value)
+                {
+                    Enforce.NotNullOrEmpty(_currentUsername);
+                    _client.GetUserInfo(_currentUsername)
+                        .DispatcherSubscribe(x => User = x);
+                }
+            }
+        }
+
+        public User User
+        {
+            get { return _user; }
+            private set { this.SetValue("User", value, ref _user); }
+        }
+
+        public TweetsPanelViewModel(TwitterClient client, IWindowManager windowManager)
+        {
             _client = client;
             _windowManager = windowManager;
             Tweets = new TweetCollection();
@@ -48,8 +76,8 @@ namespace PingPong
 
         public void SubscribeToUserTimeline(string username)
         {
-            Enforce.NotNull(_appInfo.User);
-            Subscribe(_client.GetPollingUserTimeline(username));
+            _currentUsername = username;
+            Subscribe(_client.GetPollingUserTimeline(username), _ => CanOpenUserInfo = true);
         }
 
         public void SubscribeToTopic(string topic)
@@ -58,14 +86,17 @@ namespace PingPong
             Subscribe(_client.GetPollingSearch(topic));
         }
 
-        public void Subscribe(IObservable<Tweet> tweets)
+        public void Subscribe(IObservable<Tweet> tweets, Action<Tweet> optionalActionOnSubscribe = null)
         {
+            optionalActionOnSubscribe = optionalActionOnSubscribe ?? (_ => { });
+
             IsBusy = true;
             _subscription.DisposeIfNotNull();
             _subscription = tweets
                 .SubscribeOnThreadPool()
                 .ObserveOnDispatcher()
                 .Do(_ => IsBusy = false)
+                .Do(x => optionalActionOnSubscribe(x))
                 .Subscribe(x => Tweets.Append(x), RaiseOnError);
             ((IActivate)this).Activate();
         }

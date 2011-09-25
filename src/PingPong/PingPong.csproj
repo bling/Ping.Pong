@@ -138,7 +138,6 @@
     <Compile Include="Core\TwitterClient.cs" />
     <Compile Include="Core\TwitterSubscriptions.cs" />
     <Compile Include="TweetsPanelViewModel.cs" />
-    <Compile Include="UserInfoViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -199,10 +198,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UserInfoView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="StatusView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -230,6 +225,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\InBrowserSettings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignData Include="SampleData\UserSampleData.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+    </DesignData>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
