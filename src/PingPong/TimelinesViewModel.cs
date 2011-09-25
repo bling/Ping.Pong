@@ -21,7 +21,6 @@ namespace PingPong
         private readonly Func<Owned<TweetCollection>> _timelineFactory;
         private readonly Owned<TweetCollection> _homeline;
         private readonly Owned<TweetCollection> _mentionline;
-        private IDisposable _refreshSubscription;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
@@ -118,12 +117,6 @@ namespace PingPong
                 .Where(_ => !Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
                 .Subscribe(_ => _streamingSubscription.DisposeIfNotNull());
 
-            _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))
-                .DispatcherSubscribe(_ => Timelines
-                                              .Select(x => x.Value)
-                                              .SelectMany(x => x)
-                                              .ForEach(t => t.NotifyOfPropertyChange("CreatedAt")));
-
             _client.GetAccountVerification()
                 .Select(x => "@" + x.ScreenName)
                 .Do(x => _screenName = x)
@@ -145,7 +138,6 @@ namespace PingPong
             base.OnDeactivate(close);
             _streamingSubscription.DisposeIfNotNull();
             _tweetsSubscription.DisposeIfNotNull();
-            _refreshSubscription.DisposeIfNotNull();
             _homeline.Dispose();
             _mentionline.Dispose();
         }
