@@ -31,6 +31,7 @@ namespace PingPong
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
             b.Register(_ => new ShellViewModel(_container)).As<IShell>().SingleInstance();
+            b.RegisterType<TimelinesViewModel>().SingleInstance();
 
             _container = b.Build();
 

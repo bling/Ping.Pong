@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -100,16 +101,7 @@ namespace PingPong
             IsBusy = true;
 
             Timelines = new ObservableCollection<Owned<TweetCollection>>();
-            Timelines.CollectionChanged += (sender, e) =>
-            {
-                if (e.OldItems != null)
-                    e.OldItems.Cast<Owned<TweetCollection>>()
-                        .Except(new[] { _homeline, _mentionline })
-                        .ForEach(t => t.Dispose());
-
-                if (!Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
-                    _streamingSubscription.DisposeIfNotNull();
-            };
+            Timelines.CollectionChanged += OnTimelinesCollectionChanged;
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))
                 .DispatcherSubscribe(_ => Timelines
@@ -145,6 +137,17 @@ namespace PingPong
             _homeline.Dispose();
             _mentionline.Dispose();
             _refreshSubscription.Dispose();
+        }
+
+        private void OnTimelinesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                e.OldItems.Cast<Owned<TweetCollection>>()
+                    .Except(new[] { _homeline, _mentionline })
+                    .ForEach(t => t.Dispose());
+
+            if (!Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
+                _streamingSubscription.DisposeIfNotNull();
         }
 
         private void StartStreaming()
@@ -195,6 +198,38 @@ namespace PingPong
             line.Closed += (sender, e) => Timelines.Remove(Timelines.Single(t => t.Value == sender));
             setup(line);
             Timelines.Add(timeline);
+        }
+
+        public void MoveLeft(TweetCollection source)
+        {
+            Timelines.CollectionChanged -= OnTimelinesCollectionChanged;
+            var target = Timelines.FirstOrDefault(t => t.Value == source);
+            if (target != null)
+            {
+                int index = Timelines.IndexOf(target);
+                if (index - 1 >= 0)
+                {
+                    Timelines.RemoveAt(index);
+                    Timelines.Insert(index - 1, target);
+                }
+            }
+            Timelines.CollectionChanged += OnTimelinesCollectionChanged;
+        }
+
+        public void MoveRight(TweetCollection source)
+        {
+            Timelines.CollectionChanged -= OnTimelinesCollectionChanged;
+            var target = Timelines.FirstOrDefault(t => t.Value == source);
+            if (target != null)
+            {
+                int index = Timelines.IndexOf(target);
+                if (index + 1 < Timelines.Count)
+                {
+                    Timelines.RemoveAt(index);
+                    Timelines.Insert(index + 1, target);
+                }
+            }
+            Timelines.CollectionChanged += OnTimelinesCollectionChanged;
         }
 
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
