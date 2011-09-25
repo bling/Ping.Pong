@@ -386,7 +386,7 @@
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                         <Path x:Name="path"
-                              Width="9"
+                              Width="7"
                               Height="11"
                               Margin="3,0"
                               Data="M5.0000005,0 L10.000001,12 L1.169795E-08,12 z"
@@ -423,17 +423,25 @@
                     <Grid Background="{TemplateBinding Background}" cal:Bind.Model="{Binding Value}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="10" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <ScrollViewer Grid.RowSpan="2" Margin="0" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Visible">
                             <ItemsPresenter />
                         </ScrollViewer>
-                        <Border Grid.Row="1" Grid.RowSpan="2">
+                        <Border Grid.Row="1" Height="5">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                                     <GradientStop Offset="1" Color="#FF000000" />
                                     <GradientStop Color="#00000000" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Border Height="5" VerticalAlignment="Top">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#FF000000" />
+                                    <GradientStop Offset="1" Color="#00000000" />
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
@@ -453,27 +461,27 @@
                                 Foreground="Gray"
                                 Style="{StaticResource CloseButtonStyle}"
                                 Visibility="{Binding CanClose, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                        <Button Grid.Row="2"
-                                Width="16"
-                                Margin="25,0,0,0"
-                                HorizontalAlignment="Left"
-                                cal:Action.TargetWithoutContext="PingPong.TimelinesViewModel"
-                                cal:Message.Attach="MoveLeft($dataContext)"
-                                Style="{StaticResource ArrowButtonStyle}"
-                                d:LayoutOverrides="GridBox">
-                            <Button.RenderTransform>
-                                <CompositeTransform ScaleX="-1" />
-                            </Button.RenderTransform>
-                        </Button>
-                        <Button Grid.Row="2"
-                                Width="16"
-                                Margin="25,0,0,0"
-                                HorizontalAlignment="Left"
-                                cal:Action.TargetWithoutContext="PingPong.TimelinesViewModel"
-                                cal:Message.Attach="MoveRight($dataContext)"
-                                RenderTransformOrigin="0.5,0.5"
-                                Style="{StaticResource ArrowButtonStyle}"
-                                d:LayoutOverrides="GridBox" />
+                        <StackPanel Grid.Row="2" Margin="25,0,0,0" HorizontalAlignment="Left" Orientation="Horizontal">
+                            <Button Width="16"
+                                    cal:Action.TargetWithoutContext="PingPong.TimelinesViewModel"
+                                    cal:Message.Attach="MoveLeft($dataContext)"
+                                    Style="{StaticResource ArrowButtonStyle}"
+                                    d:LayoutOverrides="GridBox">
+                                <Button.RenderTransform>
+                                    <CompositeTransform ScaleX="-1" />
+                                </Button.RenderTransform>
+                            </Button>
+                            <Button Width="16"
+                                    cal:Action.TargetWithoutContext="PingPong.TimelinesViewModel"
+                                    cal:Message.Attach="MoveRight($dataContext)"
+                                    RenderTransformOrigin="0.5,0.5"
+                                    Style="{StaticResource ArrowButtonStyle}"
+                                    d:LayoutOverrides="GridBox">
+                                <Button.RenderTransform>
+                                    <CompositeTransform TranslateX="-15" />
+                                </Button.RenderTransform>
+                            </Button>
+                        </StackPanel>
                         <toolkit:BusyIndicator Grid.RowSpan="3" IsBusy="{Binding IsBusy}" Style="{StaticResource BusyIndicatorStyle}" />
                     </Grid>
                 </ControlTemplate>
