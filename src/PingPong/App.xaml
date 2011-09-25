@@ -15,7 +15,7 @@
                 <ResourceDictionary Source="Assets/DarkTweetsPanel.xaml" />
                 <ResourceDictionary Source="Assets/BusyIndicatorStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <FontFamily x:Key="DefaultFontFamily">Segoe UI Light</FontFamily>
+            <FontFamily x:Key="DefaultFontFamily">/PingPong;component/Fonts/Fonts.zip#Ubuntu Light</FontFamily>
             <local:AppBootstrapper x:Key="bootstrapper" />
         </ResourceDictionary>
     </Application.Resources>
