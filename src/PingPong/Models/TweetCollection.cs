@@ -15,6 +15,7 @@ namespace PingPong.Models
         private readonly Subject<Tweet> _subject = new Subject<Tweet>();
         private bool _canClose;
         private bool _isNotifying;
+        private bool _isBusy;
 
         public event Action<Exception> OnError;
         public event EventHandler Closed;
@@ -24,6 +25,12 @@ namespace PingPong.Models
 
         /// <summary>Gets or sets the header text to display.</summary>
         public string Description { get; set; }
+
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            set { this.SetValue("IsBusy", value, ref _isBusy); }
+        }
 
         public bool CanClose
         {
@@ -38,10 +45,14 @@ namespace PingPong.Models
 
         public void Subscribe(IObservable<Tweet> tweets)
         {
+            IsBusy = true;
             _subscription.DisposeIfNotNull();
             _subscription = tweets
                 .Do(t => _subject.OnNext(t))
-                .DispatcherSubscribe(Append, RaiseOnError);
+                .SubscribeOnThreadPool()
+                .ObserveOnDispatcher()
+                .Do(_ => IsBusy = false)
+                .Subscribe(Append, RaiseOnError);
         }
 
         public void Dispose()

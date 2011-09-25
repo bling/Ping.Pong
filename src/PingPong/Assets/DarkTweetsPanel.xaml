@@ -7,6 +7,7 @@
                     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
                     mc:Ignorable="d">
 
     <SolidColorBrush x:Key="ScreenNameTextBrush" Color="#FFBE7C44" />
@@ -349,7 +350,6 @@
 
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
-
                                     <Storyboard>
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="grid" Storyboard.TargetProperty="(FrameworkElement.Margin)">
                                             <DiscreteObjectKeyFrame KeyTime="0">
@@ -470,6 +470,7 @@
                                 RenderTransformOrigin="0.5,0.5"
                                 Style="{StaticResource ArrowButtonStyle}"
                                 d:LayoutOverrides="GridBox" />
+                        <toolkit:BusyIndicator Grid.RowSpan="3" IsBusy="{Binding IsBusy}" Style="{StaticResource BusyIndicatorStyle}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
