@@ -24,6 +24,10 @@ That will create two additional columns, one which will contain any tweet contai
 
 The full set of blog post series about Ping.Pong starts [here](http://blingcode.blogspot.com/2011/08/building-real-time-push-app-with.html)
 
+## Binaries
+
+A link to a binary XAP file of the latest version can be found [here](http://dl.dropbox.com/u/2072014/Ping.Pong/PingPongTestPage.html)
+
 ## License
 
 All source code is released under the [Ms-PL](http://www.opensource.org/licenses/ms-pl) license.
