@@ -19,9 +19,9 @@ namespace PingPong
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
         private readonly Func<Owned<TweetCollection>> _timelineFactory;
-        private readonly IDisposable _refreshSubscription;
         private readonly Owned<TweetCollection> _homeline;
         private readonly Owned<TweetCollection> _mentionline;
+        private IDisposable _refreshSubscription;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
@@ -98,21 +98,32 @@ namespace PingPong
             _mentionline = timelineFactory();
             _mentionline.Value.Description = "Mentions";
 
+            Timelines = new ObservableCollection<Owned<TweetCollection>>();
+        }
+
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+
             IsBusy = true;
 
-            Timelines = new ObservableCollection<Owned<TweetCollection>>();
-            Timelines.CollectionChanged += OnTimelinesCollectionChanged;
+            var timelineRemoved =
+                Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Timelines, "CollectionChanged")
+                    .Where(x => x.EventArgs.OldItems != null)
+                    .SelectMany(x => x.EventArgs.OldItems.Cast<Owned<TweetCollection>>())
+                    .Where(x => x != _mentionline && x != _homeline);
+
+            timelineRemoved.Subscribe(x => x.Dispose());
+            timelineRemoved
+                .Where(_ => !Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
+                .Subscribe(_ => _streamingSubscription.DisposeIfNotNull());
 
             _refreshSubscription = Observable.Interval(TimeSpan.FromSeconds(20))
                 .DispatcherSubscribe(_ => Timelines
                                               .Select(x => x.Value)
                                               .SelectMany(x => x)
                                               .ForEach(t => t.NotifyOfPropertyChange("CreatedAt")));
-        }
 
-        protected override void OnActivate()
-        {
-            base.OnActivate();
             _client.GetAccountVerification()
                 .Select(x => "@" + x.ScreenName)
                 .Do(x => _screenName = x)
@@ -134,20 +145,9 @@ namespace PingPong
             base.OnDeactivate(close);
             _streamingSubscription.DisposeIfNotNull();
             _tweetsSubscription.DisposeIfNotNull();
+            _refreshSubscription.DisposeIfNotNull();
             _homeline.Dispose();
             _mentionline.Dispose();
-            _refreshSubscription.Dispose();
-        }
-
-        private void OnTimelinesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.OldItems != null)
-                e.OldItems.Cast<Owned<TweetCollection>>()
-                    .Except(new[] { _homeline, _mentionline })
-                    .ForEach(t => t.Dispose());
-
-            if (!Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
-                _streamingSubscription.DisposeIfNotNull();
         }
 
         private void StartStreaming()
@@ -204,7 +204,6 @@ namespace PingPong
 
         public void MoveLeft(TweetCollection source)
         {
-            Timelines.CollectionChanged -= OnTimelinesCollectionChanged;
             var target = Timelines.FirstOrDefault(t => t.Value == source);
             if (target != null)
             {
@@ -215,12 +214,10 @@ namespace PingPong
                     Timelines.Insert(index - 1, target);
                 }
             }
-            Timelines.CollectionChanged += OnTimelinesCollectionChanged;
         }
 
         public void MoveRight(TweetCollection source)
         {
-            Timelines.CollectionChanged -= OnTimelinesCollectionChanged;
             var target = Timelines.FirstOrDefault(t => t.Value == source);
             if (target != null)
             {
@@ -231,7 +228,6 @@ namespace PingPong
                     Timelines.Insert(index + 1, target);
                 }
             }
-            Timelines.CollectionChanged += OnTimelinesCollectionChanged;
         }
 
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
