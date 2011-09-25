@@ -190,7 +190,12 @@ namespace PingPong.Core
                         request.StreamOptions = new StreamOptions { ResultsPerCallback = 1 };
 
                     var client = CreateClient(authority);
-                    client.BeginRequest(request, (_, r, __) => ob.OnNext(r.Content));
+                    client.BeginRequest(request, (_, r, __) =>
+                    {
+                        ob.OnNext(r.Content);
+                        if (!streaming)
+                            ob.OnCompleted();
+                    });
 
                     return streaming ? Disposable.Create(client.CancelStreaming) : Disposable.Empty;
                 });
