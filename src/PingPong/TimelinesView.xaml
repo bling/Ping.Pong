@@ -4,13 +4,14 @@
              xmlns:b="clr-namespace:PingPong.Behaviors"
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
              d:DesignHeight="392"
              d:DesignWidth="592"
              mc:Ignorable="d">
-    <Grid x:Name="LayoutRoot" Background="#FF111111">
+    <Grid x:Name="LayoutRoot" Background="#FF181818">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
@@ -58,13 +59,23 @@
                          FontFamily="{StaticResource DefaultFontFamily}"
                          Foreground="#FF448FBE" />
                 <ToggleButton x:Name="Streaming"
-                              Width="80"
-                              Content="Stream"
+                              Width="100"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
                               Foreground="#FF448FBE"
                               Padding="5,2"
-                              Style="{StaticResource SimpleToggleButtonStyle}" />
+                              Style="{StaticResource SimpleToggleButtonStyle}">
+                    <TextBlock x:Name="text" Text="Start Stream">
+                        <i:Interaction.Triggers>
+                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=Streaming}" Value="True">
+                                <ei:ChangePropertyAction PropertyName="Text" Value="Stop" />
+                            </ei:DataTrigger>
+                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=Streaming}" Value="False">
+                                <ei:ChangePropertyAction PropertyName="Text" Value="Start Stream" />
+                            </ei:DataTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBlock>
+                </ToggleButton>
             </StackPanel>
         </Grid>
         <ItemsControl x:Name="Timelines" Grid.Row="1">

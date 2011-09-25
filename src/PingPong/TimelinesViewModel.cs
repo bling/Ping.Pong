@@ -155,10 +155,12 @@ namespace PingPong
             if (DateTime.UtcNow - _streamStartTime < StreamThrottleRate)
             {
                 _windowManager.ShowDialog(new ErrorViewModel("You are initiating too many connections in a short period of time.  Twitter doesn't like that :("));
+                Streaming = false;
             }
             else if (string.IsNullOrEmpty(SearchText))
             {
                 _windowManager.ShowDialog(new ErrorViewModel("Search terms are required."));
+                Streaming = false;
             }
             else
             {
