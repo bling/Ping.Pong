@@ -451,7 +451,7 @@
                                    FontFamily="{StaticResource DefaultFontFamily}"
                                    FontSize="18"
                                    Foreground="{StaticResource TimelineHeaderBrush}"
-                                   Text="{Binding Description}" />
+                                   Text="{Binding DisplayName}" />
                         <Button x:Name="TryClose"
                                 Grid.Row="2"
                                 Width="12"

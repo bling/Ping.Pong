@@ -17,9 +17,9 @@ namespace PingPong
 
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
-        private readonly Func<Owned<TweetCollection>> _timelineFactory;
-        private readonly Owned<TweetCollection> _homeline;
-        private readonly Owned<TweetCollection> _mentionline;
+        private readonly Func<Owned<TweetsPanelViewModel>> _timelineFactory;
+        private readonly Owned<TweetsPanelViewModel> _homeline;
+        private readonly Owned<TweetsPanelViewModel> _mentionline;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
@@ -27,7 +27,7 @@ namespace PingPong
         private bool _isBusy;
         private DateTime _streamStartTime = DateTime.MinValue;
 
-        public ObservableCollection<Owned<TweetCollection>> Timelines { get; private set; }
+        public ObservableCollection<Owned<TweetsPanelViewModel>> Timelines { get; private set; }
 
         public bool ShowHome
         {
@@ -82,19 +82,19 @@ namespace PingPong
             set { this.SetValue("IsBusy", value, ref _isBusy); }
         }
 
-        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<TweetCollection>> timelineFactory)
+        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<TweetsPanelViewModel>> timelineFactory)
         {
             _client = client;
             _windowManager = windowManager;
             _timelineFactory = timelineFactory;
 
             _homeline = timelineFactory();
-            _homeline.Value.Description = "Home";
+            _homeline.Value.DisplayName = "Home";
 
             _mentionline = timelineFactory();
-            _mentionline.Value.Description = "Mentions";
+            _mentionline.Value.DisplayName = "Mentions";
 
-            Timelines = new ObservableCollection<Owned<TweetCollection>>();
+            Timelines = new ObservableCollection<Owned<TweetsPanelViewModel>>();
         }
 
         protected override void OnActivate()
@@ -106,7 +106,7 @@ namespace PingPong
             var timelineRemoved =
                 Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Timelines, "CollectionChanged")
                     .Where(x => x.EventArgs.OldItems != null)
-                    .SelectMany(x => x.EventArgs.OldItems.Cast<Owned<TweetCollection>>())
+                    .SelectMany(x => x.EventArgs.OldItems.Cast<Owned<TweetsPanelViewModel>>())
                     .Where(x => x != _mentionline && x != _homeline);
 
             timelineRemoved.Subscribe(x => x.Dispose());
@@ -179,18 +179,17 @@ namespace PingPong
             }
         }
 
-        private void AddTimeline(string description, Action<TweetCollection> setup)
+        private void AddTimeline(string description, Action<TweetsPanelViewModel> setup)
         {
             var timeline = _timelineFactory();
             var line = timeline.Value;
-            line.Description = description;
-            line.OnError += ex => _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
-            line.Closed += (sender, e) => Timelines.Remove(Timelines.Single(t => t.Value == sender));
+            line.DisplayName = description;
+            line.Deactivated += (sender, e) => Timelines.Remove(Timelines.Single(t => t.Value == sender));
             setup(line);
             Timelines.Add(timeline);
         }
 
-        public void MoveLeft(TweetCollection source)
+        public void MoveLeft(TweetsPanelViewModel source)
         {
             var target = Timelines.FirstOrDefault(t => t.Value == source);
             if (target != null)
@@ -204,7 +203,7 @@ namespace PingPong
             }
         }
 
-        public void MoveRight(TweetCollection source)
+        public void MoveRight(TweetsPanelViewModel source)
         {
             var target = Timelines.FirstOrDefault(t => t.Value == source);
             if (target != null)
@@ -226,6 +225,7 @@ namespace PingPong
                 timeline.Subscribe(_client.GetPollingUserTimeline(message.User));
             });
         }
+
 
         void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
         {
