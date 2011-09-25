@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using PingPong.Core;
@@ -24,11 +23,9 @@ namespace PingPong
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private string _searchText;
-        private string _screenName;
         private bool _streaming;
         private bool _isBusy;
         private DateTime _streamStartTime = DateTime.MinValue;
-        private IConnectableObservable<Tweet> _tweetsStream;
 
         public ObservableCollection<Owned<TweetCollection>> Timelines { get; private set; }
 
@@ -119,13 +116,12 @@ namespace PingPong
 
             _client.GetAccountVerification()
                 .Select(x => "@" + x.ScreenName)
-                .Do(x => _screenName = x)
-                .Do(_ => _tweetsStream = _client.GetStreamingStatuses().Publish())
-                .DispatcherSubscribe(_ =>
+                .Select(atName => new { atName, stream = _client.GetStreamingStatuses().Publish() })
+                .DispatcherSubscribe(x =>
                 {
-                    _homeline.Value.Subscribe(_tweetsStream);
-                    _mentionline.Value.Subscribe(_tweetsStream.Where(t => t.Text.Contains(_screenName)));
-                    _tweetsSubscription = _tweetsStream.Connect();
+                    _homeline.Value.Subscribe(x.stream);
+                    _mentionline.Value.Subscribe(x.stream.Where(t => t.Text.Contains(x.atName)));
+                    _tweetsSubscription = x.stream.Connect();
 
                     ShowHome = true;
                     ShowMentions = true;

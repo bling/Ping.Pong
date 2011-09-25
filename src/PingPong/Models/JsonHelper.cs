@@ -24,23 +24,29 @@ namespace PingPong.Models
 
         public static Tweet ToTweet(JsonObject value)
         {
-            try
-            {
-                if (value.ContainsKey("text") && value.ContainsKey("user"))
-                    return new Tweet(value);
-            }
-            catch (Exception e)
-            {
-                LogManager.GetLog(typeof(JsonHelper)).Error(e);
-            }
+            if (value.ContainsKey("text") && value.ContainsKey("user"))
+                return Activate(() => new Tweet(value));
+
             return null;
         }
 
         public static DirectMessage ToDirectMessage(JsonObject value)
         {
+            return Activate(() => new DirectMessage(value));
+        }
+
+        public static Relationship ToRelationship(JsonValue value)
+        {
+            return value.ContainsKey("relationship")
+                       ? Activate(() => new Relationship(value["relationship"]))
+                       : null;
+        }
+
+        private static T Activate<T>(Func<T> activator) where T : class
+        {
             try
             {
-                return new DirectMessage(value);
+                return activator();
             }
             catch (Exception e)
             {

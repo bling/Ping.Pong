@@ -106,6 +106,15 @@ namespace PingPong.Core
                 .Select(x => new User(x));
         }
 
+        public IObservable<Relationship> GetRelationship(string sourceScreenName, string targetScreenName)
+        {
+            return GetContents(false, ApiAuthority, "/1/friendships/show.json", new { source_screen_name = sourceScreenName }, new { target_screen_name = targetScreenName })
+                .Select(ToJson)
+                .Where(x => x != null)
+                .Select(JsonHelper.ToRelationship)
+                .Where(x => x != null);
+        }
+
         public IObservable<Tweet> GetHomeTimeline(int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { include_rts = "1" }, new { count } };
