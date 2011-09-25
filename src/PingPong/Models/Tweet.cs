@@ -33,8 +33,7 @@ namespace PingPong.Models
             IsRetweet = json["retweeted"];
             InReplyToStatusId = json["in_reply_to_status_id_str"];
             InReplyToScreenName = json["in_reply_to_screen_name"];
-            CreatedAt = DateTime.ParseExact(json["created_at"],
-                                            "ddd MMM d HH:mm:ss zzzzz yyyy", CultureInfo.InvariantCulture);
+            CreatedAt = json.GetDateTime("created_at");
 
             JsonValue entities;
             if (json.TryGetValue("entities", out entities))

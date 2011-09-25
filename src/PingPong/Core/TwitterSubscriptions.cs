@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Json;
 using System.Reactive.Linq;
 using PingPong.Models;
 
@@ -13,14 +14,14 @@ namespace PingPong.Core
             return Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(DefaultPollSeconds));
         }
 
-        public static IObservable<Tweet> GetPollingDirectMessages(this TwitterClient client)
+        public static IObservable<DirectMessage> GetPollingDirectMessages(this TwitterClient client)
         {
-            return Observable.Create<Tweet>(obs =>
+            return Observable.Create<DirectMessage>(obs =>
             {
                 ulong? sinceId = null;
                 return CreateTimerObservable()
                     .SelectMany(_ => client.GetDirectMessages(sinceId))
-                    .Do(tweet => sinceId = tweet.Id)
+                    .Do(dm => sinceId = dm.Id)
                     .Subscribe(obs.OnNext);
             });
         }
@@ -56,6 +57,20 @@ namespace PingPong.Core
                     .Do(tweet => sinceId = tweet.Id)
                     .Subscribe(obs.OnNext);
             });
+        }
+
+        public static IObservable<Tweet> SelectTweets(this IObservable<JsonValue> observable)
+        {
+            return observable
+                .Select(Tweet.TryParse)
+                .Where(x => x != null);
+        }
+
+        public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable)
+        {
+            return observable
+                .Select(DirectMessage.TryParse)
+                .Where(x => x != null);
         }
     }
 }

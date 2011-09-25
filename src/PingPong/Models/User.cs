@@ -10,7 +10,7 @@ namespace PingPong.Models
             Name = json["name"];
             ScreenName = json["screen_name"];
             ProfileImageUrl = json["profile_image_url"];
-            IsFollowing = json.GetValue("following");
+            IsFollowing = json.GetBool("following");
         }
 
         public ulong Id { get; private set; }
