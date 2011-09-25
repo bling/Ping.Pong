@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Json;
 using System.Linq;
 using Caliburn.Micro;
@@ -8,22 +7,6 @@ namespace PingPong.Models
 {
     public class Tweet : PropertyChangedBase
     {
-        public static Tweet TryParse(JsonValue value)
-        {
-            if (value is JsonObject && value.ContainsKey("text") && value.ContainsKey("user"))
-            {
-                try
-                {
-                    return new Tweet((JsonObject)value);
-                }
-                catch (Exception e)
-                {
-                    LogManager.GetLog(typeof(Tweet)).Error(e);
-                }
-            }
-            return null;
-        }
-
         public Tweet(JsonObject json)
         {
             Id = json["id"];

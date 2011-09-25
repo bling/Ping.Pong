@@ -62,14 +62,14 @@ namespace PingPong.Core
         public static IObservable<Tweet> SelectTweets(this IObservable<JsonValue> observable)
         {
             return observable
-                .Select(Tweet.TryParse)
+                .Select(x => JsonHelper.ToTweet((JsonObject)x))
                 .Where(x => x != null);
         }
 
         public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable)
         {
             return observable
-                .Select(DirectMessage.TryParse)
+                .Select(x => JsonHelper.ToDirectMessage((JsonObject)x))
                 .Where(x => x != null);
         }
     }

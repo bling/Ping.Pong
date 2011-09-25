@@ -1,24 +1,11 @@
 ﻿using System;
 using System.Json;
-using Caliburn.Micro;
 
 namespace PingPong.Models
 {
     public class DirectMessage
     {
-        public static DirectMessage TryParse(JsonValue json)
-        {
-            try
-            {
-                return new DirectMessage(json);
-            }
-            catch (Exception e)
-            {
-                LogManager.GetLog(typeof(DirectMessage)).Error(e);
-            }
-        }
-
-        public DirectMessage(JsonValue json)
+        public DirectMessage(JsonObject json)
         {
             Id = json["id"];
             CreatedAt = json.GetDateTime("created_at");

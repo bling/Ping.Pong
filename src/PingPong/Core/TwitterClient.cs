@@ -174,8 +174,7 @@ namespace PingPong.Core
         {
             return GetContents(true, authority, path, parameters)
                 .Select(ToJson)
-                .Select(Tweet.TryParse)
-                .Where(x => x != null)
+                .SelectTweets()
                 .Buffer(TimeSpan.FromMilliseconds(100))
                 .SelectMany(x => x);
         }
