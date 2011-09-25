@@ -15,6 +15,7 @@ namespace PingPong
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
+        private readonly AppInfo _appInfo;
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
         private readonly Func<Owned<TweetsPanelViewModel>> _timelineFactory;
@@ -82,8 +83,9 @@ namespace PingPong
             set { this.SetValue("IsBusy", value, ref _isBusy); }
         }
 
-        public TimelinesViewModel(TwitterClient client, IWindowManager windowManager, Func<Owned<TweetsPanelViewModel>> timelineFactory)
+        public TimelinesViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager, Func<Owned<TweetsPanelViewModel>> timelineFactory)
         {
+            _appInfo = appInfo;
             _client = client;
             _windowManager = windowManager;
             _timelineFactory = timelineFactory;
@@ -115,6 +117,7 @@ namespace PingPong
                 .Subscribe(_ => _streamingSubscription.DisposeIfNotNull());
 
             _client.GetAccountVerification()
+                .Do(x => _appInfo.User = x)
                 .Select(x => "@" + x.ScreenName)
                 .Select(atName => new { atName, stream = _client.GetStreamingStatuses().Publish() })
                 .DispatcherSubscribe(x =>
@@ -222,7 +225,7 @@ namespace PingPong
             AddTimeline("@" + message.User, timeline =>
             {
                 timeline.CanClose = true;
-                timeline.Subscribe(_client.GetPollingUserTimeline(message.User));
+                timeline.SubscribeToUserTimeline(message.User);
             });
         }
 
@@ -232,7 +235,7 @@ namespace PingPong
             AddTimeline("#" + message.Topic, timeline =>
             {
                 timeline.CanClose = true;
-                timeline.Subscribe(_client.GetPollingSearch(message.Topic));
+                timeline.SubscribeToTopic(message.Topic);
             });
         }
     }

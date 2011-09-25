@@ -23,6 +23,7 @@ namespace PingPong
             LogManager.GetLog = t => new DebugLog();
 
             var b = new ContainerBuilder();
+
             b.RegisterModule<AutoWireModule>();
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .AsSelf()
@@ -32,6 +33,7 @@ namespace PingPong
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
             b.Register(_ => new ShellViewModel(_container)).As<IShell>().SingleInstance();
             b.RegisterType<TimelinesViewModel>().SingleInstance();
+            b.RegisterType<AppInfo>().SingleInstance();
 
             _container = b.Build();
 
@@ -84,11 +86,7 @@ namespace PingPong
             protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration)
             {
                 base.AttachToComponentRegistration(componentRegistry, registration);
-                registration.Activated += (sender, e) =>
-                {
-                    e.Context.Resolve<IEventAggregator>().Subscribe(e.Instance);
-                    e.Context.InjectUnsetProperties(e.Instance);
-                };
+                registration.Activated += (sender, e) => e.Context.Resolve<IEventAggregator>().Subscribe(e.Instance);
             }
         }
     }
