@@ -19,16 +19,20 @@ namespace PingPong.Models
             IsFollowing = json.GetBool("following");
         }
 
-        public ulong Id { get; private set; }
-        public string Name { get; private set; }
-        public string ScreenName { get; private set; }
-        public string ProfileImageUrl { get; private set; }
-        public string Location { get; private set; }
-        public string Url { get; private set; }
-        public string Description { get; private set; }
-        public int Friends { get; private set; }
-        public int Followers { get; private set; }
-        public int Statuses { get; private set; }
-        public bool? IsFollowing { get; private set; }
+        protected User()
+        {
+        }
+
+        public ulong Id { get; set; }
+        public string Name { get; set; }
+        public string ScreenName { get; set; }
+        public string ProfileImageUrl { get; set; }
+        public string Location { get; set; }
+        public string Url { get; set; }
+        public string Description { get; set; }
+        public int Friends { get; set; }
+        public int Followers { get; set; }
+        public int Statuses { get; set; }
+        public bool? IsFollowing { get; set; }
     }
 }

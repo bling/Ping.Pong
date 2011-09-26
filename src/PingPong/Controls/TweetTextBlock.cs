@@ -51,7 +51,7 @@ namespace PingPong.Controls
                 return;
 
             var para = new Paragraph();
-            para.Inlines.Add(Tweet.User.ScreenName + "  ");
+            para.Inlines.Add(Tweet.User.ScreenName + "   ");
 
             _block.Blocks.Clear();
             _block.Blocks.Add(para);

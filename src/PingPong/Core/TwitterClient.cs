@@ -57,7 +57,7 @@ namespace PingPong.Core
         public void UpdateStatus(string text, ulong? inReplyToStatusId = null)
         {
             Enforce.NotNullOrEmpty(text);
-            var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/statuses/update.json" };
+            var request = new RestRequest { Method = WebMethod.Post, Path = "/1/statuses/update.json" };
             request.AddParameter("status", text);
             request.AddParameter("wrap_links", "true");
             if (inReplyToStatusId != null)
@@ -68,12 +68,7 @@ namespace PingPong.Core
 
         public void Retweet(ulong statusId)
         {
-            var request = new RestRequest
-            {
-                Credentials = _credentials,
-                Method = WebMethod.Post,
-                Path = string.Format("/1/statuses/retweet/{0}.json", statusId),
-            };
+            var request = new RestRequest { Method = WebMethod.Post, Path = string.Format("/1/statuses/retweet/{0}.json", statusId) };
             CreateClient(ApiAuthority).BeginRequest(request);
         }
 
@@ -82,9 +77,28 @@ namespace PingPong.Core
             Enforce.NotNullOrEmpty(username);
             Enforce.NotNullOrEmpty(text);
 
-            var request = new RestRequest { Credentials = _credentials, Method = WebMethod.Post, Path = "/1/direct_messages/new.json" };
+            var request = new RestRequest { Method = WebMethod.Post, Path = "/1/direct_messages/new.json" };
             request.AddParameter("screen_name", username);
             request.AddParameter("text", text);
+            CreateClient(ApiAuthority).BeginRequest(request);
+        }
+
+        public void Follow(string screenName)
+        {
+            Enforce.NotNullOrEmpty(screenName);
+
+            var request = new RestRequest { Method = WebMethod.Post, Path = "/1/friendships/create.json" };
+            request.AddParameter("screen_name", screenName);
+            request.AddParameter("follow", "true");
+            CreateClient(ApiAuthority).BeginRequest(request);
+        }
+
+        public void Unfollow(string screenName)
+        {
+            Enforce.NotNullOrEmpty(screenName);
+
+            var request = new RestRequest { Method = WebMethod.Post, Path = "/1/friendships/destroy.json" };
+            request.AddParameter("screen_name", screenName);
             CreateClient(ApiAuthority).BeginRequest(request);
         }
 

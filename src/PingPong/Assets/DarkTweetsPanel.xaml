@@ -8,6 +8,7 @@
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:pp="clr-namespace:PingPong"
+                    xmlns:System="clr-namespace:System;assembly=mscorlib"
                     xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
                     mc:Ignorable="d">
 
@@ -342,7 +343,6 @@
                             <VisualStateGroup x:Name="CommonStates">
                                 <VisualState x:Name="Normal" />
                                 <VisualState x:Name="MouseOver">
-
                                     <Storyboard>
                                         <ColorAnimation d:IsOptimized="True"
                                                         Duration="0"
@@ -350,7 +350,6 @@
                                                         Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
                                                         To="#FF939393" />
                                     </Storyboard>
-
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
                                     <Storyboard>
@@ -381,9 +380,7 @@
                                                          Storyboard.TargetName="grid"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)"
                                                          To="0.9" />
-
                                     </Storyboard>
-
                                 </VisualState>
                                 <VisualState x:Name="Disabled" />
                             </VisualStateGroup>
@@ -409,15 +406,53 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style x:Key="FollowsYouCheckBoxStyle" TargetType="CheckBox">
+        <Setter Property="Background" Value="#FF448DCA" />
+        <Setter Property="Foreground" Value="#FF000000" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <DoubleAnimation d:IsOptimized="True"
+                                                         Duration="0"
+                                                         Storyboard.TargetName="fill"
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                         To="1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unchecked" />
+                                <VisualState x:Name="Indeterminate" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid Height="16">
+                            <Ellipse Stroke="{TemplateBinding Foreground}" />
+                            <Ellipse x:Name="fill" Margin="3" Fill="{TemplateBinding Foreground}" Opacity="0" />
+                        </Grid>
+                        <ContentPresenter x:Name="contentPresenter"
+                                          Grid.Column="1"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style x:Key="UserInfoContentStyle" TargetType="ContentControl">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
-                    <Grid x:Name="userInfo"
-                          Margin="0,5"
-                          d:DataContext="{d:DesignData /SampleData/UserSampleData.xaml}"
-                          DataContext="{Binding User}"
-                          Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=IsUserInfoOpen}">
+                    <Grid Margin="10,5" d:DataContext="{d:DesignData /SampleData/UserSampleData.xaml}" DataContext="{Binding User}">
                         <Grid.Resources>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
@@ -429,13 +464,11 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition />
                             <RowDefinition />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
                         <StackPanel>
                             <TextBlock FontSize="16" Foreground="{StaticResource ScreenNameTextBrush}" Text="{Binding Name}" />
-                            <TextBlock Foreground="#FF94AB88">
-                                <Run Text="{Binding ScreenName, StringFormat='{}@{0}'}" />
-                                <Run Text=" " />
-                                <Run Text="{Binding Location}" />
+                            <TextBlock Foreground="#FF94AB88"><Run Text="{Binding ScreenName, StringFormat=@\{0\}}" /><Run Text=" " /><Run Text=" " /><Run Text=" " /><Run Text="{Binding Location}" />
                             </TextBlock>
                             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
                             <HyperlinkButton Content="{Binding Url}" NavigateUri="{Binding Url}" />
@@ -465,18 +498,44 @@
                                        Foreground="{StaticResource UserInfoCountsBrush}"
                                        Text="{Binding Followers}" />
                         </Grid>
-                        <Grid Grid.Row="2">
+                        <CheckBox Grid.Row="2"
+                                  Margin="0,0,0,10"
+                                  BorderThickness="0"
+                                  Content="follows you"
+                                  Foreground="#FF563030"
+                                  IsChecked="{Binding FollowsBack}"
+                                  IsEnabled="False"
+                                  Style="{StaticResource FollowsYouCheckBoxStyle}" />
+                        <Grid Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <Button Background="Transparent" Content="Follow" Foreground="{StaticResource ButtonForegroundBrush}" Style="{StaticResource SimpleToggleButtonStyle}" />
-                            <Button Grid.Column="1"
+                            <Button Margin="2"
                                     Background="Transparent"
+                                    BorderBrush="#33FFFFFF"
+                                    BorderThickness="1"
+                                    cal:Action.TargetWithoutContext="PingPong.UserViewModel"
+                                    cal:Message.Attach="Follow($dataContext)"
+                                    Content="Follow"
+                                    Foreground="{StaticResource ButtonForegroundBrush}"
+                                    Style="{StaticResource SimpleToggleButtonStyle}" />
+                            <Button Grid.Column="1"
+                                    Margin="2"
+                                    Background="Transparent"
+                                    BorderBrush="#33FFFFFF"
+                                    BorderThickness="1"
+                                    cal:Action.TargetWithoutContext="PingPong.UserViewModel"
+                                    cal:Message.Attach="Unfollow($dataContext)"
                                     Content="Unfollow"
                                     Foreground="{StaticResource ButtonForegroundBrush}"
                                     Style="{StaticResource SimpleToggleButtonStyle}" />
                         </Grid>
+                        <Border Grid.RowSpan="3"
+                                Margin="-10,-5"
+                                BorderBrush="#33FFFFFF"
+                                BorderThickness="1,1,1,0"
+                                CornerRadius="10,10,0,0" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -505,7 +564,7 @@
                         <ScrollViewer Margin="0" Style="{StaticResource ScrollViewerStyle}" VerticalScrollBarVisibility="Visible">
                             <ItemsPresenter />
                         </ScrollViewer>
-                        <Border Grid.RowSpan="2" Height="5" VerticalAlignment="Bottom">
+                        <Border Grid.RowSpan="2" Height="10" VerticalAlignment="Bottom">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                                     <GradientStop Offset="1" Color="#FF000000" />
@@ -521,7 +580,7 @@
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
-                        <ContentControl Grid.Row="1" Content="{Binding User}" Style="{StaticResource UserInfoContentStyle}" />
+                        <ContentControl Grid.Row="1" Content="{Binding User}" Style="{StaticResource UserInfoContentStyle}" Visibility="{Binding IsChecked, ElementName=IsUserInfoOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <ToggleButton x:Name="IsUserInfoOpen"
                                       Grid.Row="2"
                                       Margin="0,0,35,0"

@@ -66,5 +66,16 @@ namespace PingPong
             }
             return false;
         }
+
+        public static void CopyProperties<T>(this T target, T source)
+        {
+            var props = from p in typeof(T).GetProperties()
+                        where p.GetIndexParameters().Length == 0
+                        where p.CanWrite
+                        where p.GetSetMethod(false) != null
+                        select p;
+            foreach (var prop in props)
+                prop.SetValue(target, prop.GetValue(source, null), null);
+        }
     }
 }

@@ -122,7 +122,7 @@ namespace PingPong
                 .Select(atName => new { atName, stream = _client.GetStreamingStatuses().Publish() })
                 .DispatcherSubscribe(x =>
                 {
-                    _homeline.Value.Subscribe(x.stream);
+                    _homeline.Value.Subscribe(x.stream.Where(t => !t.Text.Contains(x.atName)));
                     _mentionline.Value.Subscribe(x.stream.Where(t => t.Text.Contains(x.atName)));
                     _tweetsSubscription = x.stream.Connect();
 
@@ -228,7 +228,6 @@ namespace PingPong
                 timeline.SubscribeToUserTimeline(message.User);
             });
         }
-
 
         void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
         {

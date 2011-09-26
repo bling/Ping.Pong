@@ -8,6 +8,7 @@ namespace PingPong
 {
     public class TweetsPanelViewModel : Screen
     {
+        private readonly AppInfo _appInfo;
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
         private bool _isBusy;
@@ -16,7 +17,7 @@ namespace PingPong
         private bool _isUserInfoOpen;
         private IDisposable _subscription;
         private string _currentUsername;
-        private User _user;
+        private ExtendedUser _user;
 
         /// <summary>Object to get or set metadata on the collection.</summary>
         public object Tag { get; set; }
@@ -50,19 +51,25 @@ namespace PingPong
                 {
                     Enforce.NotNullOrEmpty(_currentUsername);
                     _client.GetUserInfo(_currentUsername)
-                        .DispatcherSubscribe(x => User = x);
+                        .DispatcherSubscribe(x =>
+                        {
+                            User = new ExtendedUser(x);
+                            _client.GetRelationship(_appInfo.User.ScreenName, _currentUsername)
+                                .DispatcherSubscribe(r => User.FollowsBack = r.Source.IsFollowedBy);
+                        });
                 }
             }
         }
 
-        public User User
+        public ExtendedUser User
         {
             get { return _user; }
             private set { this.SetValue("User", value, ref _user); }
         }
 
-        public TweetsPanelViewModel(TwitterClient client, IWindowManager windowManager)
+        public TweetsPanelViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager)
         {
+            _appInfo = appInfo;
             _client = client;
             _windowManager = windowManager;
             Tweets = new TweetCollection();
