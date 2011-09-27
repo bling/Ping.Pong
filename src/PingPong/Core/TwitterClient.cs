@@ -41,16 +41,15 @@ namespace PingPong.Core
         {
             Enforce.NotNullOrEmpty(text);
             var client = CreateClient();
-            client.MethodType = MethodType.Post;
             client.Url = ApiAuthority + "/1/statuses/update.json";
-            client.GetResponse();
+            client.Post();
         }
 
         public void Retweet(ulong statusId)
         {
             var client = CreateClient();
             client.Url = ApiAuthority + string.Format("/1/statuses/retweet/{0}.json", statusId);
-            client.GetResponse();
+            client.Post();
         }
 
         public void DirectMessage(string username, string text)
@@ -62,7 +61,7 @@ namespace PingPong.Core
             client.Url = ApiAuthority + "/1/direct_messages/new.json";
             client.Parameters.Add("screen_name", username);
             client.Parameters.Add("text", text);
-            client.GetResponse();
+            client.Post();
         }
 
         public void Follow(string screenName)
@@ -73,7 +72,7 @@ namespace PingPong.Core
             client.Url = ApiAuthority + "/1/friendships/create.json";
             client.Parameters.Add("screen_name", screenName);
             client.Parameters.Add("follow", "true");
-            client.GetResponse();
+            client.Post();
         }
 
         public void Unfollow(string screenName)
@@ -83,7 +82,7 @@ namespace PingPong.Core
             var client = CreateClient();
             client.Url = ApiAuthority + "/1/friendships/destroy.json";
             client.Parameters.Add("screen_name", screenName);
-            client.GetResponse();
+            client.Post();
         }
 
         public IObservable<User> GetAccountVerification()
@@ -200,7 +199,7 @@ namespace PingPong.Core
             var client = CreateClient();
             client.Url = authority + path;
             ParseParameters(client, parameters);
-            return client.GetResponse().GetResponseLines();
+            return client.Get().GetResponseLines();
         }
 
         private static void ParseParameters(OAuthClient request, IEnumerable<object> parameters)

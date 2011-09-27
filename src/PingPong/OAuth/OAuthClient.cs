@@ -12,10 +12,9 @@ namespace PingPong.OAuth
     public class OAuthClient : OAuthBase
     {
         public AccessToken AccessToken { get; private set; }
-        public IDictionary<string, object> Parameters { get; private set; } 
+        public IDictionary<string, object> Parameters { get; private set; }
         public string Url { get; set; }
         public string Realm { get; set; }
-        public MethodType MethodType { get; set; }
 
         public OAuthClient(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret)
             : this(consumerKey, consumerSecret, new AccessToken(accessToken, accessTokenSecret))
@@ -29,55 +28,50 @@ namespace PingPong.OAuth
 
             AccessToken = accessToken;
             Parameters = new Dictionary<string, object>();
-            MethodType = MethodType.Get;
         }
 
-        private string AuthorizationHeader
+        private string GetAuthorizationHeader(MethodType methodType)
         {
-            get
-            {
-                var realm = (Realm != null) ? new[] { new KeyValuePair<string, object>("realm", Realm) } : Enumerable.Empty<KeyValuePair<string, object>>();
-                var parameters = ConstructBasicParameters(Url, MethodType, AccessToken, Parameters);
-                return BuildAuthorizationHeader(realm.Concat(parameters));
-            }
+            var realm = (Realm != null) ? new[] { new KeyValuePair<string, object>("realm", Realm) } : Enumerable.Empty<KeyValuePair<string, object>>();
+            var parameters = ConstructBasicParameters(Url, methodType, AccessToken, Parameters);
+            return BuildAuthorizationHeader(realm.Concat(parameters));
         }
 
-        private WebRequest CreateWebRequest()
+        private WebRequest CreateWebRequest(MethodType methodType)
         {
-            string requestUrl = (MethodType == MethodType.Get) ? Url + "?" + Parameters.ToQueryParameter() : Url;
+            string requestUrl = (methodType == MethodType.Get) ? Url + "?" + Parameters.ToQueryParameter() : Url;
 
             var req = WebRequest.CreateHttp(requestUrl);
-            req.Headers[HttpRequestHeader.Authorization] = AuthorizationHeader;
+            req.Headers[HttpRequestHeader.Authorization] = GetAuthorizationHeader(methodType);
             req.Headers["X-User-Agent"] = AppBootstrapper.UserAgentVersion;
-            req.Method = MethodType.ToString().ToUpper();
-            if (MethodType == MethodType.Post)
+            req.Method = methodType.ToString().ToUpper();
+            if (methodType == MethodType.Post)
                 req.ContentType = "application/x-www-form-urlencoded";
 
             return req;
         }
 
         /// <summary>Asynchronously get the web response.</summary>
-        public IObservable<WebResponse> GetResponse()
+        public IObservable<WebResponse> Get()
         {
             if (Url == null) throw new InvalidOperationException("The Url is not set.");
 
-            var req = CreateWebRequest();
-            switch (MethodType)
-            {
-                case MethodType.Get:
-                    return req.GetResponseAsObservable();
-                case MethodType.Post:
-                    var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
-                    return req.GetRequestStreamAsObservable()
-                        .Do(stream =>
-                        {
-                            stream.Write(postData, 0, postData.Length);
-                            stream.Close();
-                        })
-                        .SelectMany(_ => req.GetResponseAsObservable());
-                default:
-                    throw new InvalidOperationException();
-            }
+            return CreateWebRequest(MethodType.Get).GetResponseAsObservable();
+        }
+
+        public IObservable<WebResponse> Post()
+        {
+            if (Url == null) throw new InvalidOperationException("The Url is not set.");
+
+            var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
+            var req = CreateWebRequest(MethodType.Post);
+            return req.GetRequestStreamAsObservable()
+                .Do(stream =>
+                {
+                    stream.Write(postData, 0, postData.Length);
+                    stream.Close();
+                })
+                .SelectMany(_ => req.GetResponseAsObservable());
         }
     }
 }

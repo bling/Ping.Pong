@@ -86,4 +86,10 @@ namespace PingPong.OAuth
             return parameters;
         }
     }
+
+    public enum MethodType
+    {
+        Post,
+        Get,
+    }
 }

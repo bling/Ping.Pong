@@ -123,7 +123,6 @@
     <Compile Include="Models\Relationship.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="OAuth\OAuthExtensions.cs" />
-    <Compile Include="OAuth\MethodType.cs" />
     <Compile Include="OAuth\OAuthAuthorizer.cs" />
     <Compile Include="OAuth\OAuthBase.cs" />
     <Compile Include="OAuth\OAuthClient.cs" />
