@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
@@ -11,7 +12,7 @@ namespace PingPong.OAuth
     public class OAuthClient : OAuthBase
     {
         public AccessToken AccessToken { get; private set; }
-        public ParameterCollection Parameters { get; private set; }
+        public IDictionary<string, object> Parameters { get; private set; } 
         public string Url { get; set; }
         public string Realm { get; set; }
         public MethodType MethodType { get; set; }
@@ -27,7 +28,7 @@ namespace PingPong.OAuth
             Enforce.NotNull(accessToken, "accessToken");
 
             AccessToken = accessToken;
-            Parameters = new ParameterCollection();
+            Parameters = new Dictionary<string, object>();
             MethodType = MethodType.Get;
         }
 
@@ -35,7 +36,7 @@ namespace PingPong.OAuth
         {
             get
             {
-                var realm = (Realm != null) ? new[] { new Parameter("realm", Realm) } : Enumerable.Empty<Parameter>();
+                var realm = (Realm != null) ? new[] { new KeyValuePair<string, object>("realm", Realm) } : Enumerable.Empty<KeyValuePair<string, object>>();
                 var parameters = ConstructBasicParameters(Url, MethodType, AccessToken, Parameters);
                 return BuildAuthorizationHeader(realm.Concat(parameters));
             }

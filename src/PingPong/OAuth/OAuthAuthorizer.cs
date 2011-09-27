@@ -15,7 +15,7 @@ namespace PingPong.OAuth
         {
         }
 
-        private IObservable<TokenResponse<T>> GetTokenResponse<T>(string url, IEnumerable<Parameter> parameters, Func<string, string, T> tokenFactory) where T : Token
+        private IObservable<TokenResponse<T>> GetTokenResponse<T>(string url, IEnumerable<KeyValuePair<string, object>> parameters, Func<string, string, T> tokenFactory) where T : Token
         {
             var req = WebRequest.CreateHttp(url);
             req.Headers[HttpRequestHeader.Authorization] = BuildAuthorizationHeader(parameters);
@@ -44,13 +44,15 @@ namespace PingPong.OAuth
 
         /// <summary>Asynchronously gets request tokens.</summary>
         /// <param name="otherParameters">need parameters except consumer_key,timestamp,nonce,signature,signature_method,version</param>
-        public IObservable<TokenResponse<RequestToken>> GetRequestToken(string requestTokenUrl, params Parameter[] otherParameters)
+        public IObservable<TokenResponse<RequestToken>> GetRequestToken(string requestTokenUrl, IEnumerable<KeyValuePair<string, object>> otherParameters)
         {
             Enforce.NotNull(requestTokenUrl, "requestTokenUrl");
             Enforce.NotNull(otherParameters, "otherParameters");
 
             var parameters = ConstructBasicParameters(requestTokenUrl, MethodType.Post, null, otherParameters);
-            parameters.Add(otherParameters);
+            foreach (var p in otherParameters)
+                parameters.Add(p);
+
             return GetTokenResponse(requestTokenUrl, parameters, (key, secret) => new RequestToken(key, secret));
         }
     }

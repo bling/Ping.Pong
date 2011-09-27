@@ -40,7 +40,7 @@ namespace PingPong.OAuth
             ConsumerSecret = consumerSecret;
         }
 
-        private string GenerateSignature(Uri uri, MethodType methodType, Token token, IEnumerable<Parameter> parameters)
+        private string GenerateSignature(Uri uri, MethodType methodType, Token token, IEnumerable<KeyValuePair<string, object>> parameters)
         {
             var hmacKeyBase = ConsumerSecret.UrlEncode() + "&" + ((token == null) ? "" : token.Secret).UrlEncode();
             using (var hmacsha1 = new HMACSHA1(Encoding.UTF8.GetBytes(hmacKeyBase)))
@@ -57,26 +57,19 @@ namespace PingPong.OAuth
             }
         }
 
-        protected string BuildAuthorizationHeader(IEnumerable<Parameter> parameters)
+        protected string BuildAuthorizationHeader(IEnumerable<KeyValuePair<string, object>> parameters)
         {
             Enforce.NotNull(parameters, "parameters");
 
-            return "OAuth " + parameters.Select(p => p.Key + "=" + p.Value.Wrap("\"")).ToString(",");
+            return "OAuth " + string.Join(",", parameters.Select(p => string.Format("{0}=\"{1}\"", p.Key, p.Value.ToString())));
         }
 
-        protected ParameterCollection ConstructBasicParameters(string url, MethodType methodType, Token token = null, params Parameter[] optionalParameters)
-        {
-            Enforce.NotNull(optionalParameters, "optionalParameters");
-
-            return ConstructBasicParameters(url, methodType, token, optionalParameters.AsEnumerable());
-        }
-
-        protected ParameterCollection ConstructBasicParameters(string url, MethodType methodType, Token token, IEnumerable<Parameter> optionalParameters)
+        protected IDictionary<string,object> ConstructBasicParameters(string url, MethodType methodType, Token token, IEnumerable<KeyValuePair<string,object>> optionalParameters)
         {
             Enforce.NotNull(url, "url");
             Enforce.NotNull(optionalParameters, "optionalParameters");
 
-            var parameters = new ParameterCollection
+            var parameters = new Dictionary<string, object>
             {
                 { "oauth_consumer_key", ConsumerKey },
                 { "oauth_nonce", _random.Next() },
@@ -84,7 +77,8 @@ namespace PingPong.OAuth
                 { "oauth_signature_method", "HMAC-SHA1" },
                 { "oauth_version", "1.0" }
             };
-            if (token != null) parameters.Add("oauth_token", token.Key);
+            if (token != null)
+                parameters.Add("oauth_token", token.Key);
 
             var signature = GenerateSignature(new Uri(url), methodType, token, parameters.Concat(optionalParameters));
             parameters.Add("oauth_signature", signature);
