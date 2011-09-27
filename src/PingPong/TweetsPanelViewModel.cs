@@ -55,7 +55,11 @@ namespace PingPong
                         {
                             User = new ExtendedUser(x);
                             _client.GetRelationship(_appInfo.User.ScreenName, _currentUsername)
-                                .DispatcherSubscribe(r => User.FollowsBack = r.Source.IsFollowedBy);
+                                .DispatcherSubscribe(r =>
+                                {
+                                    User.Following = r.Source.IsFollowing;
+                                    User.FollowsBack = r.Source.IsFollowedBy;
+                                });
                         });
                 }
             }

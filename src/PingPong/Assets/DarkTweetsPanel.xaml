@@ -7,8 +7,6 @@
                     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:pp="clr-namespace:PingPong"
-                    xmlns:System="clr-namespace:System;assembly=mscorlib"
                     xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
                     mc:Ignorable="d">
 
@@ -498,14 +496,26 @@
                                        Foreground="{StaticResource UserInfoCountsBrush}"
                                        Text="{Binding Followers}" />
                         </Grid>
-                        <CheckBox Grid.Row="2"
-                                  Margin="0,0,0,10"
-                                  BorderThickness="0"
-                                  Content="follows you"
-                                  Foreground="#FF563030"
-                                  IsChecked="{Binding FollowsBack}"
-                                  IsEnabled="False"
-                                  Style="{StaticResource FollowsYouCheckBoxStyle}" />
+                        <Grid Grid.Row="2" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox BorderThickness="0"
+                                      Content="following"
+                                      Foreground="#FF563030"
+                                      IsChecked="{Binding Following}"
+                                      IsEnabled="False"
+                                      Style="{StaticResource FollowsYouCheckBoxStyle}" />
+                            <CheckBox Grid.Column="1"
+                                      BorderThickness="0"
+                                      Content="follows you"
+                                      Foreground="#FF563030"
+                                      IsChecked="{Binding FollowsBack}"
+                                      IsEnabled="False"
+                                      Style="{StaticResource FollowsYouCheckBoxStyle}" />
+                        </Grid>
+
                         <Grid Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
@@ -531,7 +541,7 @@
                                     Foreground="{StaticResource ButtonForegroundBrush}"
                                     Style="{StaticResource SimpleToggleButtonStyle}" />
                         </Grid>
-                        <Border Grid.RowSpan="3"
+                        <Border Grid.RowSpan="4"
                                 Margin="-10,-5"
                                 BorderBrush="#33FFFFFF"
                                 BorderThickness="1,1,1,0"

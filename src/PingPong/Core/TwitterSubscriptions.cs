@@ -64,7 +64,7 @@ namespace PingPong.Core
             return observable
                 .Select(x => JsonHelper.ToTweet((JsonObject)x))
                 .Where(x => x != null)
-                .Do(observer);
+                .Do(observer.OnNext);
         }
 
         public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable)

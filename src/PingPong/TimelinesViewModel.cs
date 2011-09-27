@@ -3,11 +3,12 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Windows;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
+using PingPong.Controls;
 using PingPong.Core;
 using PingPong.Messages;
-using PingPong.Models;
 
 namespace PingPong
 {
@@ -23,6 +24,7 @@ namespace PingPong
         private readonly Owned<TweetsPanelViewModel> _mentionline;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
+        private IDisposable _notificationSubscription;
         private string _searchText;
         private bool _streaming;
         private bool _isBusy;
@@ -105,14 +107,9 @@ namespace PingPong
 
             IsBusy = true;
 
-            var timelineRemoved =
-                Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Timelines, "CollectionChanged")
-                    .Where(x => x.EventArgs.OldItems != null)
-                    .SelectMany(x => x.EventArgs.OldItems.Cast<Owned<TweetsPanelViewModel>>())
-                    .Where(x => x != _mentionline && x != _homeline);
-
-            timelineRemoved.Subscribe(x => x.Dispose());
-            timelineRemoved
+            Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Timelines, "CollectionChanged")
+                .Where(x => x.EventArgs.OldItems != null)
+                .SelectMany(x => x.EventArgs.OldItems.Cast<Owned<TweetsPanelViewModel>>())
                 .Where(_ => !Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
                 .Subscribe(_ => _streamingSubscription.DisposeIfNotNull());
 
@@ -129,6 +126,17 @@ namespace PingPong
                     ShowHome = true;
                     ShowMentions = true;
                     IsBusy = false;
+
+                    _notificationSubscription = _client
+                        .Sample(TimeSpan.FromSeconds(6))
+                        .Where(t => (DateTime.Now - t.CreatedAt) < TimeSpan.FromSeconds(5))
+                        .DispatcherSubscribe(t =>
+                                             new NotificationWindow
+                                             {
+                                                 Width = 300,
+                                                 Height = 80,
+                                                 Content = new NotificationControl { DataContext = t }
+                                             }.Show(5000));
                 });
         }
 
@@ -137,6 +145,7 @@ namespace PingPong
             base.OnDeactivate(close);
             _streamingSubscription.DisposeIfNotNull();
             _tweetsSubscription.DisposeIfNotNull();
+            _notificationSubscription.DisposeIfNotNull();
             _homeline.Dispose();
             _mentionline.Dispose();
         }
@@ -187,7 +196,12 @@ namespace PingPong
             var timeline = _timelineFactory();
             var line = timeline.Value;
             line.DisplayName = description;
-            line.Deactivated += (sender, e) => Timelines.Remove(Timelines.Single(t => t.Value == sender));
+            line.Deactivated += (sender, e) =>
+            {
+                var value = Timelines.Single(t => t.Value == sender);
+                Timelines.Remove(value);
+                value.Dispose();
+            };
             setup(line);
             Timelines.Add(timeline);
         }

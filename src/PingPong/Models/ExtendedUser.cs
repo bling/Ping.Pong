@@ -7,6 +7,7 @@ namespace PingPong.Models
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
         private bool _followsBack;
+        private bool _following;
 
         public ExtendedUser(User user)
         {
@@ -20,6 +21,16 @@ namespace PingPong.Models
             {
                 _followsBack = value;
                 PropertyChanged(this, new PropertyChangedEventArgs("FollowsBack"));
+            }
+        }
+
+        public bool Following
+        {
+            get { return _following; }
+            set
+            {
+                _following = value;
+                PropertyChanged(this, new PropertyChangedEventArgs("Following"));
             }
         }
     }
