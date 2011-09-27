@@ -89,6 +89,7 @@
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Controls.Toolkit, Version=4.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -98,9 +99,13 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="AppInfo.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
+    <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
+    <Compile Include="Behaviors\RefreshDateBehavior.cs" />
+    <Compile Include="Controls\NotificationControl.cs" />
     <Compile Include="Converters\CharactersRemainingConverter.cs" />
     <Compile Include="Converters\RelativeTimeConverter.cs" />
     <Compile Include="AppBootstrapper.Keys.cs" />
@@ -112,6 +117,11 @@
     <Compile Include="InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="ErrorViewModel.cs" />
+    <Compile Include="Models\DirectMessage.cs" />
+    <Compile Include="Models\ExtendedUser.cs" />
+    <Compile Include="Models\JsonHelper.cs" />
+    <Compile Include="Models\Relationship.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="OAuth\AsyncExtensions.cs" />
     <Compile Include="OAuth\MethodType.cs" />
     <Compile Include="OAuth\OAuthAuthorizer.cs" />
@@ -121,6 +131,7 @@
     <Compile Include="OAuth\Token.cs" />
     <Compile Include="OAuth\TokenResponse.cs" />
     <Compile Include="OAuth\Utility.cs" />
+    <Compile Include="StatusViewModel.cs" />
     <Compile Include="TimelinesViewModel.cs" />
     <Compile Include="Messages\Messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -132,6 +143,8 @@
     <Compile Include="Core\TweetParser.cs" />
     <Compile Include="Core\TwitterClient.cs" />
     <Compile Include="Core\TwitterSubscriptions.cs" />
+    <Compile Include="TweetsPanelViewModel.cs" />
+    <Compile Include="UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -158,6 +171,10 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Assets\BusyIndicatorStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Assets\MetroTweetsPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -186,6 +203,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="StatusView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="TimelinesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -195,6 +216,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TweetsPanelView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

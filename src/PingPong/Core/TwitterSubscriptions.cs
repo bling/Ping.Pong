@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Json;
 using System.Reactive.Linq;
 using PingPong.Models;
 
@@ -13,23 +14,23 @@ namespace PingPong.Core
             return Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(DefaultPollSeconds));
         }
 
-        public static IObservable<Tweet> GetPollingDirectMessages(this TwitterClient client)
+        public static IObservable<DirectMessage> GetPollingDirectMessages(this TwitterClient client)
         {
-            return Observable.Create<Tweet>(obs =>
+            return Observable.Create<DirectMessage>(obs =>
             {
                 ulong? sinceId = null;
                 return CreateTimerObservable()
                     .SelectMany(_ => client.GetDirectMessages(sinceId))
-                    .Do(tweet => sinceId = tweet.Id)
+                    .Do(dm => sinceId = dm.Id)
                     .Subscribe(obs.OnNext);
             });
         }
 
-        public static IObservable<Tweet> GetPollingStatuses(this TwitterClient client)
+        public static IObservable<Tweet> GetStreamingStatuses(this TwitterClient client)
         {
-            return client.GetHomeTimeline();
-                //.Merge(client.GetMentions())
-                //.Merge(client.GetStreamingHomeline());
+            return client.GetHomeTimeline()
+                .Merge(client.GetMentions())
+                .Concat(client.GetStreamingHomeline());
         }
 
         public static IObservable<Tweet> GetPollingUserTimeline(this TwitterClient client, string screenName)
@@ -56,6 +57,21 @@ namespace PingPong.Core
                     .Do(tweet => sinceId = tweet.Id)
                     .Subscribe(obs.OnNext);
             });
+        }
+
+        public static IObservable<Tweet> SelectTweets(this IObservable<JsonValue> observable, IObserver<Tweet> observer)
+        {
+            return observable
+                .Select(x => JsonHelper.ToTweet((JsonObject)x))
+                .Where(x => x != null)
+                .Do(observer.OnNext);
+        }
+
+        public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable)
+        {
+            return observable
+                .Select(x => JsonHelper.ToDirectMessage((JsonObject)x))
+                .Where(x => x != null);
         }
     }
 }
