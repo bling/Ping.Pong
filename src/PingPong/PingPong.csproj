@@ -25,7 +25,7 @@
     <TestPageFileName>PingPongTestPage.html</TestPageFileName>
     <CreateTestPage>true</CreateTestPage>
     <ValidateXaml>true</ValidateXaml>
-    <EnableOutOfBrowser>true</EnableOutOfBrowser>
+    <EnableOutOfBrowser>false</EnableOutOfBrowser>
     <OutOfBrowserSettingsFile>Properties\OutOfBrowserSettings.xml</OutOfBrowserSettingsFile>
     <UsePlatformExtensions>false</UsePlatformExtensions>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
@@ -122,7 +122,7 @@
     <Compile Include="Models\JsonHelper.cs" />
     <Compile Include="Models\Relationship.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="OAuth\AsyncExtensions.cs" />
+    <Compile Include="OAuth\OAuthClientExtensions.cs" />
     <Compile Include="OAuth\MethodType.cs" />
     <Compile Include="OAuth\OAuthAuthorizer.cs" />
     <Compile Include="OAuth\OAuthBase.cs" />

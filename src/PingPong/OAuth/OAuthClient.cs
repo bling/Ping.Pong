@@ -11,11 +11,10 @@ namespace PingPong.OAuth
     public class OAuthClient : OAuthBase
     {
         public AccessToken AccessToken { get; private set; }
-        public ParameterCollection Parameters { get; set; }
+        public ParameterCollection Parameters { get; private set; }
         public string Url { get; set; }
         public string Realm { get; set; }
         public MethodType MethodType { get; set; }
-        public Action<HttpWebRequest> ApplyBeforeRequest { get; set; }
 
         public OAuthClient(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret)
             : this(consumerKey, consumerSecret, new AccessToken(accessToken, accessTokenSecret))
@@ -32,7 +31,7 @@ namespace PingPong.OAuth
             MethodType = MethodType.Get;
         }
 
-        protected string AuthorizationHeader
+        private string AuthorizationHeader
         {
             get
             {
@@ -42,7 +41,7 @@ namespace PingPong.OAuth
             }
         }
 
-        protected virtual WebRequest CreateWebRequest()
+        private WebRequest CreateWebRequest()
         {
             string requestUrl = (MethodType == MethodType.Get) ? Url + "?" + Parameters.ToQueryParameter() : Url;
 
@@ -50,16 +49,16 @@ namespace PingPong.OAuth
             req.Headers[HttpRequestHeader.Authorization] = AuthorizationHeader;
             req.Headers["X-User-Agent"] = AppBootstrapper.UserAgentVersion;
             req.Method = MethodType.ToString().ToUpper();
-            if (MethodType == MethodType.Post) req.ContentType = "application/x-www-form-urlencoded";
-            if (ApplyBeforeRequest != null) ApplyBeforeRequest(req);
+            if (MethodType == MethodType.Post)
+                req.ContentType = "application/x-www-form-urlencoded";
 
             return req;
         }
 
-        /// <summary>asynchronus GetResponse</summary>
+        /// <summary>Asynchronously get the web response.</summary>
         public IObservable<WebResponse> GetResponse()
         {
-            if (Url == null) throw new InvalidOperationException("must set Url before call");
+            if (Url == null) throw new InvalidOperationException("The Url is not set.");
 
             var req = CreateWebRequest();
             switch (MethodType)
@@ -69,18 +68,15 @@ namespace PingPong.OAuth
                 case MethodType.Post:
                     var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
                     return req.GetRequestStreamAsObservable()
-                        .Do(stream => stream.Write(postData, 0, postData.Length))
-                        .Do(stream => stream.Close())
+                        .Do(stream =>
+                        {
+                            stream.Write(postData, 0, postData.Length);
+                            stream.Close();
+                        })
                         .SelectMany(_ => req.GetResponseAsObservable());
                 default:
                     throw new InvalidOperationException();
             }
-        }
-
-        /// <summary>asynchronus GetResponse and return onelines</summary>
-        public IObservable<string> GetResponseLines()
-        {
-            return GetResponse().SelectMany(x => x.GetLines().Where(y => !string.IsNullOrWhiteSpace(y)));
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PingPong.OAuth
 {
-    internal static class WebRequestExtensions
+    internal static class OAuthClientExtensions
     {
         public static IObservable<WebResponse> GetResponseAsObservable(this WebRequest request)
         {
@@ -18,10 +18,13 @@ namespace PingPong.OAuth
         {
             return Observable.FromAsyncPattern<Stream>(request.BeginGetRequestStream, request.EndGetRequestStream)();
         }
-    }
 
-    internal static class WebResponseExtensions
-    {
+        /// <summary>Asynchronously gets responses terminated by line feeds.</summary>
+        public static IObservable<string> GetResponseLines(this IObservable<WebResponse> response)
+        {
+            return response.SelectMany(x => x.GetLines());
+        }
+
         public static IObservable<byte[]> GetBytes(this WebResponse response)
         {
             return Observable.Create<byte[]>(ob =>
@@ -61,7 +64,10 @@ namespace PingPong.OAuth
                                 sb.Append(c);
                                 if (c == '\n')
                                 {
-                                    ob.OnNext(sb.ToString());
+                                    string value = sb.ToString();
+                                    if (!string.IsNullOrWhiteSpace(value))
+                                        ob.OnNext(value);
+
                                     sb.Clear();
                                 }
                             }
