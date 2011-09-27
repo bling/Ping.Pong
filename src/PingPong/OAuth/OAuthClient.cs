@@ -7,7 +7,7 @@ using PingPong.Core;
 
 namespace PingPong.OAuth
 {
-    /// <summary>access protected resource client</summary>
+    /// <summary>OAuth authenticated client.</summary>
     public class OAuthClient : OAuthBase
     {
         public AccessToken AccessToken { get; private set; }
