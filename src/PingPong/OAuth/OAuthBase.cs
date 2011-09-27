@@ -5,25 +5,39 @@ using System.Net;
 using System.Net.Browser;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows;
 using PingPong.Core;
 
 namespace PingPong.OAuth
 {
     public abstract class OAuthBase
     {
-        private static readonly Random random = new Random();
+        static OAuthBase()
+        {
+            if (Application.Current.IsRunningOutOfBrowser)
+            {
+                WebRequest.RegisterPrefix("http://", WebRequestCreator.ClientHttp);
+                WebRequest.RegisterPrefix("https://", WebRequestCreator.ClientHttp);
+            }
+            else
+            {
+                WebRequest.RegisterPrefix("http://", WebRequestCreator.BrowserHttp);
+                WebRequest.RegisterPrefix("https://", WebRequestCreator.BrowserHttp);
+            }
+        }
+
+        private static readonly Random _random = new Random();
 
         public string ConsumerKey { get; private set; }
         public string ConsumerSecret { get; private set; }
 
         public OAuthBase(string consumerKey, string consumerSecret)
         {
-            
-            Enforce.NotNull(consumerKey, "key");
-            Enforce.NotNull(consumerSecret, "consumerSecret");
+            Enforce.NotNullOrEmpty(consumerKey, "key");
+            Enforce.NotNullOrEmpty(consumerSecret, "consumerSecret");
 
-            this.ConsumerKey = consumerKey;
-            this.ConsumerSecret = consumerSecret;
+            ConsumerKey = consumerKey;
+            ConsumerSecret = consumerSecret;
         }
 
         private string GenerateSignature(Uri uri, MethodType methodType, Token token, IEnumerable<Parameter> parameters)
@@ -32,11 +46,11 @@ namespace PingPong.OAuth
             using (var hmacsha1 = new HMACSHA1(Encoding.UTF8.GetBytes(hmacKeyBase)))
             {
                 var stringParameter = parameters.OrderBy(p => p.Key)
-                   .ThenBy(p => p.Value)
-                   .ToQueryParameter();
-                var signatureBase = methodType.ToString().ToUpper()+
-                    "&" + uri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.Unescaped).UrlEncode() +
-                    "&" + stringParameter.UrlEncode();
+                    .ThenBy(p => p.Value)
+                    .ToQueryParameter();
+                var signatureBase = methodType.ToString().ToUpper() +
+                                    "&" + uri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.Unescaped).UrlEncode() +
+                                    "&" + stringParameter.UrlEncode();
 
                 var hash = hmacsha1.ComputeHash(Encoding.UTF8.GetBytes(signatureBase));
                 return Convert.ToBase64String(hash).UrlEncode();
@@ -65,7 +79,7 @@ namespace PingPong.OAuth
             var parameters = new ParameterCollection
             {
                 { "oauth_consumer_key", ConsumerKey },
-                { "oauth_nonce", random.Next() },
+                { "oauth_nonce", _random.Next() },
                 { "oauth_timestamp", DateTime.UtcNow.ToUnixTime() },
                 { "oauth_signature_method", "HMAC-SHA1" },
                 { "oauth_version", "1.0" }

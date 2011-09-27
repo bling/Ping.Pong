@@ -23,7 +23,8 @@ namespace PingPong.OAuth
             req.Method = MethodType.Post.ToString().ToUpper();
             req.ContentType = "application/x-www-form-urlencoded";
 
-            return req.DownloadStringAsync()
+            return req.GetResponseAsObservable()
+                .SelectMany(x => x.GetLines())
                 .Select(tokenBase =>
                 {
                     var splitted = tokenBase.Split('&').Select(s => s.Split('=')).ToDictionary(s => s.First(), s => s.Last());

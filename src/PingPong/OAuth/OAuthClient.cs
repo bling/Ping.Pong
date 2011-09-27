@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Net.Browser;
 using System.Reactive.Linq;
 using System.Text;
 using PingPong.Core;
@@ -28,7 +27,7 @@ namespace PingPong.OAuth
         {
             Enforce.NotNull(accessToken, "accessToken");
 
-            this.AccessToken = accessToken;
+            AccessToken = accessToken;
             Parameters = new ParameterCollection();
             MethodType = MethodType.Get;
         }
@@ -45,21 +44,11 @@ namespace PingPong.OAuth
 
         protected virtual WebRequest CreateWebRequest()
         {
-            string requestUrl;
-            if (Parameters.Any())
-            {
-                requestUrl = (MethodType == MethodType.Get) ? Url + "?" + Parameters.ToQueryParameter() : Url;
-            }
-            else
-            {
-                requestUrl = (MethodType == MethodType.Get) ? Url : Url;
-            }
-            //var req = (HttpWebRequest)WebRequest.Create(requestUrl);
-            WebRequest.RegisterPrefix("http://", WebRequestCreator.BrowserHttp);
-            WebRequest.RegisterPrefix("https://", WebRequestCreator.BrowserHttp);
+            string requestUrl = (MethodType == MethodType.Get) ? Url + "?" + Parameters.ToQueryParameter() : Url;
 
-            var req = (HttpWebRequest)WebRequest.CreateHttp(requestUrl);
-            req.Headers[HttpRequestHeader.Authorization] = this.AuthorizationHeader;
+            var req = WebRequest.CreateHttp(requestUrl);
+            req.Headers[HttpRequestHeader.Authorization] = AuthorizationHeader;
+            req.Headers["X-User-Agent"] = AppBootstrapper.UserAgentVersion;
             req.Method = MethodType.ToString().ToUpper();
             if (MethodType == MethodType.Post) req.ContentType = "application/x-www-form-urlencoded";
             if (ApplyBeforeRequest != null) ApplyBeforeRequest(req);
@@ -76,25 +65,22 @@ namespace PingPong.OAuth
             switch (MethodType)
             {
                 case MethodType.Get:
-                    return Observable.Defer(() => req.GetResponseAsObservable());
+                    return req.GetResponseAsObservable();
                 case MethodType.Post:
                     var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
-                    return req.UploadDataAsync(postData);
+                    return req.GetRequestStreamAsObservable()
+                        .Do(stream => stream.Write(postData, 0, postData.Length))
+                        .Do(stream => stream.Close())
+                        .SelectMany(_ => req.GetResponseAsObservable());
                 default:
                     throw new InvalidOperationException();
             }
         }
 
-        /// <summary>asynchronus GetResponse and return ResponseText</summary>
-        public IObservable<string> GetResponseText()
-        {
-            return GetResponse().SelectMany(res => res.DownloadStringAsync());
-        }
-
         /// <summary>asynchronus GetResponse and return onelines</summary>
         public IObservable<string> GetResponseLines()
         {
-            return GetResponse().SelectMany(res => res.DownloadStringLineAsync());
+            return GetResponse().SelectMany(x => x.GetLines().Where(y => !string.IsNullOrWhiteSpace(y)));
         }
     }
 }
