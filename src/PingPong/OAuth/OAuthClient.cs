@@ -33,7 +33,7 @@ namespace PingPong.OAuth
         private string GetAuthorizationHeader(MethodType methodType)
         {
             var realm = (Realm != null) ? new[] { new KeyValuePair<string, object>("realm", Realm) } : Enumerable.Empty<KeyValuePair<string, object>>();
-            var parameters = ConstructBasicParameters(Url, methodType, AccessToken, Parameters);
+            var parameters = ConstructBasicParameters(Url, methodType, AccessToken, Parameters.ToArray());
             return BuildAuthorizationHeader(realm.Concat(parameters));
         }
 

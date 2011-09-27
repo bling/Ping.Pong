@@ -64,7 +64,7 @@ namespace PingPong.OAuth
             return "OAuth " + string.Join(",", parameters.Select(p => string.Format("{0}=\"{1}\"", p.Key, p.Value.ToString())));
         }
 
-        protected IDictionary<string,object> ConstructBasicParameters(string url, MethodType methodType, Token token, IEnumerable<KeyValuePair<string,object>> optionalParameters)
+        protected IDictionary<string,object> ConstructBasicParameters(string url, MethodType methodType, Token token, params KeyValuePair<string,object>[] optionalParameters)
         {
             Enforce.NotNull(url, "url");
             Enforce.NotNull(optionalParameters, "optionalParameters");

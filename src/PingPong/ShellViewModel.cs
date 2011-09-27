@@ -20,21 +20,20 @@ namespace PingPong
         {
             base.OnActivate();
 
-            //if (string.IsNullOrEmpty(AppBootstrapper.ConsumerKey) || string.IsNullOrEmpty(AppBootstrapper.ConsumerSecret))
-            //{
-            //    ActivateItem(new ErrorViewModel("Please create your own consumer key/secret from Twitter."));
-            //}
-            //else if (Application.Current.IsRunningOutOfBrowser)
-            //{
-            //    ActivateItem(AppSettings.HasAuthToken
-            //                     ? (object)_container.Resolve<TimelinesViewModel>()
-            //                     : _container.Resolve<AuthorizationViewModel>());
-            //}
-            //else
-            //{
-            //    ActivateItem(_container.Resolve<InstallViewModel>());
-            //}
-            ActivateItem(_container.Resolve<TimelinesViewModel>());
+            if (string.IsNullOrEmpty(AppBootstrapper.ConsumerKey) || string.IsNullOrEmpty(AppBootstrapper.ConsumerSecret))
+            {
+                ActivateItem(new ErrorViewModel("Please create your own consumer key/secret from Twitter."));
+            }
+            else if (Application.Current.IsRunningOutOfBrowser)
+            {
+                ActivateItem(AppSettings.HasAuthToken
+                                 ? (object)_container.Resolve<TimelinesViewModel>()
+                                 : _container.Resolve<AuthorizationViewModel>());
+            }
+            else
+            {
+                ActivateItem(_container.Resolve<InstallViewModel>());
+            }
         }
 
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)

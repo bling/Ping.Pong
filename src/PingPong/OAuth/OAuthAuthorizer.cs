@@ -44,7 +44,7 @@ namespace PingPong.OAuth
 
         /// <summary>Asynchronously gets request tokens.</summary>
         /// <param name="otherParameters">need parameters except consumer_key,timestamp,nonce,signature,signature_method,version</param>
-        public IObservable<TokenResponse<RequestToken>> GetRequestToken(string requestTokenUrl, IEnumerable<KeyValuePair<string, object>> otherParameters)
+        public IObservable<TokenResponse<RequestToken>> GetRequestToken(string requestTokenUrl, params KeyValuePair<string, object>[] otherParameters)
         {
             Enforce.NotNull(requestTokenUrl, "requestTokenUrl");
             Enforce.NotNull(otherParameters, "otherParameters");
@@ -54,6 +54,19 @@ namespace PingPong.OAuth
                 parameters.Add(p);
 
             return GetTokenResponse(requestTokenUrl, parameters, (key, secret) => new RequestToken(key, secret));
+        }
+
+        /// <summary>Asynchronously gets the access token.</summary>
+        public IObservable<TokenResponse<AccessToken>> GetAccessToken(string accessTokenUrl, RequestToken requestToken, string verifier)
+        {
+            Enforce.NotNull(accessTokenUrl, "accessTokenUrl");
+            Enforce.NotNull(requestToken, "requestToken");
+            Enforce.NotNull(verifier, "verifier");
+
+            var verifierParam = new KeyValuePair<string, object>("oauth_verifier", verifier);
+            var parameters = ConstructBasicParameters(accessTokenUrl, MethodType.Post, requestToken, verifierParam);
+            parameters.Add(verifierParam);
+            return GetTokenResponse(accessTokenUrl, parameters, (key, secret) => new AccessToken(key, secret));
         }
     }
 }

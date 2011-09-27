@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Controls;
 using Caliburn.Micro;
+using PingPong.Core;
 using PingPong.Messages;
+using PingPong.OAuth;
 
 namespace PingPong
 {
@@ -12,13 +13,13 @@ namespace PingPong
         private readonly IEventAggregator _eventAggregator;
         private readonly IWindowManager _windowManager;
 
-        private AuthInfo _auth;
         private string _pin;
+        private RequestToken _token;
 
         public string Pin
         {
             get { return _pin; }
-            set { this.SetValue("Pin", value, ref _pin); }
+            set { this.SetValue("Pin", value, ref this._pin); }
         }
 
         public AuthorizationViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
@@ -29,90 +30,42 @@ namespace PingPong
 
         public void LoadWebBrowser(WebBrowser browser)
         {
-            //Observable.Create<RestResponse>(
-            //    obs =>
-            //    {
-            //        var client = new RestClient
-            //        {
-            //            Authority = "https://api.twitter.com/oauth",
-            //            Credentials = new OAuthCredentials
-            //            {
-            //                Type = OAuthType.RequestToken,
-            //                SignatureMethod = OAuthSignatureMethod.HmacSha1,
-            //                ParameterHandling = OAuthParameterHandling.HttpAuthorizationHeader,
-            //                ConsumerKey = AppBootstrapper.ConsumerKey,
-            //                ConsumerSecret = AppBootstrapper.ConsumerSecret,
-            //                Version = "1.0",
-            //                CallbackUrl = "oob",
-            //            },
-            //            HasElevatedPermissions = true
-            //        };
-
-            //        client.BeginRequest(new RestRequest { Path = "/request_token" }, (request, response, state) => obs.OnNext(response));
-            //        return Disposable.Empty;
-            //    })
-            //    .Select(x =>
-            //    {
-            //        var query = x.Content.ToQueryParameters();
-            //        return new AuthInfo { AuthToken = query["oauth_token"], AuthTokenSecret = query["oauth_token_secret"] };
-            //    })
-            //    .Do(auth => _auth = auth)
-            //    .DispatcherSubscribe(
-            //        auth => browser.Navigate(new Uri("https://api.twitter.com/oauth/authorize?oauth_token=" + auth.AuthToken)),
-            //        OnError);
+            var authorizer = new OAuthAuthorizer(AppBootstrapper.ConsumerKey, AppBootstrapper.ConsumerSecret);
+            authorizer.GetRequestToken("https://api.twitter.com/oauth/request_token")
+                .Select(x => x.Token)
+                .DispatcherSubscribe(
+                    token =>
+                    {
+                        _token = token;
+                        string url = authorizer.BuildAuthorizeUrl("https://api.twitter.com/oauth/authorize", token);
+                        browser.Navigate(new Uri(url));
+                    },
+                    OnError);
         }
 
         public void AuthenticatePin()
         {
+            Enforce.NotNull(_token);
+
             int pin;
             if (!int.TryParse(Pin, out pin))
                 throw new InvalidOperationException("The PIN must be a number.");
 
-            //Observable.Create<RestResponse>(
-            //    obs =>
-            //    {
-            //        var client = new RestClient
-            //        {
-            //            Authority = "http://twitter.com/oauth",
-            //            Credentials = new OAuthCredentials
-            //            {
-            //                Type = OAuthType.AccessToken,
-            //                SignatureMethod = OAuthSignatureMethod.HmacSha1,
-            //                ParameterHandling = OAuthParameterHandling.HttpAuthorizationHeader,
-            //                ConsumerKey = AppBootstrapper.ConsumerKey,
-            //                ConsumerSecret = AppBootstrapper.ConsumerSecret,
-            //                Token = _auth.AuthToken,
-            //                TokenSecret = _auth.AuthTokenSecret,
-            //                Verifier = Pin,
-            //            }
-            //        };
-            //        client.BeginRequest(new RestRequest { Path = "/access_token" }, (request, response, state) => obs.OnNext(response));
-            //        return Disposable.Empty;
-            //    })
-            //    .Select(x =>
-            //    {
-            //        var query = x.Content.ToQueryParameters();
-            //        return new AuthInfo { AuthToken = query["oauth_token"], AuthTokenSecret = query["oauth_token_secret"] };
-            //    })
-            //    .DispatcherSubscribe(
-            //        auth =>
-            //        {
-            //            AppSettings.UserOAuthToken = auth.AuthToken;
-            //            AppSettings.UserOAuthTokenSecret = auth.AuthTokenSecret;
-            //            _eventAggregator.Publish(new ShowTimelinesMessage());
-            //        },
-            //        OnError);
+            var authorizer = new OAuthAuthorizer(AppBootstrapper.ConsumerKey, AppBootstrapper.ConsumerSecret);
+            authorizer.GetAccessToken("https://twitter.com/oauth/access_token", _token, Pin)
+                .DispatcherSubscribe(
+                    response =>
+                    {
+                        AppSettings.UserOAuthToken = response.Token.Key;
+                        AppSettings.UserOAuthTokenSecret = response.Token.Secret;
+                        _eventAggregator.Publish(new ShowTimelinesMessage());
+                    },
+                    OnError);
         }
 
         private void OnError(Exception ex)
         {
             _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
         }
-    }
-
-    public class AuthInfo
-    {
-        public string AuthToken { get; set; }
-        public string AuthTokenSecret { get; set; }
     }
 }
