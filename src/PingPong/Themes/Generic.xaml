@@ -16,5 +16,13 @@
             </Setter.Value>
         </Setter>
     </Style>
-
+    <Style TargetType="ctrl:NotificationControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ctrl:NotificationControl">
+                    <ContentControl VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Content="{Binding}" ContentTemplate="{StaticResource SimpleTweetDataTemplate}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
