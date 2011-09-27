@@ -4,6 +4,7 @@ using System.Json;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Windows;
 using Caliburn.Micro;
 using Hammock;
@@ -14,7 +15,7 @@ using PingPong.Models;
 
 namespace PingPong.Core
 {
-    public class TwitterClient
+    public class TwitterClient : IObservable<Tweet>, IDisposable
     {
         private const int RequestCount = 200;
         private const string ApiAuthority = "https://api.twitter.com";
@@ -23,6 +24,7 @@ namespace PingPong.Core
         private const string UserStreamingAuthority = "https://userstream.twitter.com";
 
         private readonly OAuthCredentials _credentials;
+        private readonly Subject<Tweet> _tweets = new Subject<Tweet>();
         private static readonly ILog _log = LogManager.GetLog(typeof(TwitterClient));
 
         public TwitterClient()
@@ -41,6 +43,11 @@ namespace PingPong.Core
                 TokenSecret = AppSettings.UserOAuthTokenSecret,
                 Version = "1.0",
             };
+        }
+
+        public void Dispose()
+        {
+            _tweets.Dispose();
         }
 
         private RestClient CreateClient(string authority)
@@ -141,25 +148,25 @@ namespace PingPong.Core
         public IObservable<Tweet> GetHomeTimeline(int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { include_rts = "1" }, new { count } };
-            return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", options).SelectTweets();
+            return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", options).SelectTweets(_tweets);
         }
 
         public IObservable<Tweet> GetCurrentUserTimeline(int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { include_rts = "1" }, new { count } };
-            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets();
+            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_tweets);
         }
 
         public IObservable<Tweet> GetUserTimeline(string screenName, ulong? sinceId = null)
         {
             var options = new object[] { new { screen_name = screenName }, new { include_entities = "1" }, new { include_rts = "1" }, new { since_id = sinceId } };
-            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets();
+            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_tweets);
         }
 
         public IObservable<Tweet> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { q = query }, new { count }, new { since_id = sinceId } };
-            return GetSnapshot(SearchAuthority, "/search.json", options).SelectTweets();
+            return GetSnapshot(SearchAuthority, "/search.json", options).SelectTweets(_tweets);
         }
 
         public IObservable<Tweet> GetStreamingHomeline()
@@ -170,7 +177,7 @@ namespace PingPong.Core
         public IObservable<Tweet> GetMentions(int count = RequestCount)
         {
             var options = new object[] { new { include_rts = "1" }, new { count }, new { include_entities = "1" } };
-            return GetSnapshot(ApiAuthority, "/statuses/mentions.json", options).SelectTweets();
+            return GetSnapshot(ApiAuthority, "/statuses/mentions.json", options).SelectTweets(_tweets);
         }
 
         public IObservable<DirectMessage> GetDirectMessages(ulong? sinceId = null)
@@ -182,7 +189,7 @@ namespace PingPong.Core
         public IObservable<Tweet> GetFavorites(ulong? sinceId = null)
         {
             var options = new object[] { new { since_id = sinceId }, new { include_entities = "1" } };
-            return GetSnapshot(ApiAuthority, "/favorites.json", options).SelectTweets();
+            return GetSnapshot(ApiAuthority, "/favorites.json", options).SelectTweets(_tweets);
         }
 
         public IObservable<Tweet> GetStreamingSampling()
@@ -206,7 +213,7 @@ namespace PingPong.Core
         {
             return GetContents(authority, path, true, parameters)
                 .Select(ToJson)
-                .SelectTweets()
+                .SelectTweets(_tweets)
                 .Buffer(TimeSpan.FromMilliseconds(100))
                 .SelectMany(x => x);
         }
@@ -255,6 +262,11 @@ namespace PingPong.Core
                 _log.Error(e);
             }
             return null;
+        }
+
+        IDisposable IObservable<Tweet>.Subscribe(IObserver<Tweet> observer)
+        {
+            return _tweets.Subscribe(observer);
         }
     }
 }
