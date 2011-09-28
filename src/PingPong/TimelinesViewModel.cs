@@ -22,6 +22,7 @@ namespace PingPong
         private readonly Func<Owned<TweetsPanelViewModel>> _timelineFactory;
         private readonly Owned<TweetsPanelViewModel> _homeline;
         private readonly Owned<TweetsPanelViewModel> _mentionline;
+        private readonly Owned<TweetsPanelViewModel> _messageline;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private IDisposable _notificationSubscription;
@@ -57,6 +58,21 @@ namespace PingPong
                     Timelines.Remove(_mentionline);
 
                 NotifyOfPropertyChange(() => ShowMentions);
+            }
+        }
+
+
+        public bool ShowMessages
+        {
+            get { return Timelines.Contains(_messageline); }
+            set
+            {
+                if (value)
+                    Timelines.Add(_messageline);
+                else
+                    Timelines.Remove(_messageline);
+
+                NotifyOfPropertyChange(() => ShowMessages);
             }
         }
 
@@ -98,6 +114,9 @@ namespace PingPong
             _mentionline = timelineFactory();
             _mentionline.Value.DisplayName = "Mentions";
 
+            _messageline = timelineFactory();
+            _messageline.Value.DisplayName = "Messages";
+
             Timelines = new ObservableCollection<Owned<TweetsPanelViewModel>>();
         }
 
@@ -125,6 +144,7 @@ namespace PingPong
 
                     ShowHome = true;
                     ShowMentions = true;
+                    ShowMessages = true;
                     IsBusy = false;
 
                     _notificationSubscription = _client

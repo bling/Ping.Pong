@@ -47,6 +47,14 @@
                               Foreground="{StaticResource ButtonForegroundBrush}"
                               Padding="5,2"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
+                <ToggleButton x:Name="ShowMessages"
+                              Width="80"
+                              Content="Messages"
+                              FontFamily="{StaticResource DefaultFontFamily}"
+                              FontSize="13.333"
+                              Foreground="{StaticResource ButtonForegroundBrush}"
+                              Padding="5,2"
+                              Style="{StaticResource SimpleToggleButtonStyle}" />
             </StackPanel>
 
             <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
