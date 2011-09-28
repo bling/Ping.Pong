@@ -39,6 +39,7 @@ namespace PingPong.OAuth
 
         private WebRequest CreateWebRequest(MethodType methodType)
         {
+            Enforce.NotNullOrEmpty(Url);
             string requestUrl = (methodType == MethodType.Get) ? Url + "?" + Parameters.ToQueryParameter() : Url;
 
             var req = WebRequest.CreateHttp(requestUrl);
@@ -54,24 +55,25 @@ namespace PingPong.OAuth
         /// <summary>Asynchronously get the web response.</summary>
         public IObservable<WebResponse> Get()
         {
-            if (Url == null) throw new InvalidOperationException("The Url is not set.");
-
             return CreateWebRequest(MethodType.Get).GetResponseAsObservable();
         }
 
-        public IObservable<WebResponse> Post()
+        public void Post(Action<WebResponse> optionalOnNext = null)
         {
-            if (Url == null) throw new InvalidOperationException("The Url is not set.");
-
             var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
             var req = CreateWebRequest(MethodType.Post);
-            return req.GetRequestStreamAsObservable()
+            req.GetRequestStreamAsObservable()
                 .Do(stream =>
                 {
                     stream.Write(postData, 0, postData.Length);
                     stream.Close();
                 })
-                .SelectMany(_ => req.GetResponseAsObservable());
+                .SelectMany(_ => req.GetResponseAsObservable())
+                .Subscribe(wr =>
+                {
+                    if (optionalOnNext != null)
+                        optionalOnNext(wr);
+                });
         }
     }
 }

@@ -41,6 +41,11 @@ namespace PingPong.Core
         {
             Enforce.NotNullOrEmpty(text);
             var client = CreateClient();
+            client.Parameters["status"] = text;
+            client.Parameters["wrap_links"] = "1";
+            if (inReplyToStatusId != null)
+                client.Parameters["in_reply_to_status_id"] = inReplyToStatusId.Value;
+            
             client.Url = ApiAuthority + "/1/statuses/update.json";
             client.Post();
         }
