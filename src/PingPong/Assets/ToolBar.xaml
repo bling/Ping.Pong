@@ -18,12 +18,12 @@
                                 <VisualState x:Name="Normal" />
                                 <VisualState x:Name="MouseOver">
                                     <Storyboard>
-                                        <ColorAnimation d:IsOptimized="True"
-                                                        Duration="0"
-                                                        Storyboard.TargetName="bgMouseOver"
-                                                        Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                        To="#42A9CBE7" />
-                                    </Storyboard>
+                                		<ColorAnimation d:IsOptimized="True"
+                                			Duration="0"
+                                			Storyboard.TargetName="bgMouseOver"
+                                			Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                			To="#42A9CBE7" />
+                                	</Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Pressed" />
                             </VisualStateGroup>
@@ -48,7 +48,7 @@
                             <ei:ExtendedVisualStateManager />
                         </VisualStateManager.CustomVisualStateManager>
                         <Border x:Name="bgMouseOver" Background="Transparent" />
-                        <Border x:Name="bgChecked" Margin="1" Background="Transparent" />
+                        <Border x:Name="bgChecked" Margin="1,0" Background="Transparent" />
                         <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                             <ContentPresenter x:Name="contentPresenter"
                                               Margin="{TemplateBinding Padding}"
