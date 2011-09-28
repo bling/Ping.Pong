@@ -97,7 +97,7 @@
                 <DataTemplate>
                     <ItemsControl ItemsSource="{Binding Value.Tweets}" Style="{StaticResource DarkTweetsPanel}">
                         <i:Interaction.Behaviors>
-                            <b:AutoSizeBehavior ItemsControl="{Binding ElementName=Timelines}" />
+                            <b:AutoSizeBehavior />
                             <b:RefreshDateBehavior />
                         </i:Interaction.Behaviors>
                     </ItemsControl>
