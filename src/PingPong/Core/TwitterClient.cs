@@ -147,7 +147,10 @@ namespace PingPong.Core
         public IObservable<Tweet> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { q = query }, new { count }, new { since_id = sinceId } };
-            return GetSnapshot(SearchAuthority, "/search.json", options).SelectTweets(_tweets);
+            return GetContents(SearchAuthority, "/search.json", options)
+                .Select(ToJson)
+                .SelectMany(x => (JsonArray)x["results"])
+                .SelectTweets(_tweets);
         }
 
         public IObservable<Tweet> GetStreamingHomeline()

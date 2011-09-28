@@ -9,20 +9,34 @@ namespace PingPong.Models
     {
         public Tweet(JsonObject json)
         {
-            Id = json["id"];
             Text = json["text"]; // explicit conversion will unescape json
             Text = Text.UnescapeXml(); // unescape again for & escapes
             Source = json["source"];
-            IsRetweet = json["retweeted"];
-            InReplyToStatusId = json["in_reply_to_status_id_str"];
-            InReplyToScreenName = json["in_reply_to_screen_name"];
-            CreatedAt = json.GetDateTime("created_at");
 
-            JsonValue entities;
-            if (json.TryGetValue("entities", out entities))
-                Entities = new Entities(entities);
+            if (json.ContainsKey("from_user")) // search api
+            {
+                CreatedAt = json.GetSearchDateTime("created_at");
+                User = new User
+                {
+                    Id = json["from_user_id"],
+                    ScreenName = json["from_user"],
+                    ProfileImageUrl = json["profile_image_url"]
+                };
+            }
+            else
+            {
+                Id = json["id"];
+                IsRetweet = json["retweeted"];
+                InReplyToStatusId = json["in_reply_to_status_id_str"];
+                InReplyToScreenName = json["in_reply_to_screen_name"];
+                CreatedAt = json.GetDateTime("created_at");
 
-            User = new User(json["user"]);
+                JsonValue entities;
+                if (json.TryGetValue("entities", out entities))
+                    Entities = new Entities(entities);
+
+                User = new User(json["user"]);
+            }
         }
 
         public ulong Id { get; private set; }

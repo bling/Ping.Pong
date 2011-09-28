@@ -19,7 +19,7 @@ namespace PingPong.Models
             IsFollowing = json.GetBool("following");
         }
 
-        protected User()
+        public User()
         {
         }
 

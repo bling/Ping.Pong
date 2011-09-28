@@ -16,6 +16,11 @@ namespace PingPong.Models
             return null;
         }
 
+        public static DateTime GetSearchDateTime(this JsonValue json, string key)
+        {
+            return DateTime.Parse(json[key], CultureInfo.InvariantCulture);
+        }
+
         public static DateTime GetDateTime(this JsonValue json, string key)
         {
             return DateTime.ParseExact(json[key],
@@ -24,7 +29,7 @@ namespace PingPong.Models
 
         public static Tweet ToTweet(JsonObject value)
         {
-            if (value.ContainsKey("text") && value.ContainsKey("user"))
+            if (value.ContainsKey("text"))
                 return Activate(() => new Tweet(value));
 
             return null;
