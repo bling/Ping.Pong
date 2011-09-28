@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -56,22 +56,28 @@ namespace PingPong.OAuth
             return Observable.Create<byte[]>(ob =>
             {
                 var stream = response.GetResponseStream();
-                var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
-                var buffer = new byte[256];
-                while (true)
+                var disp = new BooleanDisposable();
+                Observable.Start(() =>
                 {
-                    int bytesRead = reader(buffer, 0, buffer.Length).Single();
-                    if (bytesRead == 0)
+                    var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
+                    var buffer = new byte[256];
+                    while (!disp.IsDisposed)
                     {
-                        ob.OnCompleted();
-                        break;
+                        int bytesRead = reader(buffer, 0, buffer.Length).Single();
+                        if (bytesRead == 0)
+                        {
+                            ob.OnCompleted();
+                            break;
+                        }
+
+                        var result = new byte[bytesRead];
+                        Buffer.BlockCopy(buffer, 0, result, 0, bytesRead);
+                        ob.OnNext(result);
                     }
 
-                    var result = new byte[bytesRead];
-                    Buffer.BlockCopy(buffer, 0, result, 0, bytesRead);
-                    ob.OnNext(result);
-                }
-                return stream;
+                    stream.Close();
+                });
+                return disp;
             });
         }
 
@@ -80,7 +86,7 @@ namespace PingPong.OAuth
             return Observable.Create<string>(ob =>
             {
                 var sb = new StringBuilder();
-                response
+                return response
                     .GetBytes()
                     .Subscribe(
                         x =>
@@ -103,8 +109,6 @@ namespace PingPong.OAuth
                             ob.OnNext(sb.ToString());
                             ob.OnCompleted();
                         });
-
-                return Disposable.Empty;
             });
         }
     }

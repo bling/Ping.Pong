@@ -82,6 +82,7 @@ namespace PingPong
                 }
 
                 _outgoing = null;
+                StatusText = string.Empty;
                 TryClose();
             }
             else if (_outgoing != null && _outgoing.Type == OutgoingType.Retweet)

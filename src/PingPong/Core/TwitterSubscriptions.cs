@@ -30,7 +30,8 @@ namespace PingPong.Core
         {
             return client.GetHomeTimeline()
                 .Merge(client.GetMentions())
-                .Concat(client.GetStreamingHomeline());
+                .Concat(client.GetStreamingHomeline())
+                .Retry();
         }
 
         public static IObservable<Tweet> GetPollingUserTimeline(this TwitterClient client, string screenName)
