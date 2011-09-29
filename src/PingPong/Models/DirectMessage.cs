@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Json;
+using Caliburn.Micro;
 
 namespace PingPong.Models
 {
-    public class DirectMessage
+    public class DirectMessage : PropertyChangedBase, ITweetItem
     {
         public DirectMessage(JsonObject json)
         {
@@ -14,10 +15,15 @@ namespace PingPong.Models
             Recipient = new User(json["recipient"]);
         }
 
-        public ulong Id { get; private set; }
-        public User Sender { get; private set; }
-        public User Recipient { get; private set; }
-        public DateTime CreatedAt { get; private set; }
-        public string Text { get; private set; }
+        public ulong Id { get; set; }
+        public User Sender { get; set; }
+        public User Recipient { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string Text { get; set; }
+
+        public User User
+        {
+            get { return Sender; }
+        }
     }
 }

@@ -12,16 +12,16 @@ namespace PingPong.Controls
     public class TweetTextBlock : Control
     {
         public static readonly DependencyProperty TweetProperty
-            = DependencyProperty.Register("Tweet", typeof(Tweet), typeof(TweetTextBlock), new PropertyMetadata(OnTweetChanged));
+            = DependencyProperty.Register("Tweet", typeof(ITweetItem), typeof(TweetTextBlock), new PropertyMetadata(OnTweetChanged));
 
         private static void OnTweetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((TweetTextBlock)d).UpdateText();
         }
 
-        public Tweet Tweet
+        public ITweetItem Tweet
         {
-            get { return (Tweet)GetValue(TweetProperty); }
+            get { return (ITweetItem)GetValue(TweetProperty); }
             set { SetValue(TweetProperty, value); }
         }
 

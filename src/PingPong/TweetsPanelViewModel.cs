@@ -97,19 +97,25 @@ namespace PingPong
             Subscribe(_client.GetPollingSearch(topic));
         }
 
-        public void Subscribe(IObservable<Tweet> tweets, Action<Tweet> optionalActionOnSubscribe = null)
+        public void Subscribe(IObservable<ITweetItem> items, Action<ITweetItem> optionalActionOnSubscribe = null)
         {
             optionalActionOnSubscribe = optionalActionOnSubscribe ?? (_ => { });
 
             IsBusy = true;
             _subscription.DisposeIfNotNull();
-            _subscription = tweets
+            _subscription = items
                 .SubscribeOnThreadPool()
                 .ObserveOnDispatcher()
                 .Do(_ => IsBusy = false)
                 .Do(x => optionalActionOnSubscribe(x))
                 .Subscribe(x => Tweets.Append(x), RaiseOnError);
             ((IActivate)this).Activate();
+        }
+
+        /// <summary>Stops the current subscription, if there is one.</summary>
+        public void StopSubscription()
+        {
+            _subscription.DisposeIfNotNull();
         }
 
         private void RaiseOnError(Exception ex)

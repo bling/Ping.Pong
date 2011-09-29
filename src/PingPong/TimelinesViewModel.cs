@@ -68,9 +68,15 @@ namespace PingPong
             set
             {
                 if (value)
+                {
+                    _messageline.Value.Subscribe(_client.GetPollingDirectMessages());
                     Timelines.Add(_messageline);
+                }
                 else
+                {
+                    _messageline.Value.StopSubscription();
                     Timelines.Remove(_messageline);
+                }   
 
                 NotifyOfPropertyChange(() => ShowMessages);
             }
@@ -144,7 +150,7 @@ namespace PingPong
 
                     ShowHome = true;
                     ShowMentions = true;
-                    ShowMessages = true;
+                    ShowMessages = false;
                     IsBusy = false;
 
                     _notificationSubscription = _client
