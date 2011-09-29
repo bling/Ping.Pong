@@ -572,7 +572,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Grid Background="{TemplateBinding Background}" cal:Bind.Model="{Binding Value}">
+                    <Grid Background="{TemplateBinding Background}" cal:Bind.Model="{Binding}">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="VisualStateGroup">
                                 <VisualStateGroup.Transitions>

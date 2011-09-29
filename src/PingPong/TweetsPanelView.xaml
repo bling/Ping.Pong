@@ -7,7 +7,7 @@
              xmlns:b="clr-namespace:PingPong.Behaviors" d:DesignHeight="392"
              d:DesignWidth="592"
              mc:Ignorable="d">
-    <ItemsControl ItemsSource="{Binding Tweets}" Style="{StaticResource DarkTweetsPanel}">
+    <ItemsControl x:Name="Tweets" Style="{StaticResource DarkTweetsPanel}">
         <i:Interaction.Behaviors>
             <b:AutoSizeBehavior />
             <b:RefreshDateBehavior />
