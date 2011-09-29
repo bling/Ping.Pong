@@ -264,7 +264,12 @@
                     <CompositeTransform TranslateY="30" />
                 </Grid.RenderTransform>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="PingPong.StatusViewModel" Orientation="Horizontal">
-                    <Button cal:Action.TargetWithoutContext="PingPong.Messenger" cal:Message.Attach="[NavigateToConversationTimeline($dataContext)]" Content="C" ToolTipService.ToolTip="view conversation" Style="{StaticResource DarkTweetButtonStyle}" Visibility="{Binding Text, Converter={StaticResource ContainsAtToVisibilityConverter}}" />
+                    <Button cal:Action.TargetWithoutContext="PingPong.Messenger"
+                            cal:Message.Attach="[NavigateToConversationTimeline($dataContext)]"
+                            Content="C"
+                            Style="{StaticResource DarkTweetButtonStyle}"
+                            ToolTipService.ToolTip="view conversation"
+                            Visibility="{Binding Text, Converter={StaticResource ContainsAtToVisibilityConverter}}" />
                     <Button cal:Message.Attach="[Reply($dataContext)]" Content="R" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Retweet($dataContext)]" Content="RT" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Quote($dataContext)]" Content="Q" Style="{StaticResource DarkTweetButtonStyle}" />
@@ -568,6 +573,28 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Grid Background="{TemplateBinding Background}" cal:Bind.Model="{Binding Value}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="VisualStateGroup">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0:0:0.3" />
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="OpenInfoBox">
+                                    <Storyboard>
+                                        <DoubleAnimation d:IsOptimized="True"
+                                                         Duration="0"
+                                                         Storyboard.TargetName="contentControl"
+                                                         Storyboard.TargetProperty="(FrameworkElement.MaxHeight)"
+                                                         To="500" />
+                                        <DoubleAnimation d:IsOptimized="True"
+                                                         Duration="0"
+                                                         Storyboard.TargetName="contentControl"
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                         To="1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Normal" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
@@ -592,7 +619,12 @@
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
-                        <ContentControl Grid.Row="1" Content="{Binding User}" Style="{StaticResource UserInfoContentStyle}" Visibility="{Binding IsChecked, ElementName=IsUserInfoOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <ContentControl x:Name="contentControl"
+                                        Grid.Row="1"
+                                        MaxHeight="0"
+                                        Content="{Binding User}"
+                                        Opacity="0"
+                                        Style="{StaticResource UserInfoContentStyle}" />
                         <ToggleButton x:Name="IsUserInfoOpen"
                                       Grid.Row="2"
                                       Margin="0,0,35,0"
@@ -602,7 +634,16 @@
                                       FontSize="18"
                                       Foreground="{StaticResource TimelineHeaderBrush}"
                                       IsEnabled="{Binding CanOpenUserInfo}"
-                                      Style="{StaticResource SimpleToggleButtonStyle}" />
+                                      Style="{StaticResource SimpleToggleButtonStyle}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Checked">
+                                    <ei:GoToStateAction StateName="OpenInfoBox" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="Unchecked">
+                                    <ei:GoToStateAction StateName="Normal" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ToggleButton>
                         <Button x:Name="TryClose"
                                 Grid.Row="2"
                                 Width="12"

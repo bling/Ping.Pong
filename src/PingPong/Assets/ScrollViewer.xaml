@@ -383,14 +383,6 @@
 			<Setter.Value>
 				<ControlTemplate TargetType="ScrollViewer">
 					<Grid Background="Transparent">
-						<i:Interaction.Triggers>
-							<i:EventTrigger EventName="MouseEnter">
-								<ei:GoToStateAction StateName="MouseOver"/>
-							</i:EventTrigger>
-							<i:EventTrigger EventName="MouseLeave">
-								<ei:GoToStateAction StateName="Normal"/>
-							</i:EventTrigger>
-						</i:Interaction.Triggers>
 						<VisualStateManager.CustomVisualStateManager>
 							<ei:ExtendedVisualStateManager/>
 						</VisualStateManager.CustomVisualStateManager>
@@ -408,6 +400,14 @@
 								</VisualState>	
 							</VisualStateGroup>
 						</VisualStateManager.VisualStateGroups>
+						<i:Interaction.Triggers>
+							<i:EventTrigger EventName="MouseEnter">
+								<ei:GoToStateAction StateName="MouseOver"/>
+							</i:EventTrigger>
+							<i:EventTrigger EventName="MouseLeave">
+								<ei:GoToStateAction StateName="Normal"/>
+							</i:EventTrigger>
+						</i:Interaction.Triggers>
 						<ScrollContentPresenter x:Name="ScrollContentPresenter" Cursor="{TemplateBinding Cursor}" ContentTemplate="{TemplateBinding ContentTemplate}" Margin="{TemplateBinding Padding}"/>
 						<ScrollBar x:Name="VerticalScrollBar" Opacity="0" IsTabStop="False" Maximum="{TemplateBinding ScrollableHeight}" Margin="0,-1,-1,-1" Minimum="0" Orientation="Vertical" Grid.Row="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{TemplateBinding VerticalOffset}" ViewportSize="{TemplateBinding ViewportHeight}" Width="9" HorizontalAlignment="Right" Style="{StaticResource VerticalScrollBarStyle}"/>
 						<ScrollBar x:Name="HorizontalScrollBar" Opacity="0" Height="9" IsTabStop="False" Maximum="{TemplateBinding ScrollableWidth}" Margin="-1,0,-1,-1" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{TemplateBinding HorizontalOffset}" ViewportSize="{TemplateBinding ViewportWidth}" VerticalAlignment="Bottom"/>
