@@ -95,12 +95,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ItemsControl ItemsSource="{Binding Value.Tweets}" Style="{StaticResource DarkTweetsPanel}">
-                        <i:Interaction.Behaviors>
-                            <b:AutoSizeBehavior />
-                            <b:RefreshDateBehavior />
-                        </i:Interaction.Behaviors>
-                    </ItemsControl>
+                    <ContentControl VerticalContentAlignment="Stretch" cal:View.Model="{Binding Value}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             d:DesignHeight="392"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:b="clr-namespace:PingPong.Behaviors" d:DesignHeight="392"
              d:DesignWidth="592"
              mc:Ignorable="d">
-    <StackPanel>
-    
-    </StackPanel>
+    <ItemsControl ItemsSource="{Binding Tweets}" Style="{StaticResource DarkTweetsPanel}">
+        <i:Interaction.Behaviors>
+            <b:AutoSizeBehavior />
+            <b:RefreshDateBehavior />
+        </i:Interaction.Behaviors>
+    </ItemsControl>
 </UserControl>
