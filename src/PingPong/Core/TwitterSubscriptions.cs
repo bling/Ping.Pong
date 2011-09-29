@@ -46,11 +46,11 @@ namespace PingPong.Core
             });
         }
 
-        public static IObservable<Tweet> GetPollingSearch(this TwitterClient client, string query)
+        public static IObservable<SearchResult> GetPollingSearch(this TwitterClient client, string query)
         {
             Enforce.NotNullOrEmpty(query);
 
-            return Observable.Create<Tweet>(obs =>
+            return Observable.Create<SearchResult>(obs =>
             {
                 ulong? sinceId = null;
                 return CreateTimerObservable()
@@ -66,6 +66,13 @@ namespace PingPong.Core
                 .Select(x => JsonHelper.ToTweet((JsonObject)x))
                 .Where(x => x != null)
                 .Do(observer.OnNext);
+        }
+
+        public static IObservable<SearchResult> SelectSearchResults(this IObservable<JsonValue> observable)
+        {
+            return observable
+                .Select(JsonHelper.ToSearchResult)
+                .Where(x => x != null);
         }
 
         public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable)

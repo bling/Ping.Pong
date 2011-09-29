@@ -144,13 +144,13 @@ namespace PingPong.Core
             return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_tweets);
         }
 
-        public IObservable<Tweet> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
+        public IObservable<SearchResult> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
         {
-            var options = new object[] { new { include_entities = "1" }, new { q = query }, new { count }, new { since_id = sinceId } };
+            var options = new object[] { new { include_entities = "1" }, new { q = query.UrlEncode() }, new { count }, new { since_id = sinceId } };
             return GetContents(SearchAuthority, "/search.json", options)
                 .Select(ToJson)
                 .SelectMany(x => (JsonArray)x["results"])
-                .SelectTweets(_tweets);
+                .SelectSearchResults();
         }
 
         public IObservable<Tweet> GetStreamingHomeline()

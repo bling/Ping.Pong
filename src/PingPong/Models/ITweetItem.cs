@@ -1,8 +1,9 @@
 using System;
+using Caliburn.Micro;
 
 namespace PingPong.Models
 {
-    public interface ITweetItem
+    public interface ITweetItem : INotifyPropertyChangedEx
     {
         ulong Id { get; }
         User User { get; }

@@ -17,7 +17,7 @@ namespace PingPong.Behaviors
             _subscription = Observable.Interval(TimeSpan.FromSeconds(20))
                 .DispatcherSubscribe(_ =>
                 {
-                    foreach (var tweet in AssociatedObject.Items.Cast<Tweet>())
+                    foreach (var tweet in AssociatedObject.Items.Cast<ITweetItem>())
                         tweet.NotifyOfPropertyChange("CreatedAt");
                 });
         }
