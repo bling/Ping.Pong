@@ -107,6 +107,7 @@
     <Compile Include="Behaviors\RefreshDateBehavior.cs" />
     <Compile Include="Controls\NotificationControl.cs" />
     <Compile Include="Converters\CharactersRemainingConverter.cs" />
+    <Compile Include="Converters\ContainsAtToVisibilityConverter.cs" />
     <Compile Include="Converters\RelativeTimeConverter.cs" />
     <Compile Include="AppBootstrapper.Keys.cs" />
     <Compile Include="Converters\SourceToContentConverter.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Models\Relationship.cs" />
     <Compile Include="Models\SearchResult.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Messenger.cs" />
     <Compile Include="OAuth\OAuthExtensions.cs" />
     <Compile Include="OAuth\OAuthAuthorizer.cs" />
     <Compile Include="OAuth\OAuthBase.cs" />

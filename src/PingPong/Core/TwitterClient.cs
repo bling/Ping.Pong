@@ -146,7 +146,7 @@ namespace PingPong.Core
 
         public IObservable<SearchResult> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
         {
-            var options = new object[] { new { include_entities = "1" }, new { q = query.UrlEncode() }, new { count }, new { since_id = sinceId } };
+            var options = new object[] { new { include_entities = "1" }, new { q = query }, new { count }, new { since_id = sinceId } };
             return GetContents(SearchAuthority, "/search.json", options)
                 .Select(ToJson)
                 .SelectMany(x => (JsonArray)x["results"])
@@ -197,9 +197,7 @@ namespace PingPong.Core
         {
             return GetContents(authority, path, parameters)
                 .Select(ToJson)
-                .SelectTweets(_subject)
-                .Buffer(TimeSpan.FromMilliseconds(100))
-                .SelectMany(x => x);
+                .SelectTweets(_subject);
         }
 
         private IObservable<string> GetContents(string authority, string path, params object[] parameters)

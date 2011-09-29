@@ -25,11 +25,13 @@ namespace PingPong.Messages
 
     public class NavigateToConversationMessage
     {
-        public string[] ScreenNames { get; private set; }
+        public string User1 { get; private set; }
+        public string User2 { get; private set; }
 
-        public NavigateToConversationMessage(params string[] screenNames)
+        public NavigateToConversationMessage(string user1, string user2)
         {
-            ScreenNames = screenNames.Select(x => x.Trim(TweetParser.PunctuationChars).Trim('@', '#')).ToArray();
+            User1 = user1.Trim('@', '#');
+            User2 = user2.Trim('@', '#');
         }
     }
 

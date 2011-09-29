@@ -23,6 +23,7 @@
     <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#FF448FBE" />
     <SolidColorBrush x:Key="UserInfoCountsBrush" Color="#FF91819D" />
 
+    <conv:ContainsAtToVisibilityConverter x:Key="ContainsAtToVisibilityConverter" />
     <conv:RelativeTimeConverter x:Key="RelativeTimeConverter" />
     <conv:SourceToUriConverter x:Key="SourceToUriConverter" />
     <conv:SourceToContentConverter x:Key="SourceToContentConverter" />
@@ -211,7 +212,7 @@
                     Margin="-8,-2,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    cal:Action.TargetWithoutContext="PingPong.IShell"
+                    cal:Action.TargetWithoutContext="PingPong.Messenger"
                     Content="{Binding User.ScreenName}"
                     FontFamily="{StaticResource DefaultFontFamily}"
                     FontSize="14.667"
@@ -263,6 +264,7 @@
                     <CompositeTransform TranslateY="30" />
                 </Grid.RenderTransform>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="PingPong.StatusViewModel" Orientation="Horizontal">
+                    <Button cal:Action.TargetWithoutContext="PingPong.Messenger" cal:Message.Attach="[NavigateToConversationTimeline($dataContext)]" Content="C" ToolTipService.ToolTip="view conversation" Style="{StaticResource DarkTweetButtonStyle}" Visibility="{Binding Text, Converter={StaticResource ContainsAtToVisibilityConverter}}" />
                     <Button cal:Message.Attach="[Reply($dataContext)]" Content="R" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Retweet($dataContext)]" Content="RT" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Quote($dataContext)]" Content="Q" Style="{StaticResource DarkTweetButtonStyle}" />

@@ -12,7 +12,7 @@ using PingPong.Messages;
 
 namespace PingPong
 {
-    public class TimelinesViewModel : Screen, IHandle<NavigateToUserMessage>, IHandle<NavigateToTopicMessage>
+    public class TimelinesViewModel : Screen, IHandle<NavigateToUserMessage>, IHandle<NavigateToTopicMessage>, IHandle<NavigateToConversationMessage>
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
@@ -174,6 +174,7 @@ namespace PingPong
             _notificationSubscription.DisposeIfNotNull();
             _homeline.Dispose();
             _mentionline.Dispose();
+            _messageline.Dispose();
         }
 
         private void StartStreaming()
@@ -275,6 +276,15 @@ namespace PingPong
             {
                 timeline.CanClose = true;
                 timeline.SubscribeToTopic(message.Topic);
+            });
+        }
+
+        void IHandle<NavigateToConversationMessage>.Handle(NavigateToConversationMessage message)
+        {
+            AddTimeline(message.User1 + " <-> " + message.User2, timeline =>
+            {
+                timeline.CanClose = true;
+                timeline.SubscribeToConversation(message.User1, message.User2);
             });
         }
     }

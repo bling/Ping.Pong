@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
 using Caliburn.Micro;
 using PingPong.Core;
@@ -95,6 +96,22 @@ namespace PingPong
         {
             Enforce.NotNullOrEmpty(topic);
             Subscribe(_client.GetPollingSearch(topic));
+        }
+
+        public void SubscribeToConversation(string user1, string user2)
+        {
+            Enforce.NotNullOrEmpty(user1);
+            Enforce.NotNullOrEmpty(user2);
+            Observable.Start(() =>
+            {
+                var results = _client.GetSearch(string.Format("from:{0} to:{1}", user1, user2))
+                    .Merge(_client.GetSearch(string.Format("from:{1} to:{0}", user1, user2)))
+                    .ToEnumerable()
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToArray();
+
+                Subscribe(results.ToObservable());
+            });
         }
 
         public void Subscribe(IObservable<ITweetItem> items, Action<ITweetItem> optionalActionOnSubscribe = null)
