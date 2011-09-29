@@ -13,7 +13,7 @@ namespace PingPong
 {
     public partial class AppBootstrapper : Bootstrapper<IShell>
     {
-        public const string Version = "0.0.0.4";
+        public const string Version = "0.0.0.5";
         public const string UserAgentVersion = "ping.pong v" + Version;
 
         private IContainer _container;

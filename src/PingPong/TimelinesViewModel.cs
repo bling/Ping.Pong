@@ -281,7 +281,7 @@ namespace PingPong
 
         void IHandle<NavigateToConversationMessage>.Handle(NavigateToConversationMessage message)
         {
-            AddTimeline(message.User1 + " <-> " + message.User2, timeline =>
+            AddTimeline(message.User1 + "/" + message.User2, timeline =>
             {
                 timeline.CanClose = true;
                 timeline.SubscribeToConversation(message.User1, message.User2);

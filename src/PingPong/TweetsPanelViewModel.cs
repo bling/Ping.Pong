@@ -125,7 +125,7 @@ namespace PingPong
                 .ObserveOnDispatcher()
                 .Do(_ => IsBusy = false)
                 .Do(x => optionalActionOnSubscribe(x))
-                .Subscribe(x => Tweets.Append(x), RaiseOnError);
+                .Subscribe(x => Tweets.Append(x), RaiseOnError, () => IsBusy = false);
             ((IActivate)this).Activate();
         }
 
