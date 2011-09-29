@@ -452,7 +452,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
-                    <Grid Margin="10,5" d:DataContext="{d:DesignData /SampleData/UserSampleData.xaml}" DataContext="{Binding User}">
+                    <Grid Margin="10,5" DataContext="{Binding User}">
                         <Grid.Resources>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
