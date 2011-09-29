@@ -60,7 +60,7 @@ namespace PingPong.Core
             });
         }
 
-        public static IObservable<Tweet> SelectTweets(this IObservable<JsonValue> observable, IObserver<Tweet> observer)
+        public static IObservable<Tweet> SelectTweets(this IObservable<JsonValue> observable, IObserver<ITweetItem> observer)
         {
             return observable
                 .Select(x => JsonHelper.ToTweet((JsonObject)x))
@@ -68,18 +68,20 @@ namespace PingPong.Core
                 .Do(observer.OnNext);
         }
 
-        public static IObservable<SearchResult> SelectSearchResults(this IObservable<JsonValue> observable)
+        public static IObservable<SearchResult> SelectSearchResults(this IObservable<JsonValue> observable, IObserver<ITweetItem> observer)
         {
             return observable
                 .Select(JsonHelper.ToSearchResult)
-                .Where(x => x != null);
+                .Where(x => x != null)
+                .Do(observer.OnNext);
         }
 
-        public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable)
+        public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable, IObserver<ITweetItem> observer)
         {
             return observable
                 .Select(x => JsonHelper.ToDirectMessage((JsonObject)x))
-                .Where(x => x != null);
+                .Where(x => x != null)
+                .Do(observer.OnNext);
         }
     }
 }
