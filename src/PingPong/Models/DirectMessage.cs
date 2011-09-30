@@ -8,14 +8,14 @@ namespace PingPong.Models
     {
         public DirectMessage(JsonObject json)
         {
-            Id = json["id"];
+            Id = json["id_str"];
             CreatedAt = json.GetDateTime("created_at");
             Text = json["text"];
             Sender = new User(json["sender"]);
             Recipient = new User(json["recipient"]);
         }
 
-        public ulong Id { get; set; }
+        public string Id { get; set; }
         public User Sender { get; set; }
         public User Recipient { get; set; }
         public DateTime CreatedAt { get; set; }

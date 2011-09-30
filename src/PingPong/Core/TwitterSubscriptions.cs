@@ -18,7 +18,7 @@ namespace PingPong.Core
         {
             return Observable.Create<DirectMessage>(obs =>
             {
-                ulong? sinceId = null;
+                string sinceId = null;
                 return CreateTimerObservable()
                     .SelectMany(_ => client.GetDirectMessages(sinceId))
                     .Do(dm => sinceId = dm.Id)
@@ -38,7 +38,7 @@ namespace PingPong.Core
         {
             return Observable.Create<Tweet>(obs =>
             {
-                ulong? sinceId = null;
+                string sinceId = null;
                 return CreateTimerObservable()
                     .SelectMany(_ => client.GetUserTimeline(screenName, sinceId))
                     .Do(tweet => sinceId = tweet.Id)
@@ -52,7 +52,7 @@ namespace PingPong.Core
 
             return Observable.Create<SearchResult>(obs =>
             {
-                ulong? sinceId = null;
+                string sinceId = null;
                 return CreateTimerObservable()
                     .SelectMany(_ => client.GetSearch(query))
                     .Do(tweet => sinceId = tweet.Id)
@@ -62,24 +62,24 @@ namespace PingPong.Core
 
         public static IObservable<Tweet> SelectTweets(this IObservable<JsonValue> observable, IObserver<ITweetItem> observer)
         {
-            return observable
-                .Select(x => JsonHelper.ToTweet((JsonObject)x))
-                .Where(x => x != null)
-                .Do(observer.OnNext);
+            return observable.SelectWith(observer, JsonHelper.ToTweet);
         }
 
         public static IObservable<SearchResult> SelectSearchResults(this IObservable<JsonValue> observable, IObserver<ITweetItem> observer)
         {
-            return observable
-                .Select(JsonHelper.ToSearchResult)
-                .Where(x => x != null)
-                .Do(observer.OnNext);
+            return observable.SelectWith(observer, JsonHelper.ToSearchResult);
         }
 
         public static IObservable<DirectMessage> SelectDirectMessages(this IObservable<JsonValue> observable, IObserver<ITweetItem> observer)
         {
+            return observable.SelectWith(observer, JsonHelper.ToDirectMessage);
+        }
+
+        private static IObservable<T> SelectWith<T>(this IObservable<JsonValue> observable, IObserver<ITweetItem> observer, Func<JsonObject, T> selector) where T : class, ITweetItem
+        {
             return observable
-                .Select(x => JsonHelper.ToDirectMessage((JsonObject)x))
+                .Cast<JsonObject>()
+                .Select(selector)
                 .Where(x => x != null)
                 .Do(observer.OnNext);
         }

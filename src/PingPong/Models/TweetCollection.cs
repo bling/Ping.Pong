@@ -14,7 +14,7 @@ namespace PingPong.Models
             ITweetItem first = Count > 0 ? this[0] : null;
             if (first != null)
             {
-                if (tweet.Id > first.Id)
+                if (tweet.Id.CompareTo(first.Id) > 0)
                 {
                     Insert(0, tweet);
                     return;

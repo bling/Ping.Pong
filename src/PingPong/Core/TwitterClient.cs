@@ -37,20 +37,20 @@ namespace PingPong.Core
             return new OAuthClient(AppBootstrapper.ConsumerKey, AppBootstrapper.ConsumerSecret, AppSettings.UserOAuthToken, AppSettings.UserOAuthTokenSecret);
         }
 
-        public void UpdateStatus(string text, ulong? inReplyToStatusId = null)
+        public void UpdateStatus(string text, string inReplyToStatusId = null)
         {
             Enforce.NotNullOrEmpty(text);
             var client = CreateClient();
             client.Parameters["status"] = text;
             client.Parameters["wrap_links"] = "1";
             if (inReplyToStatusId != null)
-                client.Parameters["in_reply_to_status_id"] = inReplyToStatusId.Value;
+                client.Parameters["in_reply_to_status_id"] = inReplyToStatusId;
             
             client.Url = ApiAuthority + "/1/statuses/update.json";
             client.Post();
         }
 
-        public void Retweet(ulong statusId)
+        public void Retweet(string statusId)
         {
             var client = CreateClient();
             client.Url = ApiAuthority + string.Format("/1/statuses/retweet/{0}.json", statusId);
@@ -138,13 +138,13 @@ namespace PingPong.Core
             return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_subject);
         }
 
-        public IObservable<Tweet> GetUserTimeline(string screenName, ulong? sinceId = null)
+        public IObservable<Tweet> GetUserTimeline(string screenName, string sinceId = null)
         {
             var options = new object[] { new { screen_name = screenName }, new { include_entities = "1" }, new { include_rts = "1" }, new { since_id = sinceId } };
             return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_subject);
         }
 
-        public IObservable<SearchResult> GetSearch(string query, ulong? sinceId = null, int count = RequestCount)
+        public IObservable<SearchResult> GetSearch(string query, string sinceId = null, int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { q = query }, new { count }, new { since_id = sinceId } };
             return GetContents(SearchAuthority, "/search.json", options)
@@ -164,13 +164,13 @@ namespace PingPong.Core
             return GetSnapshot(ApiAuthority, "/statuses/mentions.json", options).SelectTweets(_subject);
         }
 
-        public IObservable<DirectMessage> GetDirectMessages(ulong? sinceId = null)
+        public IObservable<DirectMessage> GetDirectMessages(string sinceId = null)
         {
             var options = new object[] { new { since_id = sinceId }, new { include_entities = "1" } };
             return GetSnapshot(ApiAuthority, "/direct_messages.json", options).SelectDirectMessages(_subject);
         }
 
-        public IObservable<Tweet> GetFavorites(ulong? sinceId = null)
+        public IObservable<Tweet> GetFavorites(string sinceId = null)
         {
             var options = new object[] { new { since_id = sinceId }, new { include_entities = "1" } };
             return GetSnapshot(ApiAuthority, "/favorites.json", options).SelectTweets(_subject);

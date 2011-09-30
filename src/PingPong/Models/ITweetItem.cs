@@ -5,7 +5,7 @@ namespace PingPong.Models
 {
     public interface ITweetItem : INotifyPropertyChangedEx
     {
-        ulong Id { get; }
+        string Id { get; }
         User User { get; }
         DateTime CreatedAt { get; }
         string Text { get; }

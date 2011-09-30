@@ -35,7 +35,7 @@ namespace PingPong.Models
             return null;
         }
 
-        public static SearchResult ToSearchResult(JsonValue value)
+        public static SearchResult ToSearchResult(JsonObject value)
         {
             return Activate(() => new SearchResult(value));
         }

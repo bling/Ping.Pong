@@ -12,7 +12,7 @@ namespace PingPong.Models
             Text = json["text"]; // explicit conversion will unescape json
             Text = Text.UnescapeXml(); // unescape again for & escapes
             Source = json["source"];
-            Id = json["id"];
+            Id = json["id_str"];
             IsRetweet = json["retweeted"];
             InReplyToStatusId = json["in_reply_to_status_id_str"];
             InReplyToScreenName = json["in_reply_to_screen_name"];
@@ -25,7 +25,7 @@ namespace PingPong.Models
             User = new User(json["user"]);
         }
 
-        public ulong Id { get; private set; }
+        public string Id { get; private set; }
 
         public string Text { get; private set; }
 
