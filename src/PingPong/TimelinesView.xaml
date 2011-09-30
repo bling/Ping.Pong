@@ -67,7 +67,7 @@
                          CaretBrush="White"
                          FontFamily="{StaticResource DefaultFontFamily}"
                          Foreground="{StaticResource ButtonForegroundBrush}" />
-                <ToggleButton x:Name="Streaming"
+                <ToggleButton x:Name="IsStreaming"
                               Width="100"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
@@ -76,10 +76,10 @@
                               Style="{StaticResource SimpleToggleButtonStyle}">
                     <TextBlock x:Name="text" Text="Start Stream">
                         <i:Interaction.Triggers>
-                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=Streaming}" Value="True">
+                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=IsStreaming}" Value="True">
                                 <ei:ChangePropertyAction PropertyName="Text" Value="Stop" />
                             </ei:DataTrigger>
-                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=Streaming}" Value="False">
+                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=IsStreaming}" Value="False">
                                 <ei:ChangePropertyAction PropertyName="Text" Value="Start Stream" />
                             </ei:DataTrigger>
                         </i:Interaction.Triggers>
@@ -87,7 +87,7 @@
                 </ToggleButton>
             </StackPanel>
         </Grid>
-        <ItemsControl x:Name="Timelines" Grid.Row="1">
+        <ItemsControl x:Name="Items" Grid.Row="1">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -95,7 +95,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ContentControl VerticalContentAlignment="Stretch" cal:View.Model="{Binding Value}" />
+                    <ContentControl VerticalContentAlignment="Stretch" cal:View.Model="{Binding}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

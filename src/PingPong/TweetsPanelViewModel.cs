@@ -83,7 +83,7 @@ namespace PingPong
         public new void TryClose()
         {
             _subscription.DisposeIfNotNull();
-            ((IDeactivate)this).Deactivate(true);
+            ((IConductor)Parent).DeactivateItem(this, true);
         }
 
         public void SubscribeToUserTimeline(string username)

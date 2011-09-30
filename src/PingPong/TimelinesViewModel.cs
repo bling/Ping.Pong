@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows;
-using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using PingPong.Controls;
 using PingPong.Core;
@@ -12,36 +10,34 @@ using PingPong.Messages;
 
 namespace PingPong
 {
-    public class TimelinesViewModel : Screen, IHandle<NavigateToUserMessage>, IHandle<NavigateToTopicMessage>, IHandle<NavigateToConversationMessage>
+    public class TimelinesViewModel : Conductor<TweetsPanelViewModel>.Collection.AllActive, IHandle<NavigateToUserMessage>, IHandle<NavigateToTopicMessage>, IHandle<NavigateToConversationMessage>
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
         private readonly AppInfo _appInfo;
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
-        private readonly Func<Owned<TweetsPanelViewModel>> _timelineFactory;
-        private readonly Owned<TweetsPanelViewModel> _homeline;
-        private readonly Owned<TweetsPanelViewModel> _mentionline;
-        private readonly Owned<TweetsPanelViewModel> _messageline;
+        private readonly Func<TweetsPanelViewModel> _timelineFactory;
+        private readonly TweetsPanelViewModel _homeline;
+        private readonly TweetsPanelViewModel _mentionline;
+        private readonly TweetsPanelViewModel _messageline;
         private IDisposable _tweetsSubscription;
         private IDisposable _streamingSubscription;
         private IDisposable _notificationSubscription;
         private string _searchText;
-        private bool _streaming;
+        private bool isStreaming;
         private bool _isBusy;
         private DateTime _streamStartTime = DateTime.MinValue;
 
-        public ObservableCollection<Owned<TweetsPanelViewModel>> Timelines { get; private set; }
-
         public bool ShowHome
         {
-            get { return Timelines.Contains(_homeline); }
+            get { return Items.Contains(_homeline); }
             set
             {
                 if (value)
-                    Timelines.Add(_homeline);
+                    ActivateItem(_homeline);
                 else
-                    Timelines.Remove(_homeline);
+                    DeactivateItem(_homeline, true);
 
                 NotifyOfPropertyChange(() => ShowHome);
             }
@@ -49,33 +45,32 @@ namespace PingPong
 
         public bool ShowMentions
         {
-            get { return Timelines.Contains(_mentionline); }
+            get { return Items.Contains(_mentionline); }
             set
             {
                 if (value)
-                    Timelines.Add(_mentionline);
+                    ActivateItem(_mentionline);
                 else
-                    Timelines.Remove(_mentionline);
+                    DeactivateItem(_mentionline, true);
 
                 NotifyOfPropertyChange(() => ShowMentions);
             }
         }
 
-
         public bool ShowMessages
         {
-            get { return Timelines.Contains(_messageline); }
+            get { return Items.Contains(_messageline); }
             set
             {
                 if (value)
                 {
-                    _messageline.Value.Subscribe(_client.GetPollingDirectMessages());
-                    Timelines.Add(_messageline);
+                    _messageline.Subscribe(_client.GetPollingDirectMessages());
+                    ActivateItem(_messageline);
                 }
                 else
                 {
-                    _messageline.Value.StopSubscription();
-                    Timelines.Remove(_messageline);
+                    _messageline.StopSubscription();
+                    DeactivateItem(_messageline, true);
                 }   
 
                 NotifyOfPropertyChange(() => ShowMessages);
@@ -88,12 +83,12 @@ namespace PingPong
             set { this.SetValue("SearchText", value, ref _searchText); }
         }
 
-        public bool Streaming
+        public bool IsStreaming
         {
-            get { return _streaming; }
+            get { return this.isStreaming; }
             set
             {
-                this.SetValue("Streaming", value, ref _streaming);
+                this.SetValue("IsStreaming", value, ref this.isStreaming);
                 if (value)
                     StartStreaming();
                 else
@@ -107,7 +102,7 @@ namespace PingPong
             set { this.SetValue("IsBusy", value, ref _isBusy); }
         }
 
-        public TimelinesViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager, Func<Owned<TweetsPanelViewModel>> timelineFactory)
+        public TimelinesViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager, Func<TweetsPanelViewModel> timelineFactory)
         {
             _appInfo = appInfo;
             _client = client;
@@ -115,15 +110,13 @@ namespace PingPong
             _timelineFactory = timelineFactory;
 
             _homeline = timelineFactory();
-            _homeline.Value.DisplayName = "Home";
+            _homeline.DisplayName = "Home";
 
             _mentionline = timelineFactory();
-            _mentionline.Value.DisplayName = "Mentions";
+            _mentionline.DisplayName = "Mentions";
 
             _messageline = timelineFactory();
-            _messageline.Value.DisplayName = "Messages";
-
-            Timelines = new ObservableCollection<Owned<TweetsPanelViewModel>>();
+            _messageline.DisplayName = "Messages";
         }
 
         protected override void OnActivate()
@@ -132,10 +125,10 @@ namespace PingPong
 
             IsBusy = true;
 
-            Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Timelines, "CollectionChanged")
+            Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Items, "CollectionChanged")
                 .Where(x => x.EventArgs.OldItems != null)
-                .SelectMany(x => x.EventArgs.OldItems.Cast<Owned<TweetsPanelViewModel>>())
-                .Where(_ => !Timelines.Any(t => t.Value.Tag is string[])) // streaming columns
+                .SelectMany(x => x.EventArgs.OldItems.Cast<TweetsPanelViewModel>())
+                .Where(_ => !Items.Any(t => t.Tag is string[])) // streaming columns
                 .Subscribe(_ => _streamingSubscription.DisposeIfNotNull());
 
             _client.GetAccountVerification()
@@ -144,8 +137,8 @@ namespace PingPong
                 .Select(atName => new { atName, stream = _client.GetStreamingStatuses().Publish() })
                 .DispatcherSubscribe(x =>
                 {
-                    _homeline.Value.Subscribe(x.stream.Where(t => !t.Text.Contains(x.atName)));
-                    _mentionline.Value.Subscribe(x.stream.Where(t => t.Text.Contains(x.atName)));
+                    _homeline.Subscribe(x.stream.Where(t => !t.Text.Contains(x.atName)));
+                    _mentionline.Subscribe(x.stream.Where(t => t.Text.Contains(x.atName)));
                     _tweetsSubscription = x.stream.Connect();
 
                     ShowHome = true;
@@ -172,9 +165,9 @@ namespace PingPong
             _streamingSubscription.DisposeIfNotNull();
             _tweetsSubscription.DisposeIfNotNull();
             _notificationSubscription.DisposeIfNotNull();
-            _homeline.Dispose();
-            _mentionline.Dispose();
-            _messageline.Dispose();
+            DeactivateItem(_homeline, true);
+            DeactivateItem(_mentionline, true);
+            DeactivateItem(_messageline, true);
         }
 
         private void StartStreaming()
@@ -182,21 +175,21 @@ namespace PingPong
             if (DateTime.UtcNow - _streamStartTime < StreamThrottleRate)
             {
                 _windowManager.ShowDialog(new ErrorViewModel("You are initiating too many connections in a short period of time.  Twitter doesn't like that :("));
-                Streaming = false;
+                IsStreaming = false;
             }
             else if (string.IsNullOrEmpty(SearchText))
             {
                 _windowManager.ShowDialog(new ErrorViewModel("Search terms are required."));
-                Streaming = false;
+                IsStreaming = false;
             }
             else
             {
                 _streamStartTime = DateTime.UtcNow;
 
-                Timelines
-                    .Where(line => line.Value.Tag is string[])
+                Items
+                    .Where(line => line.Tag is string[])
                     .ToArray()
-                    .ForEach(t => Timelines.Remove(t));
+                    .ForEach(t => DeactivateItem(t, true));
 
                 var allTerms = SearchText.Split(' ', ',', ';', '|');
                 var allParts = SearchText.Split(' ', ',', ';');
@@ -205,7 +198,7 @@ namespace PingPong
                 foreach (string part in allParts)
                 {
                     string[] terms = part.Split('|');
-                    AddTimeline(part, tl =>
+                    ActivateTimeline(part, tl =>
                     {
                         tl.Tag = terms;
                         tl.CanClose = true;
@@ -218,52 +211,45 @@ namespace PingPong
             }
         }
 
-        private void AddTimeline(string description, Action<TweetsPanelViewModel> setup)
+        private void ActivateTimeline(string description, Action<TweetsPanelViewModel> setup)
         {
-            var timeline = _timelineFactory();
-            var line = timeline.Value;
+            var line = _timelineFactory();
             line.DisplayName = description;
-            line.Deactivated += (sender, e) =>
-            {
-                var value = Timelines.Single(t => t.Value == sender);
-                Timelines.Remove(value);
-                value.Dispose();
-            };
             setup(line);
-            Timelines.Add(timeline);
+            ActivateItem(line);
         }
 
         public void MoveLeft(TweetsPanelViewModel source)
         {
-            var target = Timelines.FirstOrDefault(t => t.Value == source);
+            var target = Items.FirstOrDefault(t => t == source);
             if (target != null)
             {
-                int index = Timelines.IndexOf(target);
+                int index = Items.IndexOf(target);
                 if (index - 1 >= 0)
                 {
-                    Timelines.RemoveAt(index);
-                    Timelines.Insert(index - 1, target);
+                    Items.RemoveAt(index);
+                    Items.Insert(index - 1, target);
                 }
             }
         }
 
         public void MoveRight(TweetsPanelViewModel source)
         {
-            var target = Timelines.FirstOrDefault(t => t.Value == source);
+            var target = Items.FirstOrDefault(t => t == source);
             if (target != null)
             {
-                int index = Timelines.IndexOf(target);
-                if (index + 1 < Timelines.Count)
+                int index = Items.IndexOf(target);
+                if (index + 1 < Items.Count)
                 {
-                    Timelines.RemoveAt(index);
-                    Timelines.Insert(index + 1, target);
+                    Items.RemoveAt(index);
+                    Items.Insert(index + 1, target);
                 }
             }
         }
 
         void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
         {
-            AddTimeline("@" + message.User, timeline =>
+            ActivateTimeline("@" + message.User, timeline =>
             {
                 timeline.CanClose = true;
                 timeline.SubscribeToUserTimeline(message.User);
@@ -272,7 +258,7 @@ namespace PingPong
 
         void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
         {
-            AddTimeline("#" + message.Topic, timeline =>
+            ActivateTimeline("#" + message.Topic, timeline =>
             {
                 timeline.CanClose = true;
                 timeline.SubscribeToTopic(message.Topic);
@@ -281,7 +267,7 @@ namespace PingPong
 
         void IHandle<NavigateToConversationMessage>.Handle(NavigateToConversationMessage message)
         {
-            AddTimeline(message.User1 + "/" + message.User2, timeline =>
+            ActivateTimeline(message.User1 + "/" + message.User2, timeline =>
             {
                 timeline.CanClose = true;
                 timeline.SubscribeToConversation(message.User1, message.User2);
