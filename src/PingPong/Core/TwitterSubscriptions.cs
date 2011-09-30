@@ -14,18 +14,6 @@ namespace PingPong.Core
             return Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(DefaultPollSeconds));
         }
 
-        public static IObservable<DirectMessage> GetPollingDirectMessages(this TwitterClient client)
-        {
-            return Observable.Create<DirectMessage>(obs =>
-            {
-                string sinceId = null;
-                return CreateTimerObservable()
-                    .SelectMany(_ => client.GetDirectMessages(sinceId))
-                    .Do(dm => sinceId = dm.Id)
-                    .Subscribe(obs.OnNext);
-            });
-        }
-
         public static IObservable<Tweet> GetStreamingStatuses(this TwitterClient client)
         {
             return client.GetHomeTimeline()
@@ -34,27 +22,30 @@ namespace PingPong.Core
                 .Retry();
         }
 
+        public static IObservable<DirectMessage> GetPollingDirectMessages(this TwitterClient client)
+        {
+            return client.GetPolling((x, sinceId) => x.GetDirectMessages(sinceId));
+        }
+
         public static IObservable<Tweet> GetPollingUserTimeline(this TwitterClient client, string screenName)
         {
-            return Observable.Create<Tweet>(obs =>
-            {
-                string sinceId = null;
-                return CreateTimerObservable()
-                    .SelectMany(_ => client.GetUserTimeline(screenName, sinceId))
-                    .Do(tweet => sinceId = tweet.Id)
-                    .Subscribe(obs.OnNext);
-            });
+            Enforce.NotNullOrEmpty(screenName);
+            return client.GetPolling((x, sinceId) => x.GetUserTimeline(screenName, sinceId));
         }
 
         public static IObservable<SearchResult> GetPollingSearch(this TwitterClient client, string query)
         {
             Enforce.NotNullOrEmpty(query);
+            return client.GetPolling((x, sinceId) => x.GetSearch(query, sinceId));
+        }
 
-            return Observable.Create<SearchResult>(obs =>
+        private static IObservable<T> GetPolling<T>(this TwitterClient client, Func<TwitterClient, string, IObservable<T>> selector) where T : ITweetItem
+        {
+            return Observable.Create<T>(obs =>
             {
                 string sinceId = null;
                 return CreateTimerObservable()
-                    .SelectMany(_ => client.GetSearch(query))
+                    .SelectMany(_ => selector(client, sinceId))
                     .Do(tweet => sinceId = tweet.Id)
                     .Subscribe(obs.OnNext);
             });
