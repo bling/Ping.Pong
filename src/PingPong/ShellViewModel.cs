@@ -42,6 +42,29 @@ namespace PingPong
             }
         }
 
+        public void DragMove()
+        {
+            Application.Current.MainWindow.DragMove();
+        }
+
+        public void Minimize()
+        {
+            Application.Current.MainWindow.WindowState = WindowState.Minimized;
+        }
+
+        public void Maximize()
+        {
+            if (Application.Current.MainWindow.WindowState == WindowState.Normal)
+                Application.Current.MainWindow.WindowState = WindowState.Maximized;
+            else if (Application.Current.MainWindow.WindowState == WindowState.Maximized)
+                Application.Current.MainWindow.WindowState = WindowState.Normal;
+        }
+
+        public void Close()
+        {
+            Application.Current.MainWindow.Close();
+        }
+
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
             ActivateItem(_timelinesFactory());

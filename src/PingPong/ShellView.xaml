@@ -3,6 +3,30 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:cal="http://www.caliburnproject.org"
+             d:DesignHeight="120"
+             d:DesignWidth="344"
              mc:Ignorable="d">
-    <ContentControl x:Name="ActiveItem" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="3" />
+        </Grid.RowDefinitions>
+        <Border Background="#FF111111" />
+        <Border Grid.Row="2" Background="#FF111111" />
+        <TextBlock HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontFamily="{StaticResource DefaultFontFamily}"
+                   FontSize="18.667"
+                   Foreground="{StaticResource UserInfoCountsBrush}"
+                   Text="ping.pong" />
+	    <Border Background="Transparent" cal:Message.Attach="[Event MouseLeftButtonDown] = [DragMove]" />
+        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button x:Name="Minimize" Width="20" Content="-" Foreground="{StaticResource UserInfoCountsBrush}" Style="{StaticResource SimpleToggleButtonStyle}" />
+            <Button x:Name="Maximize" Width="20" Content="+" Foreground="{StaticResource UserInfoCountsBrush}" Style="{StaticResource SimpleToggleButtonStyle}" />
+            <Button x:Name="Close" Width="20" Content="x" Foreground="{StaticResource UserInfoCountsBrush}" Style="{StaticResource SimpleToggleButtonStyle}" />
+        </StackPanel>
+        <ContentControl x:Name="ActiveItem" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+    </Grid>
 </UserControl>

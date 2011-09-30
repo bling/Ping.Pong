@@ -1,7 +1,7 @@
 <OutOfBrowserSettings ShortName="Ping.Pong" EnableGPUAcceleration="True" ShowInstallMenuItem="True">
   <OutOfBrowserSettings.Blurb>Ping.Pong Streaming Silverlight Twitter Client</OutOfBrowserSettings.Blurb>
   <OutOfBrowserSettings.WindowSettings>
-    <WindowSettings Title="Ping.Pong" />
+    <WindowSettings Title="ping.pong" WindowStyle="None" />
   </OutOfBrowserSettings.WindowSettings>
   <OutOfBrowserSettings.SecuritySettings>
     <SecuritySettings ElevatedPermissions="Required" />
