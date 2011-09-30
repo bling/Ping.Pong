@@ -26,19 +26,32 @@ namespace PingPong
         {
             base.OnActivate();
 
-            if (string.IsNullOrEmpty(AppBootstrapper.ConsumerKey) || string.IsNullOrEmpty(AppBootstrapper.ConsumerSecret))
+            Application.Current.CheckAndDownloadUpdateCompleted += OnCheckAndDownloadUpdateCompleted;
+            Application.Current.CheckAndDownloadUpdateAsync();
+        }
+
+        private void OnCheckAndDownloadUpdateCompleted(object sender, CheckAndDownloadUpdateCompletedEventArgs e)
+        {
+            if (e.UpdateAvailable)
             {
-                ActivateItem(new ErrorViewModel("Please create your own consumer key/secret from Twitter."));
-            }
-            else if (Application.Current.IsRunningOutOfBrowser)
-            {
-                ActivateItem(AppSettings.HasAuthToken
-                                 ? (object)_timelinesFactory()
-                                 : _authorizationFactory());
+                ActivateItem(new ErrorViewModel("ping.pong has been updated to a newer version...please restart."));
             }
             else
             {
-                ActivateItem(_installerFactory());
+                if (string.IsNullOrEmpty(AppBootstrapper.ConsumerKey) || string.IsNullOrEmpty(AppBootstrapper.ConsumerSecret))
+                {
+                    ActivateItem(new ErrorViewModel("Please create your own consumer key/secret from Twitter."));
+                }
+                else if (Application.Current.IsRunningOutOfBrowser)
+                {
+                    ActivateItem(AppSettings.HasAuthToken
+                                     ? (object)_timelinesFactory()
+                                     : _authorizationFactory());
+                }
+                else
+                {
+                    ActivateItem(_installerFactory());
+                }
             }
         }
 
