@@ -56,18 +56,28 @@ namespace PingPong.OAuth
             return Observable.Create<byte[]>(ob =>
             {
                 var stream = response.GetResponseStream();
-                var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
-                return Observable.Return(new byte[256])
-                    .SelectMany(x => reader(x, 0, x.Length), (x, y) => new { buffer = x, readCount = y })
-                    .Repeat()
-                    .TakeWhile(x => x.readCount > 0)
-                    .Select(x =>
+                var disp = new BooleanDisposable();
+                Observable.Start(() =>
+                {
+                    var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
+                    var buffer = new byte[256];
+                    while (!disp.IsDisposed)
                     {
-                        var result = new byte[x.readCount];
-                        Buffer.BlockCopy(x.buffer, 0, result, 0, x.readCount);
-                        return result;
-                    })
-                    .Subscribe(ob);
+                        int bytesRead = reader(buffer, 0, buffer.Length).First();
+                        if (bytesRead == 0)
+                        {
+                            ob.OnCompleted();
+                            break;
+                        }
+
+                        var result = new byte[bytesRead];
+                        Buffer.BlockCopy(buffer, 0, result, 0, bytesRead);
+                        ob.OnNext(result);
+                    }
+
+                    stream.Close();
+                });
+                return disp;
             });
         }
 
@@ -86,7 +96,10 @@ namespace PingPong.OAuth
                                 sb.Append(c);
                                 if (c == '\n')
                                 {
-                                    ob.OnNext(sb.ToString());
+                                    string value = sb.ToString();
+                                    if (!string.IsNullOrWhiteSpace(value))
+                                        ob.OnNext(value);
+
                                     sb.Clear();
                                 }
                             }
@@ -96,7 +109,7 @@ namespace PingPong.OAuth
                             ob.OnNext(sb.ToString());
                             ob.OnCompleted();
                         });
-            }).Where(x => !string.IsNullOrWhiteSpace(x));
+            });
         }
     }
 }

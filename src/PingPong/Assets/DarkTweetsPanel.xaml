@@ -675,7 +675,7 @@
                             </Button>
                         </StackPanel>
 
-                        <toolkit:BusyIndicator Grid.RowSpan="3" IsBusy="{Binding IsBusy}" Style="{StaticResource BusyIndicatorStyle}" />
+                        <toolkit:BusyIndicator Grid.RowSpan="2" IsBusy="{Binding IsBusy}" Style="{StaticResource BusyIndicatorStyle}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

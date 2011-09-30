@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -121,7 +122,15 @@ namespace PingPong
 
         public void Show()
         {
-            _windowManager.ShowPopup(this);
+            // ensure popup stays within window
+            double x = Math.Min(Mouse.Position.X, Application.Current.MainWindow.Width - 350);
+            double y = Math.Min(Mouse.Position.Y, Application.Current.MainWindow.Height - 120);
+            var settings = new Dictionary<string, object>
+            {
+                { "HorizontalOffset", x },
+                { "VerticalOffset", y }
+            };
+            _windowManager.ShowPopup(this, null, settings);
         }
     }
 
