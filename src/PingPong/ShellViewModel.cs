@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using Autofac;
+﻿using System;
+using System.Windows;
 using Caliburn.Micro;
 using PingPong.Messages;
 
@@ -9,11 +9,17 @@ namespace PingPong
                                   IShell,
                                   IHandle<ShowTimelinesMessage>
     {
-        private readonly IContainer _container;
+        private readonly Func<TimelinesViewModel> _timelinesFactory;
+        private readonly Func<AuthorizationViewModel> _authorizationFactory;
+        private readonly Func<InstallViewModel> _installerFactory;
 
-        public ShellViewModel(IContainer container)
+        public ShellViewModel(Func<TimelinesViewModel> timelinesFactory,
+                              Func<AuthorizationViewModel> authorizationFactory,
+                              Func<InstallViewModel> installerFactory)
         {
-            _container = container;
+            _timelinesFactory = timelinesFactory;
+            _authorizationFactory = authorizationFactory;
+            _installerFactory = installerFactory;
         }
 
         protected override void OnActivate()
@@ -27,18 +33,18 @@ namespace PingPong
             else if (Application.Current.IsRunningOutOfBrowser)
             {
                 ActivateItem(AppSettings.HasAuthToken
-                                 ? (object)_container.Resolve<TimelinesViewModel>()
-                                 : _container.Resolve<AuthorizationViewModel>());
+                                 ? (object)_timelinesFactory()
+                                 : _authorizationFactory());
             }
             else
             {
-                ActivateItem(_container.Resolve<InstallViewModel>());
+                ActivateItem(_installerFactory());
             }
         }
 
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
-            ActivateItem(_container.Resolve<TimelinesViewModel>());
+            ActivateItem(_timelinesFactory());
         }
     }
 }
