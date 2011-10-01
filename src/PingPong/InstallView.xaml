@@ -7,11 +7,18 @@
              d:DesignWidth="400"
              mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot" Background="White">
+    <Grid x:Name="LayoutRoot" Background="#FF111111">
         <Button x:Name="Install"
+                Grid.Row="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Content="Click This Button To Install Ping.Pong"
-                Padding="10" />
+                BorderBrush="{StaticResource TweetTextBorderBrush}"
+                BorderThickness="1"
+                Content="install to desktop"
+                FontFamily="{StaticResource DefaultFontFamily}"
+                FontSize="21.333"
+                Foreground="{StaticResource ButtonForegroundBrush}"
+                Padding="30,20"
+                Style="{StaticResource SimpleToggleButtonStyle}" />
     </Grid>
 </UserControl>

@@ -25,9 +25,15 @@ namespace PingPong
         protected override void OnActivate()
         {
             base.OnActivate();
-
-            Application.Current.CheckAndDownloadUpdateCompleted += OnCheckAndDownloadUpdateCompleted;
-            Application.Current.CheckAndDownloadUpdateAsync();
+            if (Application.Current.IsRunningOutOfBrowser)
+            {
+                Application.Current.CheckAndDownloadUpdateCompleted += OnCheckAndDownloadUpdateCompleted;
+                Application.Current.CheckAndDownloadUpdateAsync();
+            }
+            else
+            {
+                ActivateItem(_installerFactory());
+            }
         }
 
         private void OnCheckAndDownloadUpdateCompleted(object sender, CheckAndDownloadUpdateCompletedEventArgs e)
@@ -42,15 +48,11 @@ namespace PingPong
                 {
                     ActivateItem(new ErrorViewModel("Please create your own consumer key/secret from Twitter."));
                 }
-                else if (Application.Current.IsRunningOutOfBrowser)
+                else
                 {
                     ActivateItem(AppSettings.HasAuthToken
                                      ? (object)_timelinesFactory()
                                      : _authorizationFactory());
-                }
-                else
-                {
-                    ActivateItem(_installerFactory());
                 }
             }
         }
