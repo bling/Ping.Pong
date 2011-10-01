@@ -8,12 +8,12 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Assets/ScrollViewer.xaml" />
-                <ResourceDictionary Source="Assets/ToolBar.xaml" />
-                <ResourceDictionary Source="Assets/SimpleTweetsPanel.xaml" />
-                <ResourceDictionary Source="Assets/MetroTweetsPanel.xaml" />
-                <ResourceDictionary Source="Assets/DarkTweetsPanel.xaml" />
-                <ResourceDictionary Source="Assets/BusyIndicatorStyle.xaml"/>
+                <ResourceDictionary Source="Themes/BusyIndicatorStyle.xaml"/>
+                <ResourceDictionary Source="Themes/ToolBar.xaml"/>
+                <ResourceDictionary Source="Themes/SimpleTweetsPanel.xaml"/>
+                <ResourceDictionary Source="Themes/ScrollViewer.xaml"/>
+                <ResourceDictionary Source="Themes/MetroTweetsPanel.xaml"/>
+                <ResourceDictionary Source="Themes/DarkTweetsPanel.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <FontFamily x:Key="DefaultFontFamily">/PingPong;component/Fonts/Fonts.zip#Ubuntu Light</FontFamily>
             <local:AppBootstrapper x:Key="bootstrapper" />
