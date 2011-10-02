@@ -14,7 +14,7 @@
                 VerticalAlignment="Center"
                 BorderBrush="{StaticResource TweetTextBorderBrush}"
                 BorderThickness="1"
-                Content="install to desktop"
+                Content="{Binding Text}"
                 FontFamily="{StaticResource DefaultFontFamily}"
                 FontSize="21.333"
                 Foreground="{StaticResource ButtonForegroundBrush}"

@@ -3,25 +3,34 @@ using Caliburn.Micro;
 
 namespace PingPong.ViewModels
 {
-    public class InstallViewModel
+    public class InstallViewModel : Screen
     {
-        private readonly IWindowManager _windowManager;
+        private string _text;
 
-        public InstallViewModel(IWindowManager windowManager)
+        public bool IsInstalled
         {
-            _windowManager = windowManager;
+            get { return Application.Current.InstallState == InstallState.Installed; }
+        }
+
+        public bool CanInstall
+        {
+            get { return !IsInstalled; }
+        }
+
+        public string Text
+        {
+            get { return _text; }
+            set { this.SetValue("Text", value, ref _text); }
+        }
+
+        public InstallViewModel()
+        {
+            Text = IsInstalled ? "already installed" : "install to desktop";
         }
 
         public void Install()
         {
-            if (Application.Current.InstallState == InstallState.Installed)
-            {
-                _windowManager.ShowDialog(new ErrorViewModel("Already installed."));
-            }
-            else
-            {
-                Application.Current.Install();
-            }
+            Application.Current.Install();
         }
     }
 }
