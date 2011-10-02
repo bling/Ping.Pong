@@ -9,16 +9,14 @@ namespace PingPong
 {
     public class TweetsPanelViewModel : Screen
     {
-        private readonly AppInfo _appInfo;
         private readonly TwitterClient _client;
         private readonly IWindowManager _windowManager;
+        private readonly Func<string, UserViewModel> _userViewModelFactory;
         private bool _isBusy;
         private bool _canClose;
-        private bool _canOpenUserInfo;
-        private bool _isUserInfoOpen;
+        private bool _canOpenInfoBox;
+        private object _contextualViewModel;
         private IDisposable _subscription;
-        private string _currentUsername;
-        private ExtendedUser _user;
 
         /// <summary>Object to get or set metadata on the collection.</summary>
         public object Tag { get; set; }
@@ -37,46 +35,23 @@ namespace PingPong
             set { this.SetValue("CanClose", value, ref _canClose); }
         }
 
-        public bool CanOpenUserInfo
+        public bool CanOpenInfoBox
         {
-            get { return _canOpenUserInfo; }
-            set { this.SetValue("CanOpenUserInfo", value, ref _canOpenUserInfo); }
+            get { return _canOpenInfoBox; }
+            set { this.SetValue("CanOpenInfoBox", value, ref _canOpenInfoBox); }
         }
 
-        public bool IsUserInfoOpen
+        public object ContextualViewModel
         {
-            get { return _isUserInfoOpen; }
-            set
-            {
-                if (this.SetValue("IsUserInfoOpen", value, ref _isUserInfoOpen) && value)
-                {
-                    Enforce.NotNullOrEmpty(_currentUsername);
-                    _client.GetUserInfo(_currentUsername)
-                        .DispatcherSubscribe(x =>
-                        {
-                            User = new ExtendedUser(x);
-                            _client.GetRelationship(_appInfo.User.ScreenName, _currentUsername)
-                                .DispatcherSubscribe(r =>
-                                {
-                                    User.Following = r.Source.IsFollowing;
-                                    User.FollowsBack = r.Source.IsFollowedBy;
-                                });
-                        });
-                }
-            }
+            get { return _contextualViewModel; }
+            private set { this.SetValue("ContextualViewModel", value, ref _contextualViewModel); }
         }
 
-        public ExtendedUser User
+        public TweetsPanelViewModel(TwitterClient client, IWindowManager windowManager, Func<string, UserViewModel> userViewModelFactory)
         {
-            get { return _user; }
-            private set { this.SetValue("User", value, ref _user); }
-        }
-
-        public TweetsPanelViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager)
-        {
-            _appInfo = appInfo;
             _client = client;
             _windowManager = windowManager;
+            _userViewModelFactory = userViewModelFactory;
             Tweets = new TweetCollection();
         }
 
@@ -88,8 +63,9 @@ namespace PingPong
 
         public void SubscribeToUserTimeline(string username)
         {
-            _currentUsername = username;
-            Subscribe(_client.GetPollingUserTimeline(username), _ => CanOpenUserInfo = true);
+            Enforce.NotNullOrEmpty(username);
+            ContextualViewModel = _userViewModelFactory(username);
+            Subscribe(_client.GetPollingUserTimeline(username), _ => CanOpenInfoBox = true);
         }
 
         public void SubscribeToTopic(string topic)

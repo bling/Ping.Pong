@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="PingPong.UserView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="300"
+             d:DesignWidth="400"
+             mc:Ignorable="d">
+    <Grid Margin="10,5" DataContext="{Binding User}">
+        <Grid.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Foreground" Value="{StaticResource TweetTextBrush}" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock FontSize="16" Foreground="{StaticResource ScreenNameTextBrush}" Text="{Binding Name}" />
+            <TextBlock Foreground="#FF94AB88"><Run Text="{Binding ScreenName, StringFormat=@\{0\}}" /><Run Text=" " /><Run Text=" " /><Run Text=" " /><Run Text="{Binding Location}" />
+            </TextBlock>
+            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+            <HyperlinkButton Content="{Binding Url}" NavigateUri="{Binding Url}" />
+        </StackPanel>
+        <Grid Grid.Row="1" Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="tweets" />
+            <TextBlock Grid.Column="1" HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="following" />
+            <TextBlock Grid.Column="2" HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="followers" />
+            <TextBlock Grid.Row="1" HorizontalAlignment="Center" Foreground="{StaticResource UserInfoCountsBrush}" Text="{Binding Statuses}" />
+            <TextBlock Grid.Row="1"
+                       Grid.Column="1"
+                       HorizontalAlignment="Center"
+                       Foreground="{StaticResource UserInfoCountsBrush}"
+                       Text="{Binding Friends}" />
+            <TextBlock Grid.Row="1"
+                       Grid.Column="2"
+                       HorizontalAlignment="Center"
+                       Foreground="{StaticResource UserInfoCountsBrush}"
+                       Text="{Binding Followers}" />
+        </Grid>
+        <Grid Grid.Row="2" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <CheckBox BorderThickness="0"
+                      Content="following"
+                      Foreground="#FF563030"
+                      IsChecked="{Binding Following}"
+                      IsEnabled="False"
+                      Style="{StaticResource FollowsYouCheckBoxStyle}" />
+            <CheckBox Grid.Column="1"
+                      BorderThickness="0"
+                      Content="follows you"
+                      Foreground="#FF563030"
+                      IsChecked="{Binding FollowsBack}"
+                      IsEnabled="False"
+                      Style="{StaticResource FollowsYouCheckBoxStyle}" />
+        </Grid>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Button Margin="2"
+                    Background="Transparent"
+                    BorderBrush="#33FFFFFF"
+                    BorderThickness="1"
+                    cal:Action.TargetWithoutContext="PingPong.UserViewModel"
+                    cal:Message.Attach="Follow($dataContext)"
+                    Content="Follow"
+                    Foreground="{StaticResource ButtonForegroundBrush}"
+                    Style="{StaticResource SimpleToggleButtonStyle}" />
+            <Button Grid.Column="1"
+                    Margin="2"
+                    Background="Transparent"
+                    BorderBrush="#33FFFFFF"
+                    BorderThickness="1"
+                    cal:Action.TargetWithoutContext="PingPong.UserViewModel"
+                    cal:Message.Attach="Unfollow($dataContext)"
+                    Content="Unfollow"
+                    Foreground="{StaticResource ButtonForegroundBrush}"
+                    Style="{StaticResource SimpleToggleButtonStyle}" />
+        </Grid>
+        <Border Grid.RowSpan="4"
+                Margin="-10,-5"
+                BorderBrush="#33FFFFFF"
+                BorderThickness="1,1,1,0"
+                CornerRadius="10,10,0,0" />
+    </Grid>
+</UserControl>

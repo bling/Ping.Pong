@@ -473,7 +473,10 @@
                         </Grid.RowDefinitions>
                         <StackPanel>
                             <TextBlock FontSize="16" Foreground="{StaticResource ScreenNameTextBrush}" Text="{Binding Name}" />
-                            <TextBlock Foreground="#FF94AB88"><Run Text="{Binding ScreenName, StringFormat=@\{0\}}" /><Run Text=" " /><Run Text=" " /><Run Text=" " /><Run Text="{Binding Location}" />
+                            <TextBlock Foreground="#FF94AB88">
+                                <Run Text="{Binding ScreenName}" />
+                                <Run Text=", " />
+                                <Run Text="{Binding Location}" />
                             </TextBlock>
                             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
                             <HyperlinkButton Content="{Binding Url}" NavigateUri="{Binding Url}" />
@@ -522,7 +525,6 @@
                                       IsEnabled="False"
                                       Style="{StaticResource FollowsYouCheckBoxStyle}" />
                         </Grid>
-
                         <Grid Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
@@ -532,7 +534,6 @@
                                     Background="Transparent"
                                     BorderBrush="#33FFFFFF"
                                     BorderThickness="1"
-                                    cal:Action.TargetWithoutContext="PingPong.UserViewModel"
                                     cal:Message.Attach="Follow($dataContext)"
                                     Content="Follow"
                                     Foreground="{StaticResource ButtonForegroundBrush}"
@@ -542,7 +543,6 @@
                                     Background="Transparent"
                                     BorderBrush="#33FFFFFF"
                                     BorderThickness="1"
-                                    cal:Action.TargetWithoutContext="PingPong.UserViewModel"
                                     cal:Message.Attach="Unfollow($dataContext)"
                                     Content="Unfollow"
                                     Foreground="{StaticResource ButtonForegroundBrush}"
@@ -622,10 +622,10 @@
                         <ContentControl x:Name="contentControl"
                                         Grid.Row="1"
                                         MaxHeight="0"
-                                        Content="{Binding User}"
+                                        cal:Bind.Model="{Binding ContextualViewModel}"
                                         Opacity="0"
                                         Style="{StaticResource UserInfoContentStyle}" />
-                        <ToggleButton x:Name="IsUserInfoOpen"
+                        <ToggleButton x:Name="IsInfoBoxOpen"
                                       Grid.Row="2"
                                       Margin="0,0,35,0"
                                       HorizontalAlignment="Right"
@@ -633,7 +633,7 @@
                                       FontFamily="{StaticResource DefaultFontFamily}"
                                       FontSize="18"
                                       Foreground="{StaticResource TimelineHeaderBrush}"
-                                      IsEnabled="{Binding CanOpenUserInfo}"
+                                      IsEnabled="{Binding CanOpenInfoBox}"
                                       Style="{StaticResource SimpleToggleButtonStyle}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Checked">
