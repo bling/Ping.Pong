@@ -6,7 +6,7 @@ namespace PingPong.Models
     {
         public User(JsonValue json)
         {
-            Id = json["id"];
+            Id = json["id_str"];
             Name = json["name"];
             ScreenName = json["screen_name"];
             ProfileImageUrl = json["profile_image_url"];
@@ -23,7 +23,7 @@ namespace PingPong.Models
         {
         }
 
-        public ulong Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public string ScreenName { get; set; }
         public string ProfileImageUrl { get; set; }

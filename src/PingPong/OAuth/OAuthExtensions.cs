@@ -96,10 +96,7 @@ namespace PingPong.OAuth
                                 sb.Append(c);
                                 if (c == '\n')
                                 {
-                                    string value = sb.ToString();
-                                    if (!string.IsNullOrWhiteSpace(value))
-                                        ob.OnNext(value);
-
+                                    ob.OnNext(sb.ToString());
                                     sb.Clear();
                                 }
                             }
@@ -109,7 +106,7 @@ namespace PingPong.OAuth
                             ob.OnNext(sb.ToString());
                             ob.OnCompleted();
                         });
-            });
+            }).Where(x => !string.IsNullOrWhiteSpace(x));
         }
     }
 }

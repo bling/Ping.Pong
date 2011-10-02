@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Json;
 using System.Linq;
+using System.Net;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Caliburn.Micro;
@@ -37,7 +38,7 @@ namespace PingPong.Core
             return new OAuthClient(AppBootstrapper.ConsumerKey, AppBootstrapper.ConsumerSecret, AppSettings.UserOAuthToken, AppSettings.UserOAuthTokenSecret);
         }
 
-        public void UpdateStatus(string text, string inReplyToStatusId = null)
+        public IObservable<WebResponse> UpdateStatus(string text, string inReplyToStatusId = null)
         {
             Enforce.NotNullOrEmpty(text);
             var client = CreateClient();
@@ -45,19 +46,19 @@ namespace PingPong.Core
             client.Parameters["wrap_links"] = "1";
             if (inReplyToStatusId != null)
                 client.Parameters["in_reply_to_status_id"] = inReplyToStatusId;
-            
+
             client.Url = ApiAuthority + "/1/statuses/update.json";
-            client.Post();
+            return client.Post();
         }
 
-        public void Retweet(string statusId)
+        public IObservable<WebResponse> Retweet(string statusId)
         {
             var client = CreateClient();
             client.Url = ApiAuthority + string.Format("/1/statuses/retweet/{0}.json", statusId);
-            client.Post();
+            return client.Post();
         }
 
-        public void DirectMessage(string username, string text)
+        public IObservable<WebResponse> DirectMessage(string username, string text)
         {
             Enforce.NotNullOrEmpty(username);
             Enforce.NotNullOrEmpty(text);
@@ -66,10 +67,10 @@ namespace PingPong.Core
             client.Url = ApiAuthority + "/1/direct_messages/new.json";
             client.Parameters.Add("screen_name", username);
             client.Parameters.Add("text", text);
-            client.Post();
+            return client.Post();
         }
 
-        public void Follow(string screenName)
+        public IObservable<WebResponse> Follow(string screenName)
         {
             Enforce.NotNullOrEmpty(screenName);
 
@@ -77,24 +78,35 @@ namespace PingPong.Core
             client.Url = ApiAuthority + "/1/friendships/create.json";
             client.Parameters.Add("screen_name", screenName);
             client.Parameters.Add("follow", "true");
-            client.Post();
+            return client.Post();
         }
 
-        public void Unfollow(string screenName)
+        public IObservable<WebResponse> Unfollow(string screenName)
         {
             Enforce.NotNullOrEmpty(screenName);
 
             var client = CreateClient();
             client.Url = ApiAuthority + "/1/friendships/destroy.json";
             client.Parameters.Add("screen_name", screenName);
-            client.Post();
+            return client.Post();
+        }
+
+        public IObservable<List> GetLists(string screenName)
+        {
+            return GetContents(ApiAuthority, "/1/lists/all.json", new { screen_name = screenName })
+                .Select(ToJson)
+                .WhereNotNull()
+                .Cast<JsonArray>()
+                .SelectMany(x => x)
+                .Select(JsonHelper.ToList)
+                .WhereNotNull();
         }
 
         public IObservable<User> GetAccountVerification()
         {
             return GetContents(ApiAuthority, "/1/account/verify_credentials.json")
                 .Select(ToJson)
-                .Where(x => x != null)
+                .WhereNotNull()
                 .Select(x => new User(x));
         }
 
@@ -102,7 +114,7 @@ namespace PingPong.Core
         {
             return GetContents(ApiAuthority, "/1/users/lookup.json", new { screen_name = screenName })
                 .Select(ToJson)
-                .Where(x => x != null)
+                .WhereNotNull()
                 .Cast<JsonArray>()
                 .SelectMany(x => x)
                 .Select(x => new User(x));
@@ -112,18 +124,18 @@ namespace PingPong.Core
         {
             return GetContents(ApiAuthority, "/1/friendships/show.json", new { source_screen_name = sourceScreenName }, new { target_screen_name = targetScreenName })
                 .Select(ToJson)
-                .Where(x => x != null)
+                .WhereNotNull()
                 .Select(JsonHelper.ToRelationship)
-                .Where(x => x != null);
+                .WhereNotNull();
         }
 
         public IObservable<User> GetUserInfo(string screenName)
         {
             return GetContents(ApiAuthority, "/1/users/show.json", new { include_entities = "1" }, new { screen_name = screenName })
                 .Select(ToJson)
-                .Where(x => x != null)
+                .WhereNotNull()
                 .Select(JsonHelper.ToUser)
-                .Where(x => x != null);
+                .WhereNotNull();
         }
 
         public IObservable<Tweet> GetHomeTimeline(int count = RequestCount)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using PingPong.Core;
@@ -58,22 +59,20 @@ namespace PingPong.OAuth
             return CreateWebRequest(MethodType.Get).GetResponseAsObservable();
         }
 
-        public void Post(Action<WebResponse> optionalOnNext = null)
+        public IObservable<WebResponse> Post()
         {
-            var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
-            var req = CreateWebRequest(MethodType.Post);
-            req.GetRequestStreamAsObservable()
-                .Do(stream =>
-                {
-                    stream.Write(postData, 0, postData.Length);
-                    stream.Close();
-                })
-                .SelectMany(_ => req.GetResponseAsObservable())
-                .Subscribe(wr =>
-                {
-                    if (optionalOnNext != null)
-                        optionalOnNext(wr);
-                });
+            var responses = Observable.Create<WebResponse>(obs =>
+            {
+                var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
+                var req = CreateWebRequest(MethodType.Post);
+                var o = req.GetRequestStreamAsObservable()
+                    .Do(stream => { using (stream) stream.Write(postData, 0, postData.Length); })
+                    .SelectMany(_ => req.GetResponseAsObservable())
+                    .Replay();
+                return new CompositeDisposable { o.Connect(), o.Subscribe(obs) };
+            });
+            responses.Subscribe(_ => { }).Dispose(); // initiate immediately
+            return responses;
         }
     }
 }

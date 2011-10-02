@@ -45,6 +45,16 @@ namespace PingPong
                 action(element);
         }
 
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> enumerable) where T : class
+        {
+            return enumerable.Where(x => x != null);
+        }
+
+        public static IObservable<T> WhereNotNull<T>(this IObservable<T> observable) where T : class
+        {
+            return observable.Where(x => x != null);
+        }
+
         public static string UnescapeXml(this string xml)
         {
             return xml.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
