@@ -15,7 +15,7 @@ namespace PingPong.Models
             CreatedAt = json.GetSearchDateTime("created_at");
             User = new User
             {
-                Id = json["from_user_id"],
+                Id = json["from_user_id_str"],
                 ScreenName = json["from_user"],
                 ProfileImageUrl = json["profile_image_url"]
             };

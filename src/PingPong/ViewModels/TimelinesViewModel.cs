@@ -6,11 +6,11 @@ using System.Windows;
 using Caliburn.Micro;
 using PingPong.Controls;
 using PingPong.Core;
-using PingPong.Messages;
+using PingPong.Models;
 
-namespace PingPong
+namespace PingPong.ViewModels
 {
-    public class TimelinesViewModel : Conductor<TweetsPanelViewModel>.Collection.AllActive, IHandle<NavigateToUserMessage>, IHandle<NavigateToTopicMessage>, IHandle<NavigateToConversationMessage>
+    public class TimelinesViewModel : Conductor<TweetsPanelViewModel>.Collection.AllActive, ITimelineNavigator
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
@@ -25,7 +25,7 @@ namespace PingPong
         private IDisposable _streamingSubscription;
         private IDisposable _notificationSubscription;
         private string _searchText;
-        private bool isStreaming;
+        private bool _isStreaming;
         private bool _isBusy;
         private DateTime _streamStartTime = DateTime.MinValue;
 
@@ -71,7 +71,7 @@ namespace PingPong
                 {
                     _messageline.StopSubscription();
                     DeactivateItem(_messageline, true);
-                }   
+                }
 
                 NotifyOfPropertyChange(() => ShowMessages);
             }
@@ -85,10 +85,10 @@ namespace PingPong
 
         public bool IsStreaming
         {
-            get { return this.isStreaming; }
+            get { return _isStreaming; }
             set
             {
-                this.SetValue("IsStreaming", value, ref this.isStreaming);
+                this.SetValue("IsStreaming", value, ref _isStreaming);
                 if (value)
                     StartStreaming();
                 else
@@ -247,31 +247,40 @@ namespace PingPong
             }
         }
 
-        void IHandle<NavigateToUserMessage>.Handle(NavigateToUserMessage message)
+        public void NavigateToTopicMessage(string topic)
         {
-            ActivateTimeline("@" + message.User, timeline =>
+            ActivateTimeline(topic, timeline =>
             {
                 timeline.CanClose = true;
-                timeline.SubscribeToUserTimeline(message.User);
+                timeline.SubscribeToTopic(topic);
             });
         }
 
-        void IHandle<NavigateToTopicMessage>.Handle(NavigateToTopicMessage message)
+        public void NavigateToUserTimeline(string screenName)
         {
-            ActivateTimeline("#" + message.Topic, timeline =>
+            screenName = screenName.Trim(TweetParser.PunctuationChars);
+            ActivateTimeline(screenName, timeline =>
             {
                 timeline.CanClose = true;
-                timeline.SubscribeToTopic(message.Topic);
+                timeline.SubscribeToUserTimeline(screenName.Trim('@'));
             });
         }
 
-        void IHandle<NavigateToConversationMessage>.Handle(NavigateToConversationMessage message)
+        public void NavigateToConversationTimeline(ITweetItem item)
         {
-            ActivateTimeline(message.User1 + "/" + message.User2, timeline =>
+            if (item is Tweet)
             {
-                timeline.CanClose = true;
-                timeline.SubscribeToConversation(message.User1, message.User2);
-            });
+                var tweet = (Tweet)item;
+                if (tweet.Entities != null)
+                {
+                    var other = tweet.Entities.UserMentions[0].ScreenName;
+                    ActivateTimeline(tweet.User.ScreenName + "/" + other, timeline =>
+                    {
+                        timeline.CanClose = true;
+                        timeline.SubscribeToConversation(tweet.User.ScreenName, other);
+                    });
+                }
+            }
         }
     }
 }

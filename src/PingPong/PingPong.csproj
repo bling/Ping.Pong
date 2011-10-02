@@ -89,6 +89,8 @@
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Controls, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Controls.Input.Toolkit, Version=4.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Controls.Toolkit, Version=4.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -101,7 +103,8 @@
     <Compile Include="AppBootstrapper.cs" />
     <Compile Include="AppInfo.cs" />
     <Compile Include="AppSettings.cs" />
-    <Compile Include="AuthorizationViewModel.cs" />
+    <Compile Include="ITimelineNavigator.cs" />
+    <Compile Include="ViewModels\AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
     <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
     <Compile Include="Behaviors\RefreshDateBehavior.cs" />
@@ -115,9 +118,9 @@
     <Compile Include="Converters\IsValidTweetLengthToBrushConverter.cs" />
     <Compile Include="Core\DelegateCommand.cs" />
     <Compile Include="Core\Enforce.cs" />
-    <Compile Include="InstallViewModel.cs" />
+    <Compile Include="ViewModels\InstallViewModel.cs" />
     <Compile Include="IShell.cs" />
-    <Compile Include="ErrorViewModel.cs" />
+    <Compile Include="ViewModels\ErrorViewModel.cs" />
     <Compile Include="Models\DirectMessage.cs" />
     <Compile Include="Models\ExtendedUser.cs" />
     <Compile Include="Models\ITweetItem.cs" />
@@ -126,18 +129,17 @@
     <Compile Include="Models\Relationship.cs" />
     <Compile Include="Models\SearchResult.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="Messenger.cs" />
     <Compile Include="OAuth\OAuthExtensions.cs" />
     <Compile Include="OAuth\OAuthAuthorizer.cs" />
     <Compile Include="OAuth\OAuthBase.cs" />
     <Compile Include="OAuth\OAuthClient.cs" />
     <Compile Include="OAuth\Token.cs" />
     <Compile Include="OAuth\TokenResponse.cs" />
-    <Compile Include="StatusViewModel.cs" />
-    <Compile Include="TimelinesViewModel.cs" />
+    <Compile Include="ViewModels\StatusViewModel.cs" />
+    <Compile Include="ViewModels\TimelinesViewModel.cs" />
     <Compile Include="Messages\Messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShellViewModel.cs" />
+    <Compile Include="ViewModels\ShellModel.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Models\Tweet.cs" />
     <Compile Include="Controls\TweetTextBlock.cs" />
@@ -145,8 +147,8 @@
     <Compile Include="Core\TweetParser.cs" />
     <Compile Include="Core\TwitterClient.cs" />
     <Compile Include="Core\TwitterSubscriptions.cs" />
-    <Compile Include="TweetsPanelViewModel.cs" />
-    <Compile Include="UserViewModel.cs" />
+    <Compile Include="ViewModels\TweetsPanelViewModel.cs" />
+    <Compile Include="ViewModels\UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -169,23 +171,23 @@
     </BlendEmbeddedFont>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AuthorizationView.xaml">
+    <Page Include="Views\AuthorizationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserView.xaml">
+    <Page Include="Views\UserView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ErrorView.xaml">
+    <Page Include="Views\ErrorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="InstallView.xaml">
+    <Page Include="Views\InstallView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StatusView.xaml">
+    <Page Include="Views\StatusView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -213,11 +215,11 @@
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="TimelinesView.xaml">
+    <Page Include="Views\TimelinesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ShellView.xaml">
+    <Page Include="Views\ShellView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -225,7 +227,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="TweetsPanelView.xaml">
+    <Page Include="Views\TweetsPanelView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

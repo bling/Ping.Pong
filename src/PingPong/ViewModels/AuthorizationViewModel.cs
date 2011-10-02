@@ -6,7 +6,7 @@ using PingPong.Core;
 using PingPong.Messages;
 using PingPong.OAuth;
 
-namespace PingPong
+namespace PingPong.ViewModels
 {
     public class AuthorizationViewModel : Screen
     {

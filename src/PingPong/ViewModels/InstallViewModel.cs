@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using Caliburn.Micro;
 
-namespace PingPong
+namespace PingPong.ViewModels
 {
     public class InstallViewModel
     {

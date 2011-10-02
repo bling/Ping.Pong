@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="PingPong.AuthorizationView"
+﻿<UserControl x:Class="PingPong.Views.AuthorizationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:cal="http://www.caliburnproject.org"

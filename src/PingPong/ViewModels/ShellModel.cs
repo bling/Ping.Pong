@@ -3,7 +3,7 @@ using System.Windows;
 using Caliburn.Micro;
 using PingPong.Messages;
 
-namespace PingPong
+namespace PingPong.ViewModels
 {
     public class ShellViewModel : Conductor<object>,
                                   IShell,

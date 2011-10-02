@@ -1,6 +1,6 @@
 ﻿using Caliburn.Micro;
 
-namespace PingPong
+namespace PingPong.ViewModels
 {
     public class ErrorViewModel : PropertyChangedBase
     {

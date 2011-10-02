@@ -212,7 +212,7 @@
                     Margin="-8,-2,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    cal:Action.TargetWithoutContext="PingPong.Messenger"
+                    cal:Action.TargetWithoutContext="PingPong.ITimelineNavigator"
                     Content="{Binding User.ScreenName}"
                     FontFamily="{StaticResource DefaultFontFamily}"
                     FontSize="14.667"
@@ -263,8 +263,8 @@
                 <Grid.RenderTransform>
                     <CompositeTransform TranslateY="30" />
                 </Grid.RenderTransform>
-                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="PingPong.StatusViewModel" Orientation="Horizontal">
-                    <Button cal:Action.TargetWithoutContext="PingPong.Messenger"
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" cal:Action.TargetWithoutContext="PingPong.ViewModels.StatusViewModel" Orientation="Horizontal">
+                    <Button cal:Action.TargetWithoutContext="PingPong.ITimelineNavigator"
                             cal:Message.Attach="[NavigateToConversationTimeline($dataContext)]"
                             Content="C"
                             Style="{StaticResource DarkTweetButtonStyle}"
@@ -653,9 +653,8 @@
                                 Foreground="Gray"
                                 Style="{StaticResource CloseButtonStyle}"
                                 Visibility="{Binding CanClose, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                        <StackPanel Grid.Row="2" Margin="25,0,0,0" HorizontalAlignment="Left" Orientation="Horizontal">
-                            <Button Width="16"
-                                    cal:Action.TargetWithoutContext="PingPong.TimelinesViewModel"
+                        <StackPanel Grid.Row="2" Margin="25,0,0,0" HorizontalAlignment="Left" Orientation="Horizontal" cal:Action.TargetWithoutContext="PingPong.ViewModels.TimelinesViewModel">
+                            <Button Width="16"            
                                     cal:Message.Attach="MoveLeft($dataContext)"
                                     Style="{StaticResource ArrowButtonStyle}"
                                     d:LayoutOverrides="GridBox">
@@ -664,7 +663,6 @@
                                 </Button.RenderTransform>
                             </Button>
                             <Button Width="16"
-                                    cal:Action.TargetWithoutContext="PingPong.TimelinesViewModel"
                                     cal:Message.Attach="MoveRight($dataContext)"
                                     RenderTransformOrigin="0.5,0.5"
                                     Style="{StaticResource ArrowButtonStyle}"

@@ -4,8 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using Caliburn.Micro;
 using PingPong.Core;
-using PingPong.Messages;
 using PingPong.Models;
+using PingPong.ViewModels;
 
 namespace PingPong.Controls
 {
@@ -26,14 +26,14 @@ namespace PingPong.Controls
         }
 
         private RichTextBox _block;
-        private readonly IEventAggregator _ea;
         private readonly TweetParser _parser;
+        private readonly ITimelineNavigator _timelines;
 
         public TweetTextBlock()
         {
             DefaultStyleKey = typeof(TweetTextBlock);
 
-            _ea = Execute.InDesignMode ? new EventAggregator() : IoC.Get<IEventAggregator>();
+            _timelines = Execute.InDesignMode ? null : IoC.Get<ITimelineNavigator>();
             _parser = Execute.InDesignMode ? new TweetParser() : IoC.Get<TweetParser>();
         }
 
@@ -65,7 +65,7 @@ namespace PingPong.Controls
                     case TweetPartType.Topic:
                         var topic = new Hyperlink();
                         topic.TextDecorations = null;
-                        topic.Command = new DelegateCommand<string>(_ => _ea.Publish(new NavigateToTopicMessage(text)));
+                        topic.Command = new DelegateCommand<string>(_ => _timelines.NavigateToTopicMessage(text));
                         topic.Inlines.Add(text);
                         para.Inlines.Add(topic);
                         break;
@@ -80,7 +80,7 @@ namespace PingPong.Controls
                         break;
                     case TweetPartType.User:
                         var user = new Hyperlink();
-                        user.Command = new DelegateCommand<string>(_ => _ea.Publish(new NavigateToUserMessage(text)));
+                        user.Command = new DelegateCommand<string>(_ => _timelines.NavigateToUserTimeline(text));
                         user.TextDecorations = null;
                         user.Inlines.Add(text);
                         para.Inlines.Add(user);

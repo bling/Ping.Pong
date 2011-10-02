@@ -7,6 +7,7 @@ using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
 using PingPong.Core;
+using PingPong.ViewModels;
 using Parameter = Autofac.Core.Parameter;
 
 namespace PingPong
@@ -32,7 +33,7 @@ namespace PingPong
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
             b.RegisterType<ShellViewModel>().As<IShell>().SingleInstance();
-            b.RegisterType<TimelinesViewModel>().SingleInstance();
+            b.RegisterType<TimelinesViewModel>().AsSelf().AsImplementedInterfaces().SingleInstance();
             b.RegisterType<AppInfo>().SingleInstance();
 
             _container = b.Build();

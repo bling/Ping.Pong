@@ -3,7 +3,7 @@ using Caliburn.Micro;
 using PingPong.Core;
 using PingPong.Models;
 
-namespace PingPong
+namespace PingPong.ViewModels
 {
     public class UserViewModel : PropertyChangedBase
     {
