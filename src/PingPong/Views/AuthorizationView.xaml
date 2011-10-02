@@ -6,29 +6,42 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FF111111">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="600" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <TextBlock Text="Authorize Ping.Pong to have access to your account by logging into Twitter to get the PIN.  Once you get it, fill out your PIN in the text box below and click OK." TextWrapping="Wrap" />
+        <Grid Grid.Row="0" Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Margin="20,0"
+                       FontFamily="{StaticResource DefaultFontFamily}"
+                       FontSize="16"
+                       Foreground="{StaticResource TimelineHeaderBrush}"
+                       Text="Authorize ping.pong to have access to your account by logging into Twitter to get the PIN.  Once you get it, fill out your PIN in the text box and click OK."
+                       TextWrapping="Wrap" />
 
-            <TextBox x:Name="Pin"
-                     Grid.Row="1"
-                     Width="100"
-                     Margin="0,0,70,0"
-                     HorizontalAlignment="Right" />
-            <Button x:Name="AuthenticatePin"
-                    Grid.Row="1"
-                    Width="70"
-                    HorizontalAlignment="Right"
-                    Content="OK" />
+            <StackPanel Grid.Column="1" Height="30" Orientation="Horizontal">
+                <TextBox x:Name="Pin"
+                         Width="100"
+                         HorizontalAlignment="Right"
+                         Background="Transparent"
+                         BorderBrush="#FF91819D"
+                         FontFamily="{StaticResource DefaultFontFamily}"
+                         FontSize="16"
+                         Foreground="{StaticResource TimelineHeaderBrush}" />
+                <Button x:Name="AuthenticatePin"
+                        Width="70"
+                        HorizontalAlignment="Right"
+                        Content="OK"
+                        FontFamily="{StaticResource DefaultFontFamily}"
+                        FontSize="16"
+                        Foreground="{StaticResource ButtonForegroundBrush}"
+                        Style="{StaticResource SimpleToggleButtonStyle}" />
+            </StackPanel>
         </Grid>
         <WebBrowser Grid.Row="1" MinWidth="640" MinHeight="600" cal:Message.Attach="[Event Loaded] = [LoadWebBrowser($source)]" />
     </Grid>
