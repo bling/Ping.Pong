@@ -59,23 +59,31 @@ namespace PingPong.OAuth
                 var disp = new BooleanDisposable();
                 Observable.Start(() =>
                 {
-                    var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
-                    var buffer = new byte[256];
-                    while (!disp.IsDisposed)
+                    using (stream)
                     {
-                        int bytesRead = reader(buffer, 0, buffer.Length).First();
-                        if (bytesRead == 0)
+                        try
                         {
-                            ob.OnCompleted();
-                            break;
+                            var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
+                            var buffer = new byte[256];
+                            while (!disp.IsDisposed)
+                            {
+                                int bytesRead = reader(buffer, 0, buffer.Length).First();
+                                if (bytesRead == 0)
+                                {
+                                    ob.OnCompleted();
+                                    break;
+                                }
+
+                                var result = new byte[bytesRead];
+                                Buffer.BlockCopy(buffer, 0, result, 0, bytesRead);
+                                ob.OnNext(result);
+                            }
                         }
-
-                        var result = new byte[bytesRead];
-                        Buffer.BlockCopy(buffer, 0, result, 0, bytesRead);
-                        ob.OnNext(result);
+                        catch (Exception ex)
+                        {
+                            ob.OnError(ex);
+                        }
                     }
-
-                    stream.Close();
                 });
                 return disp;
             });
