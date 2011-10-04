@@ -23,7 +23,7 @@
     <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#FF448FBE" />
     <SolidColorBrush x:Key="UserInfoCountsBrush" Color="#FF91819D" />
 
-    <conv:ContainsAtToVisibilityConverter x:Key="ContainsAtToVisibilityConverter" />
+    <conv:IsReplyToVisibilityConverter x:Key="IsReplyToVisibilityConverter" />
     <conv:RelativeTimeConverter x:Key="RelativeTimeConverter" />
     <conv:SourceToUriConverter x:Key="SourceToUriConverter" />
     <conv:SourceToContentConverter x:Key="SourceToContentConverter" />
@@ -269,7 +269,7 @@
                             Content="C"
                             Style="{StaticResource DarkTweetButtonStyle}"
                             ToolTipService.ToolTip="view conversation"
-                            Visibility="{Binding Text, Converter={StaticResource ContainsAtToVisibilityConverter}}" />
+                            Visibility="{Binding ., Converter={StaticResource IsReplyToVisibilityConverter}}" />
                     <Button cal:Message.Attach="[Reply($dataContext)]" Content="R" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Retweet($dataContext)]" Content="RT" Style="{StaticResource DarkTweetButtonStyle}" />
                     <Button cal:Message.Attach="[Quote($dataContext)]" Content="Q" Style="{StaticResource DarkTweetButtonStyle}" />

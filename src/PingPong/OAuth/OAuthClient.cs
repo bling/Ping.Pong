@@ -61,18 +61,15 @@ namespace PingPong.OAuth
 
         public IObservable<WebResponse> Post()
         {
-            var responses = Observable.Create<WebResponse>(obs =>
+            return Observable.Start(() =>
             {
                 var postData = Encoding.UTF8.GetBytes(Parameters.ToQueryParameter());
                 var req = CreateWebRequest(MethodType.Post);
-                var o = req.GetRequestStreamAsObservable()
+                return req.GetRequestStreamAsObservable()
                     .Do(stream => { using (stream) stream.Write(postData, 0, postData.Length); })
                     .SelectMany(_ => req.GetResponseAsObservable())
-                    .Replay();
-                return new CompositeDisposable { o.Connect(), o.Subscribe(obs) };
+                    .First();
             });
-            responses.Subscribe(_ => { }).Dispose(); // initiate immediately
-            return responses;
         }
     }
 }

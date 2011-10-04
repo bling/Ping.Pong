@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using Caliburn.Micro;
@@ -21,9 +22,9 @@ namespace PingPong.ViewModels
         private readonly TweetsPanelViewModel _homeline;
         private readonly TweetsPanelViewModel _mentionline;
         private readonly TweetsPanelViewModel _messageline;
-        private IDisposable _tweetsSubscription;
+        private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
         private IDisposable _streamingSubscription;
-        private IDisposable _notificationSubscription;
+        private RateLimit rateLimit;
         private string _searchText;
         private bool _isStreaming;
         private bool _isBusy;
@@ -102,6 +103,12 @@ namespace PingPong.ViewModels
             set { this.SetValue("IsBusy", value, ref _isBusy); }
         }
 
+        public RateLimit RateLimit
+        {
+            get { return rateLimit; }
+            private set { this.SetValue("RateLimit", value, ref rateLimit); }
+        }
+
         public TimelinesViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager, Func<TweetsPanelViewModel> timelineFactory)
         {
             _appInfo = appInfo;
@@ -139,14 +146,19 @@ namespace PingPong.ViewModels
                 {
                     _homeline.Subscribe(x.stream.Where(t => !t.Text.Contains(x.atName)));
                     _mentionline.Subscribe(x.stream.Where(t => t.Text.Contains(x.atName)));
-                    _tweetsSubscription = x.stream.Connect();
+                    _subscriptions.Add(x.stream.Connect());
 
                     ShowHome = true;
                     ShowMentions = true;
                     ShowMessages = false;
                     IsBusy = false;
 
-                    _notificationSubscription = _client
+                    var rateLimitSubscription = _client
+                        .GetPollingRateLimitStatus()
+                        .DispatcherSubscribe(rl => RateLimit = rl);
+                    _subscriptions.Add(rateLimitSubscription);
+
+                    var notificationSubscription = _client
                         .Sample(TimeSpan.FromSeconds(6))
                         .Where(t => (DateTime.Now - t.CreatedAt) < TimeSpan.FromSeconds(5))
                         .DispatcherSubscribe(t =>
@@ -156,6 +168,7 @@ namespace PingPong.ViewModels
                                                  Height = 80,
                                                  Content = new NotificationControl { DataContext = t }
                                              }.Show(5000));
+                    _subscriptions.Add(notificationSubscription);
                 });
         }
 
@@ -163,8 +176,7 @@ namespace PingPong.ViewModels
         {
             base.OnDeactivate(close);
             _streamingSubscription.DisposeIfNotNull();
-            _tweetsSubscription.DisposeIfNotNull();
-            _notificationSubscription.DisposeIfNotNull();
+            _subscriptions.Dispose();
             DeactivateItem(_homeline, true);
             DeactivateItem(_mentionline, true);
             DeactivateItem(_messageline, true);
@@ -271,15 +283,11 @@ namespace PingPong.ViewModels
             if (item is Tweet)
             {
                 var tweet = (Tweet)item;
-                if (tweet.Entities != null)
+                ActivateTimeline("Conversation", timeline =>
                 {
-                    var other = tweet.Entities.UserMentions[0].ScreenName;
-                    ActivateTimeline(tweet.User.ScreenName + "/" + other, timeline =>
-                    {
-                        timeline.CanClose = true;
-                        timeline.SubscribeToConversation(tweet.User.ScreenName, other);
-                    });
-                }
+                    timeline.CanClose = true;
+                    timeline.SubscribeToConversation(tweet);
+                });
             }
         }
     }

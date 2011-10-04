@@ -104,13 +104,14 @@
     <Compile Include="AppInfo.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="ITimelineNavigator.cs" />
+    <Compile Include="Models\RateLimit.cs" />
     <Compile Include="ViewModels\AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
     <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
     <Compile Include="Behaviors\RefreshDateBehavior.cs" />
     <Compile Include="Controls\NotificationControl.cs" />
     <Compile Include="Converters\CharactersRemainingConverter.cs" />
-    <Compile Include="Converters\ContainsAtToVisibilityConverter.cs" />
+    <Compile Include="Converters\IsReplyToVisibilityConverter.cs" />
     <Compile Include="Converters\RelativeTimeConverter.cs" />
     <Compile Include="AppBootstrapper.Keys.cs" />
     <Compile Include="Converters\SourceToContentConverter.cs" />

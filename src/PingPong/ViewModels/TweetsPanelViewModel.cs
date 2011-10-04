@@ -74,20 +74,10 @@ namespace PingPong.ViewModels
             Subscribe(_client.GetPollingSearch(topic));
         }
 
-        public void SubscribeToConversation(string user1, string user2)
+        public void SubscribeToConversation(Tweet sourceTweet)
         {
-            Enforce.NotNullOrEmpty(user1);
-            Enforce.NotNullOrEmpty(user2);
-            Observable.Start(() =>
-            {
-                var results = _client.GetSearch(string.Format("from:{0} to:{1}", user1, user2))
-                    .Merge(_client.GetSearch(string.Format("from:{1} to:{0}", user1, user2)))
-                    .ToEnumerable()
-                    .OrderByDescending(x => x.CreatedAt)
-                    .ToArray();
-
-                Subscribe(results.ToObservable());
-            });
+            Enforce.NotNull(sourceTweet);
+            Subscribe(_client.GetConversation(sourceTweet));
         }
 
         public void Subscribe(IObservable<ITweetItem> items, Action<ITweetItem> optionalActionOnSubscribe = null)

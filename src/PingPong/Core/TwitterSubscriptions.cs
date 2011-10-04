@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Json;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using PingPong.Models;
 
@@ -14,12 +15,33 @@ namespace PingPong.Core
             return Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(DefaultPollSeconds));
         }
 
+        public static IObservable<Tweet> GetConversation(this TwitterClient client, Tweet sourceTweet)
+        {
+            return Observable.Create<Tweet>(obs =>
+            {
+                Tweet t = sourceTweet;
+                obs.OnNext(t);
+                while (!string.IsNullOrEmpty(t.InReplyToStatusId))
+                {
+                    t = client.GetTweet(t.InReplyToStatusId).First();
+                    obs.OnNext(t);
+                }
+                obs.OnCompleted();
+                return Disposable.Empty;
+            });
+        }
+
         public static IObservable<Tweet> GetStreamingStatuses(this TwitterClient client)
         {
             return client.GetHomeTimeline()
                 .Merge(client.GetMentions())
                 .Concat(client.GetStreamingHomeline())
                 .Retry();
+        }
+
+        public static IObservable<RateLimit> GetPollingRateLimitStatus(this TwitterClient client)
+        {
+            return CreateTimerObservable().SelectMany(_ => client.GetRateLimitStatus());
         }
 
         public static IObservable<DirectMessage> GetPollingDirectMessages(this TwitterClient client)

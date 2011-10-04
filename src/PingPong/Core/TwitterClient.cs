@@ -110,6 +110,13 @@ namespace PingPong.Core
                 .Select(x => new User(x));
         }
 
+        public IObservable<RateLimit> GetRateLimitStatus()
+        {
+            return GetContents(ApiAuthority, "/1/account/rate_limit_status.json")
+                .Select(ToJson)
+                .Select(x => new RateLimit(x));
+        }
+
         public IObservable<User> GetAccountInfo(string screenName)
         {
             return GetContents(ApiAuthority, "/1/users/lookup.json", new { screen_name = screenName })
@@ -154,6 +161,13 @@ namespace PingPong.Core
         {
             var options = new object[] { new { screen_name = screenName }, new { include_entities = "1" }, new { include_rts = "1" }, new { since_id = sinceId } };
             return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_subject);
+        }
+
+        public IObservable<Tweet> GetTweet(string id)
+        {
+            return GetContents(ApiAuthority, string.Format("/1/statuses/show/{0}.json", id), new { include_entities = "1" })
+                .Select(ToJson)
+                .SelectTweets(_subject);
         }
 
         public IObservable<SearchResult> GetSearch(string query, string sinceId = null, int count = RequestCount)
