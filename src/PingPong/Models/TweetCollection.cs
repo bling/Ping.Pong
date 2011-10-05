@@ -11,13 +11,15 @@ namespace PingPong.Models
             while (Count > MaxTweets)
                 RemoveAt(Count - 1);
 
-            ITweetItem first = Count > 0 ? this[0] : null;
-            if (first != null)
+            if (Count > 0)
             {
-                if (tweet.CreatedAt > first.CreatedAt)
+                for (int i = 0; i < Count; i++)
                 {
-                    Insert(0, tweet);
-                    return;
+                    if (tweet.CreatedAt > this[i].CreatedAt)
+                    {
+                        Insert(0, tweet);
+                        return;
+                    }
                 }
             }
             Add(tweet);

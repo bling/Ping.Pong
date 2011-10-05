@@ -210,11 +210,12 @@ namespace PingPong.ViewModels
                 foreach (string part in allParts)
                 {
                     string[] terms = part.Split('|');
+                    var combo = _client.GetSearch(part).Cast<ITweetItem>().Concat(ob);
                     ActivateTimeline(part, tl =>
                     {
                         tl.Tag = terms;
                         tl.CanClose = true;
-                        tl.Subscribe(ob.Where(t => terms.Any(term => t.Text.Contains(term))));
+                        tl.Subscribe(combo.Where(t => terms.Any(term => t.Text.Contains(term))));
                     });
                 }
 

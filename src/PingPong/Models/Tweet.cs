@@ -22,6 +22,10 @@ namespace PingPong.Models
             if (json.TryGetValue("entities", out entities))
                 Entities = new Entities(entities);
 
+            JsonValue retweetedStatus;
+            if (json.TryGetValue("retweeted_status", out retweetedStatus))
+                RetweetedStatus = new Tweet((JsonObject)retweetedStatus);
+
             User = new User(json["user"]);
         }
 
@@ -40,6 +44,8 @@ namespace PingPong.Models
         public string InReplyToStatusId { get; private set; }
 
         public string InReplyToScreenName { get; private set; }
+
+        public Tweet RetweetedStatus { get; private set; }
 
         public Entities Entities { get; private set; }
     }
