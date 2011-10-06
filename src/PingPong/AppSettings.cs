@@ -30,5 +30,16 @@ namespace PingPong
             }
             set { IsolatedStorageSettings.ApplicationSettings["pp.user.secret"] = value; }
         }
+
+        public static string StreamSearchTerms
+        {
+            get
+            {
+                string value;
+                IsolatedStorageSettings.ApplicationSettings.TryGetValue("pp.stream.terms", out value);
+                return value;
+            }
+            set { IsolatedStorageSettings.ApplicationSettings["pp.stream.terms"] = value; }
+        }
     }
 }

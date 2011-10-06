@@ -81,7 +81,11 @@ namespace PingPong.ViewModels
         public string SearchText
         {
             get { return _searchText; }
-            set { this.SetValue("SearchText", value, ref _searchText); }
+            set
+            {
+                this.SetValue("SearchText", value, ref _searchText);
+                AppSettings.StreamSearchTerms = value;
+            }
         }
 
         public bool IsStreaming
@@ -148,27 +152,7 @@ namespace PingPong.ViewModels
                     _mentionline.Subscribe(x.stream.Where(t => t.Text.Contains(x.atName)));
                     _subscriptions.Add(x.stream.Connect());
 
-                    ShowHome = true;
-                    ShowMentions = true;
-                    ShowMessages = false;
-                    IsBusy = false;
-
-                    var rateLimitSubscription = _client
-                        .GetPollingRateLimitStatus()
-                        .DispatcherSubscribe(rl => RateLimit = rl);
-                    _subscriptions.Add(rateLimitSubscription);
-
-                    var notificationSubscription = _client
-                        .Sample(TimeSpan.FromSeconds(6))
-                        .Where(t => (DateTime.Now - t.CreatedAt) < TimeSpan.FromSeconds(5))
-                        .DispatcherSubscribe(t =>
-                                             new NotificationWindow
-                                             {
-                                                 Width = 300,
-                                                 Height = 80,
-                                                 Content = new NotificationControl { DataContext = t }
-                                             }.Show(5000));
-                    _subscriptions.Add(notificationSubscription);
+                    PostVerificationInit();
                 });
         }
 
@@ -180,6 +164,37 @@ namespace PingPong.ViewModels
             DeactivateItem(_homeline, true);
             DeactivateItem(_mentionline, true);
             DeactivateItem(_messageline, true);
+        }
+
+        private void PostVerificationInit()
+        {
+            ShowHome = true;
+            ShowMentions = true;
+            ShowMessages = false;
+            IsBusy = false;
+
+            var rateLimitSubscription = _client
+                .GetPollingRateLimitStatus()
+                .DispatcherSubscribe(rl => RateLimit = rl);
+            _subscriptions.Add(rateLimitSubscription);
+
+            var notificationSubscription = _client
+                .Sample(TimeSpan.FromSeconds(6))
+                .Where(t => (DateTime.Now - t.CreatedAt) < TimeSpan.FromSeconds(5))
+                .DispatcherSubscribe(t =>
+                                     new NotificationWindow
+                                     {
+                                         Width = 300,
+                                         Height = 80,
+                                         Content = new NotificationControl { DataContext = t }
+                                     }.Show(5000));
+            _subscriptions.Add(notificationSubscription);
+
+            if (!string.IsNullOrEmpty(AppSettings.StreamSearchTerms))
+            {
+                SearchText = AppSettings.StreamSearchTerms;
+                IsStreaming = true;
+            }
         }
 
         private void StartStreaming()
@@ -197,7 +212,7 @@ namespace PingPong.ViewModels
             else
             {
                 _streamStartTime = DateTime.UtcNow;
-
+                
                 Items
                     .Where(line => line.Tag is string[])
                     .ToArray()
@@ -205,7 +220,9 @@ namespace PingPong.ViewModels
 
                 var allTerms = SearchText.Split(' ', ',', ';', '|');
                 var allParts = SearchText.Split(' ', ',', ';');
-                var ob = _client.GetStreamingFilter(allTerms).Publish();
+                var ob = _client.GetStreamingFilter(allTerms)
+                    .Retry()
+                    .Publish();
 
                 foreach (string part in allParts)
                 {

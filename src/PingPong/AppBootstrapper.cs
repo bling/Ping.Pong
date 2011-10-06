@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
@@ -37,8 +38,17 @@ namespace PingPong
             b.RegisterType<AppInfo>().SingleInstance();
 
             _container = b.Build();
+        }
 
-            Application.Exit += delegate { _container.Dispose(); };
+        protected override void OnExit(object sender, EventArgs e)
+        {
+            _container.Dispose();
+        }
+
+        protected override void OnUnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
+        {
+            LogManager.GetLog(GetType()).Error(e.ExceptionObject);
+            _container.Resolve<IWindowManager>().ShowDialog(new ErrorViewModel(e.ToString()));
         }
 
         protected override object GetInstance(Type serviceType, string key)

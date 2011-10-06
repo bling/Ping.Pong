@@ -36,11 +36,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="border"
-                            Background="#FF1B1B1B"
-                            BorderBrush="#FF1D304E"
-                            BorderThickness="1"
-                            CornerRadius="5">
+                    <Border x:Name="border" Background="#FF1B1B1B" BorderBrush="#FF1D304E" BorderThickness="1">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
                                 <VisualStateGroup.Transitions>
@@ -104,16 +100,12 @@
                                 <VisualState x:Name="Disabled" />
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <Border Background="#55000000" CornerRadius="5">
+                        <Border Background="#55000000">
                             <Border.RenderTransform>
                                 <CompositeTransform TranslateX="2" TranslateY="2" />
                             </Border.RenderTransform>
                         </Border>
-                        <Border x:Name="border"
-                                Background="#FF1B1B1B"
-                                BorderBrush="{StaticResource ScreenNameBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4" />
+                        <Border x:Name="border" Background="#FF1B1B1B" BorderBrush="{StaticResource ScreenNameBorderBrush}" BorderThickness="1" />
                         <ContentPresenter Margin="5,2" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
                     </Grid>
                 </ControlTemplate>
@@ -174,31 +166,27 @@
             </i:Interaction.Triggers>
 
             <Grid x:Name="image" Margin="0,5,0,0" VerticalAlignment="Top">
-                <Border Background="#55000000" CornerRadius="4">
+                <Border Background="#55000000">
                     <Border.RenderTransform>
                         <CompositeTransform TranslateX="3" TranslateY="2" />
                     </Border.RenderTransform>
                 </Border>
-                <Border VerticalAlignment="Top" CornerRadius="4">
+                <Border VerticalAlignment="Top">
                     <Border.Clip>
                         <RectangleGeometry RadiusX="4" RadiusY="4" Rect="0,0,52,48" />
                     </Border.Clip>
                     <Image Width="48" Height="48" Source="{Binding User.ProfileImageUrl}" />
                 </Border>
-                <Border Height="48"
-                        VerticalAlignment="Top"
-                        BorderBrush="{StaticResource ImageBorderBrush}"
-                        BorderThickness="1,1,0,1"
-                        CornerRadius="4,0,0,4" />
+                <Border Height="48" VerticalAlignment="Top" BorderBrush="{StaticResource ImageBorderBrush}" BorderThickness="1,1,0,1" />
             </Grid>
 
             <Grid x:Name="tweet" Grid.Column="1" Grid.ColumnSpan="2" MinHeight="70">
-                <Border Background="#33000000" CornerRadius="7">
+                <Border Background="#33000000">
                     <Border.RenderTransform>
                         <CompositeTransform TranslateX="3" TranslateY="3" />
                     </Border.RenderTransform>
                 </Border>
-                <Border Background="{StaticResource TweetTextBackgroundBrush}" BorderBrush="{StaticResource TweetTextBorderBrush}" BorderThickness="1" CornerRadius="7">
+                <Border Background="{StaticResource TweetTextBackgroundBrush}" BorderBrush="{StaticResource TweetTextBorderBrush}" BorderThickness="1">
                     <ctrl:TweetTextBlock Margin="2"
                                          FontFamily="{StaticResource DefaultFontFamily}"
                                          FontSize="13.333"
@@ -209,6 +197,7 @@
             </Grid>
             <Button x:Name="screenNameButton"
                     Grid.Column="1"
+                    Grid.ColumnSpan="2"
                     Margin="-8,-2,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
@@ -548,11 +537,7 @@
                                     Foreground="{StaticResource ButtonForegroundBrush}"
                                     Style="{StaticResource SimpleToggleButtonStyle}" />
                         </Grid>
-                        <Border Grid.RowSpan="4"
-                                Margin="-10,-5"
-                                BorderBrush="#33FFFFFF"
-                                BorderThickness="1,1,1,0"
-                                CornerRadius="10,10,0,0" />
+                        <Border Grid.RowSpan="4" Margin="-10,-5" BorderBrush="#33FFFFFF" BorderThickness="1,1,1,0" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -561,7 +546,7 @@
 
     <Style x:Key="DarkTweetsPanel" TargetType="ItemsControl">
         <Setter Property="Background" Value="#FF181818" />
-        <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Standard" />
+        <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
@@ -653,11 +638,12 @@
                                 Foreground="Gray"
                                 Style="{StaticResource CloseButtonStyle}"
                                 Visibility="{Binding CanClose, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                        <StackPanel Grid.Row="2" Margin="25,0,0,0" HorizontalAlignment="Left" Orientation="Horizontal" cal:Action.TargetWithoutContext="PingPong.ViewModels.TimelinesViewModel">
-                            <Button Width="16"            
-                                    cal:Message.Attach="MoveLeft($dataContext)"
-                                    Style="{StaticResource ArrowButtonStyle}"
-                                    d:LayoutOverrides="GridBox">
+                        <StackPanel Grid.Row="2"
+                                    Margin="25,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    cal:Action.TargetWithoutContext="PingPong.ViewModels.TimelinesViewModel"
+                                    Orientation="Horizontal">
+                            <Button Width="16" cal:Message.Attach="MoveLeft($dataContext)" Style="{StaticResource ArrowButtonStyle}" d:LayoutOverrides="GridBox">
                                 <Button.RenderTransform>
                                     <CompositeTransform ScaleX="-1" />
                                 </Button.RenderTransform>
