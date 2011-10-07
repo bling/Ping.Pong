@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reactive.Linq;
 using Caliburn.Micro;
 using PingPong.Core;
@@ -95,8 +94,7 @@ namespace PingPong.ViewModels
             ((IActivate)this).Activate();
         }
 
-        /// <summary>Stops the current subscription, if there is one.</summary>
-        public void StopSubscription()
+        protected override void OnDeactivate(bool close)
         {
             _subscription.DisposeIfNotNull();
         }
