@@ -15,7 +15,7 @@ namespace PingPong.ViewModels
         private readonly TweetParser _tweetParser;
         private readonly IWindowManager _windowManager;
         private string _statusText;
-        private OutgoingContext _outgoing;
+        private readonly OutgoingContext _outgoing = new OutgoingContext();
 
         public string StatusText
         {
@@ -44,79 +44,85 @@ namespace PingPong.ViewModels
 
         public void OnStatusTextBoxTextInput(TextCompositionEventArgs e)
         {
-            if (e.Text[0] == 27) // esc
-                TryClose();
-        }
-
-        public void OnStatusTextBoxChanged(TextBox sender, TextChangedEventArgs e)
-        {
-            int length;
-            string text = sender.Text;
-            _tweetParser.Parse(sender.Text, out length);
-            if (text.Contains("\r") && length <= TweetParser.MaxLength)
+            switch ((int)e.Text[0])
             {
-                text = text.Replace("\r", "").Replace("\n", "");
-                if (_outgoing != null)
-                {
-                    switch (_outgoing.Type)
+                case 27: // esc
+                    TryClose();
+                    break;
+                case 13: // \r
+                    if (_outgoing.Type == OutgoingType.Retweet)
                     {
-                        case OutgoingType.Reply:
-                            // TODO: check text has screen name
-                            _client.UpdateStatus(text, _outgoing.Tweet.Id);
-                            break;
-                        case OutgoingType.Retweet:
-                            _client.Retweet(_outgoing.Tweet.Id);
-                            break;
-                        case OutgoingType.Quote:
-                            _client.UpdateStatus(text, _outgoing.Tweet.Id);
-                            break;
-                        case OutgoingType.DirectMessage:
-                            _client.DirectMessage(_outgoing.ScreenName, text);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        _client.Retweet(_outgoing.Tweet.Id);
                     }
-                }
-                else
-                {
-                    _client.UpdateStatus(text);
-                }
+                    else
+                    {
+                        var tb = (TextBox)e.OriginalSource;
+                        string text = tb.Text;
+                        int length;
+                        _tweetParser.Parse(text, out length);
 
-                _outgoing = null;
-                StatusText = string.Empty;
-                TryClose();
-            }
-            else if (_outgoing != null && _outgoing.Type == OutgoingType.Retweet)
-            {
-                _outgoing.Type = OutgoingType.Quote;
+                        if (length <= TweetParser.MaxLength)
+                        {
+                            switch (_outgoing.Type)
+                            {
+                                case OutgoingType.Reply:
+                                    // TODO: check text has screen name
+                                    _client.UpdateStatus(text, _outgoing.Tweet.Id);
+                                    break;
+                                case OutgoingType.Quote:
+                                    _client.UpdateStatus(text, _outgoing.Tweet.Id);
+                                    break;
+                                case OutgoingType.DirectMessage:
+                                    _client.DirectMessage(_outgoing.Tweet.User.ScreenName, text);
+                                    break;
+                                default:
+                                    _client.UpdateStatus(text);
+                                    break;
+                            }
+                        }
+                    }
+
+                    _outgoing.Type = OutgoingType.None;
+                    StatusText = string.Empty;
+                    TryClose();
+                    break;
+                default:
+                    if (_outgoing.Type == OutgoingType.Retweet)
+                        _outgoing.Type = OutgoingType.Quote;
+
+                    break;
             }
         }
 
         public void Reply(Tweet tweet)
         {
             StatusText = '@' + tweet.User.ScreenName;
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Reply };
+            _outgoing.Tweet = tweet;
+            _outgoing.Type = OutgoingType.Reply;
             Show();
         }
 
         public void Retweet(Tweet tweet)
         {
             StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Retweet };
+            _outgoing.Tweet = tweet;
+            _outgoing.Type = OutgoingType.Retweet;
             Show();
         }
 
         public void Quote(Tweet tweet)
         {
             StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
-            _outgoing = new OutgoingContext { Tweet = tweet, Type = OutgoingType.Quote };
+            _outgoing.Tweet = tweet;
+            _outgoing.Type = OutgoingType.Quote;
             Show();
         }
 
         public void DirectMessage(Tweet tweet)
         {
             StatusText = string.Empty;
-            _outgoing = new OutgoingContext { ScreenName = tweet.User.ScreenName, Type = OutgoingType.DirectMessage };
+            _outgoing.Tweet = tweet;
+            _outgoing.Type = OutgoingType.DirectMessage;
             Show();
         }
 
@@ -132,21 +138,21 @@ namespace PingPong.ViewModels
             };
             _windowManager.ShowPopup(this, null, settings);
         }
-    }
 
-    /// <summary>Holds metadata for the next status of the user.</summary>
-    internal class OutgoingContext
-    {
-        public Tweet Tweet { get; set; }
-        public OutgoingType Type { get; set; }
-        public string ScreenName { get; set; }
-    }
+        /// <summary>Holds metadata for the next status of the user.</summary>
+        private class OutgoingContext
+        {
+            public Tweet Tweet { get; set; }
+            public OutgoingType Type { get; set; }
+        }
 
-    internal enum OutgoingType
-    {
-        Reply,
-        Retweet,
-        Quote,
-        DirectMessage,
+        private enum OutgoingType
+        {
+            None,
+            Reply,
+            Retweet,
+            Quote,
+            DirectMessage,
+        }
     }
 }

@@ -54,12 +54,6 @@ namespace PingPong.ViewModels
             Tweets = new TweetCollection();
         }
 
-        public new void TryClose()
-        {
-            _subscription.DisposeIfNotNull();
-            ((IConductor)Parent).DeactivateItem(this, true);
-        }
-
         public void SubscribeToUserTimeline(string username)
         {
             Enforce.NotNullOrEmpty(username);
@@ -91,6 +85,7 @@ namespace PingPong.ViewModels
                 .Do(_ => IsBusy = false)
                 .Do(x => optionalActionOnSubscribe(x))
                 .Subscribe(x => Tweets.Append(x), RaiseOnError, () => IsBusy = false);
+
             ((IActivate)this).Activate();
         }
 

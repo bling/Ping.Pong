@@ -144,7 +144,7 @@
                      AcceptsReturn="True"
                      Background="Transparent"
                      BorderThickness="0"
-                     cal:Message.Attach="[Event TextChanged] = [OnStatusTextBoxChanged($source, $eventArgs)];                                                      [Event TextInput] = [OnStatusTextBoxTextInput($eventArgs)]"
+                     cal:Message.Attach="[Event TextInputStart] = [OnStatusTextBoxTextInput($eventArgs)]"
                      CaretBrush="White"
                      FontFamily="{StaticResource DefaultFontFamily}"
                      FontSize="14"
