@@ -70,7 +70,6 @@ namespace PingPong.ViewModels
                 }
                 else
                 {
-                    _messageline.StopSubscription();
                     DeactivateItem(_messageline, true);
                 }
 
