@@ -94,10 +94,7 @@ namespace PingPong.Core
         public IObservable<List> GetLists(string screenName)
         {
             return GetContents(ApiAuthority, "/1/lists/all.json", new { screen_name = screenName })
-                .Select(ToJson)
-                .WhereNotNull()
-                .Cast<JsonArray>()
-                .SelectMany(x => x)
+                .SelectJsonArrayToManyJsonValue()
                 .Select(JsonHelper.ToList)
                 .WhereNotNull();
         }
@@ -105,43 +102,28 @@ namespace PingPong.Core
         public IObservable<Tweet> GetListStatuses(string id)
         {
             return GetContents(ApiAuthority, "/1/lists/statuses.json", new { list_id = id }, new { include_entities = "1" }, new { include_rts = "1" })
-                .Select(ToJson)
-                .WhereNotNull()
-                .Cast<JsonArray>()
-                .SelectMany(x => x)
+                .SelectJsonArrayToManyJsonValue()
                 .SelectTweets(_subject);
         }
 
         public IObservable<User> GetAccountVerification()
         {
             return GetContents(ApiAuthority, "/1/account/verify_credentials.json")
-                .Select(ToJson)
-                .WhereNotNull()
+                .SelectValidJsonValue()
                 .Select(x => new User(x));
         }
 
         public IObservable<RateLimit> GetRateLimitStatus()
         {
             return GetContents(ApiAuthority, "/1/account/rate_limit_status.json")
-                .Select(ToJson)
+                .SelectValidJsonValue()
                 .Select(x => new RateLimit(x));
-        }
-
-        public IObservable<User> GetAccountInfo(string screenName)
-        {
-            return GetContents(ApiAuthority, "/1/users/lookup.json", new { screen_name = screenName })
-                .Select(ToJson)
-                .WhereNotNull()
-                .Cast<JsonArray>()
-                .SelectMany(x => x)
-                .Select(x => new User(x));
         }
 
         public IObservable<Relationship> GetRelationship(string sourceScreenName, string targetScreenName)
         {
             return GetContents(ApiAuthority, "/1/friendships/show.json", new { source_screen_name = sourceScreenName }, new { target_screen_name = targetScreenName })
-                .Select(ToJson)
-                .WhereNotNull()
+                .SelectValidJsonValue()
                 .Select(JsonHelper.ToRelationship)
                 .WhereNotNull();
         }
@@ -149,8 +131,7 @@ namespace PingPong.Core
         public IObservable<User> GetUserInfo(string screenName)
         {
             return GetContents(ApiAuthority, "/1/users/show.json", new { include_entities = "1" }, new { screen_name = screenName })
-                .Select(ToJson)
-                .WhereNotNull()
+                .SelectValidJsonValue()
                 .Select(JsonHelper.ToUser)
                 .WhereNotNull();
         }
@@ -176,7 +157,7 @@ namespace PingPong.Core
         public IObservable<Tweet> GetTweet(string id)
         {
             return GetContents(ApiAuthority, string.Format("/1/statuses/show/{0}.json", id), new { include_entities = "1" })
-                .Select(ToJson)
+                .SelectValidJsonValue()
                 .SelectTweets(_subject);
         }
 
@@ -184,7 +165,7 @@ namespace PingPong.Core
         {
             var options = new object[] { new { include_entities = "1" }, new { q = query }, new { count }, new { since_id = sinceId } };
             return GetContents(SearchAuthority, "/search.json", options)
-                .Select(ToJson)
+                .SelectValidJsonValue()
                 .SelectMany(x => (JsonArray)x["results"])
                 .SelectSearchResults(_subject);
         }
@@ -224,15 +205,13 @@ namespace PingPong.Core
 
         private IObservable<JsonValue> GetSnapshot(string authority, string path, params object[] parameters)
         {
-            return GetContents(authority, path, parameters)
-                .Select(x => (JsonArray)ToJson(x))
-                .SelectMany(x => x);
+            return GetContents(authority, path, parameters).SelectJsonArrayToManyJsonValue();
         }
 
         private IObservable<Tweet> GetStreaming(string authority, string path, params object[] parameters)
         {
             return GetContents(authority, path, parameters)
-                .Select(ToJson)
+                .SelectValidJsonValue()
                 .SelectTweets(_subject);
         }
 
@@ -253,19 +232,6 @@ namespace PingPong.Core
                 if (value != null)
                     request.Parameters.Add(prop.Name, value.ToString());
             }
-        }
-
-        private static JsonValue ToJson(string content)
-        {
-            try
-            {
-                return JsonValue.Parse(content);
-            }
-            catch (Exception e)
-            {
-                _log.Error(e);
-            }
-            return null;
         }
 
         IDisposable IObservable<ITweetItem>.Subscribe(IObserver<ITweetItem> observer)

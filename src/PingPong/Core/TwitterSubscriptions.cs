@@ -2,6 +2,7 @@
 using System.Json;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Caliburn.Micro;
 using PingPong.Models;
 
 namespace PingPong.Core
@@ -101,6 +102,35 @@ namespace PingPong.Core
                 .Select(selector)
                 .Where(x => x != null)
                 .Do(observer.OnNext);
+        }
+
+        private static JsonValue ToJson(string content)
+        {
+            try
+            {
+                return JsonValue.Parse(content);
+            }
+            catch (Exception e)
+            {
+                LogManager.GetLog(typeof(TwitterSubscriptions)).Error(e);
+            }
+            return null;
+        }
+
+        public static IObservable<JsonValue> SelectJsonArrayToManyJsonValue(this IObservable<string> observable)
+        {
+            return observable
+                .Select(ToJson)
+                .OfType<JsonArray>()
+                .WhereNotNull()
+                .SelectMany(x => x);
+        }
+
+        public static IObservable<JsonValue> SelectValidJsonValue(this IObservable<string> observable)
+        {
+            return observable
+                .Select(ToJson)
+                .WhereNotNull();
         }
     }
 }
