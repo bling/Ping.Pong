@@ -105,6 +105,7 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="ITimelineNavigator.cs" />
     <Compile Include="Models\RateLimit.cs" />
+    <Compile Include="NotificationService.cs" />
     <Compile Include="ViewModels\AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
     <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />

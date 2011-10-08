@@ -30,7 +30,7 @@ namespace PingPong
             b.RegisterAssemblyTypes(GetType().Assembly)
                 .AsSelf()
                 .AsImplementedInterfaces();
-            b.Register(_ => new TwitterClient()).SingleInstance();
+            b.Register(_ => new TwitterClient()).SingleInstance().OnActivated(x => x.Context.Resolve<NotificationService>());
             b.Register(_ => new WindowManager()).As<IWindowManager>().SingleInstance();
             b.Register(_ => new EventAggregator { PublicationThreadMarshaller = Execute.OnUIThread }).As<IEventAggregator>().SingleInstance();
             b.RegisterType<ShellViewModel>().As<IShell>().SingleInstance();

@@ -3,9 +3,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Windows;
 using Caliburn.Micro;
-using PingPong.Controls;
 using PingPong.Core;
 using PingPong.Models;
 
@@ -24,7 +22,7 @@ namespace PingPong.ViewModels
         private readonly TweetsPanelViewModel _messageline;
         private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
         private IDisposable _streamingSubscription;
-        private RateLimit rateLimit;
+        private RateLimit _rateLimit;
         private string _searchText;
         private bool _isStreaming;
         private bool _isBusy;
@@ -108,8 +106,8 @@ namespace PingPong.ViewModels
 
         public RateLimit RateLimit
         {
-            get { return rateLimit; }
-            private set { this.SetValue("RateLimit", value, ref rateLimit); }
+            get { return _rateLimit; }
+            private set { this.SetValue("RateLimit", value, ref _rateLimit); }
         }
 
         public TimelinesViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager, Func<TweetsPanelViewModel> timelineFactory)
@@ -176,18 +174,6 @@ namespace PingPong.ViewModels
                 .GetPollingRateLimitStatus()
                 .DispatcherSubscribe(rl => RateLimit = rl);
             _subscriptions.Add(rateLimitSubscription);
-
-            var notificationSubscription = _client
-                .Sample(TimeSpan.FromSeconds(6))
-                .Where(t => (DateTime.Now - t.CreatedAt) < TimeSpan.FromSeconds(5))
-                .DispatcherSubscribe(t =>
-                                     new NotificationWindow
-                                     {
-                                         Width = 300,
-                                         Height = 80,
-                                         Content = new NotificationControl { DataContext = t }
-                                     }.Show(5000));
-            _subscriptions.Add(notificationSubscription);
 
             if (!string.IsNullOrEmpty(AppSettings.StreamSearchTerms))
             {
