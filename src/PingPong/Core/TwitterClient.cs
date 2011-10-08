@@ -102,6 +102,16 @@ namespace PingPong.Core
                 .WhereNotNull();
         }
 
+        public IObservable<Tweet> GetListStatuses(string id)
+        {
+            return GetContents(ApiAuthority, "/1/lists/statuses.json", new { list_id = id }, new { include_entities = "1" }, new { include_rts = "1" })
+                .Select(ToJson)
+                .WhereNotNull()
+                .Cast<JsonArray>()
+                .SelectMany(x => x)
+                .SelectTweets(_subject);
+        }
+
         public IObservable<User> GetAccountVerification()
         {
             return GetContents(ApiAuthority, "/1/account/verify_credentials.json")

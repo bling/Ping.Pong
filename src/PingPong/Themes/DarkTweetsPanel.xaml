@@ -462,10 +462,7 @@
                         </Grid.RowDefinitions>
                         <StackPanel>
                             <TextBlock FontSize="16" Foreground="{StaticResource ScreenNameTextBrush}" Text="{Binding Name}" />
-                            <TextBlock Foreground="#FF94AB88">
-                                <Run Text="{Binding ScreenName}" />
-                                <Run Text=", " />
-                                <Run Text="{Binding Location}" />
+                            <TextBlock Foreground="#FF94AB88"><Run Text="{Binding ScreenName}" /><Run Text=" " /><Run Text=", " /><Run Text=" " /><Run Text="{Binding Location}" />
                             </TextBlock>
                             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
                             <HyperlinkButton Content="{Binding Url}" NavigateUri="{Binding Url}" />
@@ -665,5 +662,135 @@
             </Setter.Value>
         </Setter>
         <Setter Property="ItemTemplate" Value="{StaticResource DarkTweetDataTemplate}" />
+    </Style>
+    <ControlTemplate x:Key="ValidationToolTipTemplate">
+        <Grid x:Name="Root" Margin="5,0" Opacity="0" RenderTransformOrigin="0,0">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="xform" X="-25" />
+            </Grid.RenderTransform>
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="OpenStates">
+                    <VisualStateGroup.Transitions>
+                        <VisualTransition GeneratedDuration="0" />
+                        <VisualTransition GeneratedDuration="0:0:0.2" To="Open">
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="xform" Storyboard.TargetProperty="X" To="0">
+                                    <DoubleAnimation.EasingFunction>
+                                        <BackEase Amplitude=".3" EasingMode="EaseOut" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" To="1" />
+                            </Storyboard>
+                        </VisualTransition>
+                    </VisualStateGroup.Transitions>
+                    <VisualState x:Name="Closed">
+                        <Storyboard>
+                            <DoubleAnimation Duration="0" Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" To="0" />
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Open">
+                        <Storyboard>
+                            <DoubleAnimation Duration="0" Storyboard.TargetName="xform" Storyboard.TargetProperty="X" To="0" />
+                            <DoubleAnimation Duration="0" Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" To="1" />
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <Border Margin="4,4,-4,-4" Background="#052A2E31" CornerRadius="5" />
+            <Border Margin="3,3,-3,-3" Background="#152A2E31" CornerRadius="4" />
+            <Border Margin="2,2,-2,-2" Background="#252A2E31" CornerRadius="3" />
+            <Border Margin="1,1,-1,-1" Background="#352A2E31" CornerRadius="2" />
+            <Border Background="#FFDC000C" CornerRadius="2" />
+            <Border CornerRadius="2">
+                <TextBlock MaxWidth="250"
+                           Margin="8,4,8,4"
+                           Foreground="White"
+                           Text="{Binding (Validation.Errors)[0].ErrorContent}"
+                           TextWrapping="Wrap"
+                           UseLayoutRounding="false" />
+            </Border>
+        </Grid>
+    </ControlTemplate>
+    <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Padding" Value="6,2,25,2" />
+        <Setter Property="Background" Value="#FF1F3B53" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="TabNavigation" Value="Once" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <GradientStop Offset="0" Color="#FFA3AEB9" />
+                    <GradientStop Offset="0.375" Color="#FF8399A9" />
+                    <GradientStop Offset="0.375" Color="#FF718597" />
+                    <GradientStop Offset="1" Color="#FF617584" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver" />
+                                <VisualState x:Name="Disabled" />
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused" />
+                                <VisualState x:Name="Unfocused" />
+                                <VisualState x:Name="FocusedDropDown">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="00:00:00" Storyboard.TargetName="PopupBorder" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ValidationStates">
+                                <VisualState x:Name="Valid" />
+                                <VisualState x:Name="InvalidUnfocused" />
+                                <VisualState x:Name="InvalidFocused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="ContentPresenterBorder">
+                            <Grid>
+                                <ToggleButton x:Name="DropDownToggle"
+                                              Margin="0"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              HorizontalContentAlignment="Right"
+                                              Background="{TemplateBinding Background}"
+                                              BorderBrush="{TemplateBinding BorderBrush}"
+                                              BorderThickness="{TemplateBinding BorderThickness}"
+                                              Content="{TemplateBinding Tag}"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              Style="{StaticResource SimpleToggleButtonStyle}" />
+                            </Grid>
+                        </Border>
+                        <Popup x:Name="Popup">
+                            <Border x:Name="PopupBorder"
+                                    Height="Auto"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+									Background="{TemplateBinding Background}"
+                                    CornerRadius="2">
+                                <ScrollViewer x:Name="ScrollViewer" BorderThickness="0" Padding="1">
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

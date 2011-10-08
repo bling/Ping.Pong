@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -23,6 +24,7 @@ namespace PingPong.ViewModels
         private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
         private IDisposable _streamingSubscription;
         private RateLimit _rateLimit;
+        private List _currentList;
         private string _searchText;
         private bool _isStreaming;
         private bool _isBusy;
@@ -110,8 +112,31 @@ namespace PingPong.ViewModels
             private set { this.SetValue("RateLimit", value, ref _rateLimit); }
         }
 
+        public ObservableCollection<List> Lists { get; private set; }
+
+        public List CurrentList
+        {
+            get { return _currentList; }
+            set
+            {
+                this.SetValue("CurrentList", value, ref _currentList);
+                if (value != null)
+                {
+                    var obs = _client.GetPollingListStatuses(value.Id);
+                    ActivateTimeline(value.FullName, tl =>
+                    {
+                        tl.CanClose = true;
+                        tl.Subscribe(obs);
+                    });
+                    CurrentList = null;
+                }
+            }
+        }
+
         public TimelinesViewModel(AppInfo appInfo, TwitterClient client, IWindowManager windowManager, Func<TweetsPanelViewModel> timelineFactory)
         {
+            Lists = new ObservableCollection<List>();
+
             _appInfo = appInfo;
             _client = client;
             _windowManager = windowManager;
@@ -170,10 +195,8 @@ namespace PingPong.ViewModels
             ShowMessages = false;
             IsBusy = false;
 
-            var rateLimitSubscription = _client
-                .GetPollingRateLimitStatus()
-                .DispatcherSubscribe(rl => RateLimit = rl);
-            _subscriptions.Add(rateLimitSubscription);
+            _subscriptions.Add(_client.GetPollingRateLimitStatus().DispatcherSubscribe(rl => RateLimit = rl));
+            _subscriptions.Add(_client.GetLists(_appInfo.User.ScreenName).DispatcherSubscribe(x => Lists.Add(x)));
 
             if (!string.IsNullOrEmpty(AppSettings.StreamSearchTerms))
             {
@@ -197,7 +220,7 @@ namespace PingPong.ViewModels
             else
             {
                 _streamStartTime = DateTime.UtcNow;
-                
+
                 Items
                     .Where(line => line.Tag is string[])
                     .ToArray()

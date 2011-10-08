@@ -68,7 +68,8 @@ namespace PingPong
 
         public static bool SetValue<T>(this INotifyPropertyChangedEx viewModel, string propertyName, T value, ref T field)
         {
-            if (!value.Equals(field))
+            if ((value == null && field != null) ||
+                !value.Equals(field))
             {
                 field = value;
                 viewModel.NotifyOfPropertyChange(propertyName);

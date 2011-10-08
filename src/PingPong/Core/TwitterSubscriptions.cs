@@ -61,6 +61,12 @@ namespace PingPong.Core
             return client.GetPolling((x, sinceId) => x.GetSearch(query, sinceId));
         }
 
+        public static IObservable<Tweet> GetPollingListStatuses(this TwitterClient client, string id)
+        {
+            Enforce.NotNullOrEmpty(id);
+            return client.GetPolling((x, sinceId) => x.GetListStatuses(id));
+        }
+
         private static IObservable<T> GetPolling<T>(this TwitterClient client, Func<TwitterClient, string, IObservable<T>> selector) where T : ITweetItem
         {
             return Observable.Create<T>(obs =>

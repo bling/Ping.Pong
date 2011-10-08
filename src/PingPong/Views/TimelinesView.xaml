@@ -1,7 +1,6 @@
 ﻿<UserControl x:Class="PingPong.Views.TimelinesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:b="clr-namespace:PingPong.Behaviors"
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
@@ -28,29 +27,43 @@
                         FontFamily="{StaticResource DefaultFontFamily}"
                         FontSize="13.333"
                         Foreground="{StaticResource ButtonForegroundBrush}"
-                        Padding="10,2"
+                        Padding="10,4"
                         Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowHome"
                               Content="Home"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
                               Foreground="{StaticResource ButtonForegroundBrush}"
-                              Padding="10,2"
+                              Padding="10,4"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowMentions"
                               Content="Mentions"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
                               Foreground="{StaticResource ButtonForegroundBrush}"
-                              Padding="10,2"
+                              Padding="10,4"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ToggleButton x:Name="ShowMessages"
                               Content="Messages"
                               FontFamily="{StaticResource DefaultFontFamily}"
                               FontSize="13.333"
                               Foreground="{StaticResource ButtonForegroundBrush}"
-                              Padding="10,2"
+                              Padding="10,4"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
+                <ComboBox x:Name="Lists"
+                          BorderThickness="0"
+                          FontFamily="{StaticResource DefaultFontFamily}"
+                          FontSize="13.333"
+                          Foreground="{StaticResource ButtonForegroundBrush}"
+                          Padding="10,4"
+                          Style="{StaticResource DarkComboBoxStyle}"
+                          Tag="Lists" Background="{StaticResource ImageBorderBrush}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock FontFamily="{StaticResource DefaultFontFamily}" Foreground="{StaticResource ButtonForegroundBrush}" Text="{Binding FullName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
 
             <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
