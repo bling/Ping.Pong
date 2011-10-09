@@ -5,11 +5,10 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     mc:Ignorable="d">
     <DataTemplate x:Key="MetroTweetDataTemplate">
-        <Grid Margin="5,0,5,10" d:DesignHeight="120" d:DesignWidth="414">
+        <Grid Margin="5,0,5,10" d:DataContext="{Binding Source={StaticResource TweetSampleDataSource}}" d:DesignHeight="120" d:DesignWidth="414">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -18,31 +17,35 @@
             <Image Grid.RowSpan="2"
                    Width="48"
                    Height="48"
-                   Margin="2"
+                   Margin="5"
                    VerticalAlignment="Top"
-                   Source="{Binding ProfileImgUrl}" />
+                   Source="{Binding User.ProfileImageUrl}" />
             <TextBlock Grid.Column="1"
                        Margin="2,0,0,0"
                        HorizontalAlignment="Left"
-                       FontFamily="Segoe UI"
+                       FontFamily="Segoe UI Semibold"
                        FontSize="14.667"
                        FontWeight="Bold"
                        Foreground="{StaticResource TweetTextBrush}"
-                       Text="{Binding ScreenName}" />
-            <ctrl:TweetTextBlock Grid.Row="1"
-                                 Grid.Column="1"
-                                 FontFamily="Segoe UI"
-                                 FontSize="13.333"
-                                 Foreground="{StaticResource TweetTextBrush}"
-                                 Tweet="{Binding}" />
-            <TextBlock Grid.Row="2"
-                       Grid.Column="1"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Bottom"
-                       FontFamily="Segoe UI"
-                       FontSize="9.333"
-                       Foreground="{StaticResource TweetTextBrush}"
-                       Text="{Binding CreatedAt}" />
+                       Text="{Binding User.ScreenName}" />
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ctrl:TweetTextBlock Margin="0,5,0,2"
+                                     FontFamily="Segoe UI"
+                                     FontSize="13.333"
+                                     Foreground="{StaticResource TweetTextBrush}"
+                                     Text="{Binding Text}" />
+                <TextBlock Grid.Row="1"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Bottom"
+                           FontFamily="Segoe UI"
+                           FontSize="9.333"
+                           Foreground="#FF7E7E7E"
+                           Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}" />
+            </Grid>
         </Grid>
     </DataTemplate>
     <Style x:Key="MetroTweetsPanel" TargetType="ItemsControl">
@@ -56,14 +59,16 @@
         </Setter>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate>
-                    <ScrollViewer Margin="0"
-                                  Background="{TemplateBinding Background}"
-                                  Padding="0"
-                                  Style="{StaticResource ScrollViewerStyle}"
-                                  VerticalScrollBarVisibility="Visible">
-                        <ItemsPresenter />
-                    </ScrollViewer>
+                <ControlTemplate TargetType="ItemsControl">
+                    <ContentControl BorderBrush="#FF080808" BorderThickness="0,0,1,0" Style="{StaticResource DarkTweetsContentWrapperStyle}">
+                        <ScrollViewer Margin="0"
+                                      Background="{TemplateBinding Background}"
+                                      Padding="0"
+                                      Style="{StaticResource ScrollViewerStyle}"
+                                      VerticalScrollBarVisibility="Visible">
+                            <ItemsPresenter HorizontalAlignment="Stretch" />
+                        </ScrollViewer>
+                    </ContentControl>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

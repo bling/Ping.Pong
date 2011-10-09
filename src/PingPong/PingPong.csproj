@@ -107,6 +107,9 @@
     <Compile Include="ITimelineNavigator.cs" />
     <Compile Include="Models\RateLimit.cs" />
     <Compile Include="NotificationService.cs" />
+    <Compile Include="SampleData\TweetSampleDataSource\TweetSampleDataSource.xaml.cs">
+      <DependentUpon>TweetSampleDataSource.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
     <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
@@ -163,6 +166,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
+    <DesignTimeOnly Include="SampleData\TweetSampleDataSource\TweetSampleDataSource.xsd" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\OutOfBrowserSettings.xml" />
@@ -175,6 +179,10 @@
     </BlendEmbeddedFont>
   </ItemGroup>
   <ItemGroup>
+    <DesignTimeOnly Include="SampleData\TweetSampleDataSource\TweetSampleDataSource.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </DesignTimeOnly>
     <Page Include="Views\AuthorizationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -212,10 +220,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\ScrollViewer.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\SimpleTweetsPanel.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -4,17 +4,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PingPong"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:SampleData="clr-namespace:Expression.Blend.SampleData.TweetSampleDataSource"
              mc:Ignorable="d">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/BusyIndicatorStyle.xaml"/>
-                <ResourceDictionary Source="Themes/ToolBar.xaml"/>
-                <ResourceDictionary Source="Themes/SimpleTweetsPanel.xaml"/>
-                <ResourceDictionary Source="Themes/ScrollViewer.xaml"/>
-                <ResourceDictionary Source="Themes/MetroTweetsPanel.xaml"/>
-                <ResourceDictionary Source="Themes/DarkTweetsPanel.xaml"/>
+                <ResourceDictionary Source="Themes/BusyIndicatorStyle.xaml" />
+                <ResourceDictionary Source="Themes/ToolBar.xaml" />
+                <ResourceDictionary Source="Themes/ScrollViewer.xaml" />
+                <ResourceDictionary Source="Themes/DarkTweetsPanel.xaml" />
+                <ResourceDictionary Source="Themes/MetroTweetsPanel.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <SampleData:TweetSampleDataSource x:Key="TweetSampleDataSource" d:IsDataSource="True" />
             <FontFamily x:Key="DefaultFontFamily">/PingPong;component/Fonts/Fonts.zip#Ubuntu Light</FontFamily>
             <local:AppBootstrapper x:Key="bootstrapper" />
         </ResourceDictionary>

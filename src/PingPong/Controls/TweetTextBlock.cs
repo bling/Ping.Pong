@@ -4,25 +4,27 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using Caliburn.Micro;
 using PingPong.Core;
-using PingPong.Models;
-using PingPong.ViewModels;
 
 namespace PingPong.Controls
 {
     public class TweetTextBlock : Control
     {
-        public static readonly DependencyProperty TweetProperty
-            = DependencyProperty.Register("Tweet", typeof(ITweetItem), typeof(TweetTextBlock), new PropertyMetadata(OnTweetChanged));
+        public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
+            "Text", typeof(string), typeof(TweetTextBlock), new PropertyMetadata((sender, e) => ((TweetTextBlock)sender).UpdateText()));
 
-        private static void OnTweetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public string Text
         {
-            ((TweetTextBlock)d).UpdateText();
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
         }
 
-        public ITweetItem Tweet
+        public static readonly DependencyProperty ScreenNameProperty = DependencyProperty.Register(
+            "ScreenName", typeof(string), typeof(TweetTextBlock), new PropertyMetadata(null));
+
+        public string ScreenName
         {
-            get { return (ITweetItem)GetValue(TweetProperty); }
-            set { SetValue(TweetProperty, value); }
+            get { return (string)GetValue(ScreenNameProperty); }
+            set { SetValue(ScreenNameProperty, value); }
         }
 
         private RichTextBox _block;
@@ -47,17 +49,18 @@ namespace PingPong.Controls
 
         private void UpdateText()
         {
-            if (_block == null || Tweet == null || string.IsNullOrEmpty(Tweet.Text))
+            if (_block == null || string.IsNullOrEmpty(Text))
                 return;
 
             var para = new Paragraph();
-            para.Inlines.Add(Tweet.User.ScreenName + "   ");
+            if (!string.IsNullOrEmpty(ScreenName))
+                para.Inlines.Add(ScreenName + "   ");
 
             _block.Blocks.Clear();
             _block.Blocks.Add(para);
 
             int totalCharacters;
-            foreach (var part in _parser.Parse(Tweet.Text, out totalCharacters))
+            foreach (var part in _parser.Parse(Text, out totalCharacters))
             {
                 string text = part.Text;
                 switch (part.Type)

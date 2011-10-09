@@ -192,7 +192,8 @@
                                          FontSize="13.333"
                                          Foreground="{StaticResource TweetTextBrush}"
                                          Padding="0,0,0,20"
-                                         Tweet="{Binding}" />
+                                         ScreenName="{Binding User.ScreenName}"
+                                         Text="{Binding Text}" />
                 </Border>
             </Grid>
             <Button x:Name="screenNameButton"
@@ -573,7 +574,9 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <ContentControl Content="{TemplateBinding Content}" />
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentControl HorizontalContentAlignment="Stretch" Content="{TemplateBinding Content}" />
+                        </Border>
                         <Border Grid.RowSpan="2" Height="10" VerticalAlignment="Bottom">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
@@ -644,7 +647,6 @@
                                 </Button.RenderTransform>
                             </Button>
                         </StackPanel>
-
                         <toolkit:BusyIndicator Grid.RowSpan="2" IsBusy="{Binding IsBusy}" Style="{StaticResource BusyIndicatorStyle}" />
                     </Grid>
                 </ControlTemplate>
