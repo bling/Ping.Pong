@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using Caliburn.Micro;
 using PingPong.Messages;
 
@@ -9,17 +8,20 @@ namespace PingPong.ViewModels
                                   IShell,
                                   IHandle<ShowTimelinesMessage>
     {
-        private readonly Func<TimelinesViewModel> _timelinesFactory;
-        private readonly Func<AuthorizationViewModel> _authorizationFactory;
-        private readonly Func<InstallViewModel> _installerFactory;
+        private readonly TimelinesViewModel _timelinesViewModel;
+        private readonly AuthorizationViewModel _authorizationViewModel;
+        private readonly ConfigurationViewModel _configurationViewModel;
+        private readonly InstallViewModel _installViewModel;
 
-        public ShellViewModel(Func<TimelinesViewModel> timelinesFactory,
-                              Func<AuthorizationViewModel> authorizationFactory,
-                              Func<InstallViewModel> installerFactory)
+        public ShellViewModel(TimelinesViewModel timelinesViewModel,
+                              AuthorizationViewModel authorizationViewModel,
+                              ConfigurationViewModel configurationViewModel,
+                              InstallViewModel installViewModel)
         {
-            _timelinesFactory = timelinesFactory;
-            _authorizationFactory = authorizationFactory;
-            _installerFactory = installerFactory;
+            _timelinesViewModel = timelinesViewModel;
+            _authorizationViewModel = authorizationViewModel;
+            _configurationViewModel = configurationViewModel;
+            _installViewModel = installViewModel;
         }
 
         protected override void OnActivate()
@@ -32,7 +34,7 @@ namespace PingPong.ViewModels
             }
             else
             {
-                ActivateItem(_installerFactory());
+                ActivateItem(_installViewModel);
             }
         }
 
@@ -50,9 +52,7 @@ namespace PingPong.ViewModels
                 }
                 else
                 {
-                    ActivateItem(AppSettings.HasAuthToken
-                                     ? (object)_timelinesFactory()
-                                     : _authorizationFactory());
+                    ActivateItem(AppSettings.HasAuthToken ? (object)_timelinesViewModel : _authorizationViewModel);
                 }
             }
         }
@@ -80,9 +80,19 @@ namespace PingPong.ViewModels
             Application.Current.MainWindow.Close();
         }
 
+        public void Config()
+        {
+            ActivateItem(_configurationViewModel);
+        }
+
+        public void Timelines()
+        {
+            ActivateItem(_timelinesViewModel);
+        }
+
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
-            ActivateItem(_timelinesFactory());
+            ActivateItem(_timelinesViewModel);
         }
     }
 }

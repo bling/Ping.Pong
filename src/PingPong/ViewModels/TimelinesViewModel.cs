@@ -10,7 +10,7 @@ using PingPong.Models;
 
 namespace PingPong.ViewModels
 {
-    public class TimelinesViewModel : Conductor<TweetsPanelViewModel>.Collection.AllActive, ITimelineNavigator
+    public class TimelinesViewModel : Conductor<TweetsPanelViewModel>.Collection.AllActive, ITimelineNavigator, IDisposable
     {
         private static readonly TimeSpan StreamThrottleRate = TimeSpan.FromSeconds(20);
 
@@ -150,11 +150,6 @@ namespace PingPong.ViewModels
 
             _messageline = timelineFactory();
             _messageline.DisplayName = "Messages";
-        }
-
-        protected override void OnActivate()
-        {
-            base.OnActivate();
 
             IsBusy = true;
 
@@ -178,14 +173,10 @@ namespace PingPong.ViewModels
                 });
         }
 
-        protected override void OnDeactivate(bool close)
+        public void Dispose()
         {
-            base.OnDeactivate(close);
             _streamingSubscription.DisposeIfNotNull();
             _subscriptions.Dispose();
-            DeactivateItem(_homeline, true);
-            DeactivateItem(_mentionline, true);
-            DeactivateItem(_messageline, true);
         }
 
         private void PostVerificationInit()
