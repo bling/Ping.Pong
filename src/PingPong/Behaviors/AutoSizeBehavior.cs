@@ -1,13 +1,13 @@
-﻿namespace PingPong.Behaviors
-{
-    using System;
-    using System.Collections.Specialized;
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Interactivity;
-    using System.Windows.Media;
-    using PingPong.Core;
+﻿using System;
+using System.Collections.Specialized;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Interactivity;
+using System.Windows.Media;
+using PingPong.Core;
 
+namespace PingPong.Behaviors
+{
     public class AutoSizeBehavior : Behavior<ItemsControl>
     {
         private ItemsControl _itemsControl;
@@ -48,7 +48,7 @@
         private void OnItemsControlSizeChanged(object sender, EventArgs e)
         {
             if (_itemsControl.Items.Count > 0)
-                this.AssociatedObject.Width = _itemsControl.ActualWidth / _itemsControl.Items.Count;
+                AssociatedObject.Width = _itemsControl.ActualWidth / _itemsControl.Items.Count;
         }
     }
 }
