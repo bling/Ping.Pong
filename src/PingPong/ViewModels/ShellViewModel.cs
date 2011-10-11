@@ -1,27 +1,32 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using Caliburn.Micro;
+using PingPong.Core;
 using PingPong.Messages;
 
 namespace PingPong.ViewModels
 {
-    public class ShellViewModel : Conductor<object>,
+    public class ShellViewModel : Conductor<IScreen>.Collection.OneActive,
                                   IShell,
                                   IHandle<ShowTimelinesMessage>
     {
-        private readonly TimelinesViewModel _timelinesViewModel;
-        private readonly AuthorizationViewModel _authorizationViewModel;
-        private readonly ConfigurationViewModel _configurationViewModel;
-        private readonly InstallViewModel _installViewModel;
+        private readonly AppInfo _appInfo;
+        private readonly TwitterClient _client;
+        private readonly Func<TimelinesViewModel> _timelinesViewModelFactory;
+        private readonly Func<AuthorizationViewModel> _authorizationViewModelFactory;
+        private readonly Func<InstallViewModel> _installViewModelFactory;
 
-        public ShellViewModel(TimelinesViewModel timelinesViewModel,
-                              AuthorizationViewModel authorizationViewModel,
-                              ConfigurationViewModel configurationViewModel,
-                              InstallViewModel installViewModel)
+        public ShellViewModel(AppInfo appInfo,
+                              TwitterClient client,
+                              Func<TimelinesViewModel> timelinesViewModelFactory,
+                              Func<AuthorizationViewModel> authorizationViewModelFactory,
+                              Func<InstallViewModel> installViewModelFactory)
         {
-            _timelinesViewModel = timelinesViewModel;
-            _authorizationViewModel = authorizationViewModel;
-            _configurationViewModel = configurationViewModel;
-            _installViewModel = installViewModel;
+            _appInfo = appInfo;
+            _client = client;
+            _timelinesViewModelFactory = timelinesViewModelFactory;
+            _authorizationViewModelFactory = authorizationViewModelFactory;
+            _installViewModelFactory = installViewModelFactory;
         }
 
         protected override void OnActivate()
@@ -34,7 +39,7 @@ namespace PingPong.ViewModels
             }
             else
             {
-                ActivateItem(_installViewModel);
+                ActivateItem(_installViewModelFactory());
             }
         }
 
@@ -52,7 +57,19 @@ namespace PingPong.ViewModels
                 }
                 else
                 {
-                    ActivateItem(AppSettings.HasAuthToken ? (object)_timelinesViewModel : _authorizationViewModel);
+                    if (AppSettings.HasAuthToken)
+                    {
+                        _client.GetAccountVerification()
+                            .DispatcherSubscribe(x =>
+                            {
+                                _appInfo.User = x;
+                                ActivateItem(_timelinesViewModelFactory());
+                            });
+                    }
+                    else
+                    {
+                        ActivateItem(_authorizationViewModelFactory());
+                    }
                 }
             }
         }
@@ -80,19 +97,9 @@ namespace PingPong.ViewModels
             Application.Current.MainWindow.Close();
         }
 
-        public void Config()
-        {
-            ActivateItem(_configurationViewModel);
-        }
-
-        public void Timelines()
-        {
-            ActivateItem(_timelinesViewModel);
-        }
-
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
-            ActivateItem(_timelinesViewModel);
+            ActivateItem(_timelinesViewModelFactory());
         }
     }
 }

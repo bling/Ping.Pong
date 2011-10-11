@@ -104,6 +104,7 @@
     <Compile Include="AppBootstrapper.cs" />
     <Compile Include="AppInfo.cs" />
     <Compile Include="AppSettings.cs" />
+    <Compile Include="Converters\NotNullToVisibilityConverter.cs" />
     <Compile Include="ITimelineNavigator.cs" />
     <Compile Include="Models\RateLimit.cs" />
     <Compile Include="NotificationService.cs" />

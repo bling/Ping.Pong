@@ -159,28 +159,12 @@ namespace PingPong.ViewModels
                 .Where(_ => !Items.Any(t => t.Tag is string[])) // streaming columns
                 .Subscribe(_ => _streamingSubscription.DisposeIfNotNull());
 
-            _client.GetAccountVerification()
-                .Do(x => _appInfo.User = x)
-                .Select(x => "@" + x.ScreenName)
-                .Select(atName => new { atName, stream = _client.GetStreamingStatuses().Publish() })
-                .DispatcherSubscribe(x =>
-                {
-                    _homeline.Subscribe(x.stream.Where(t => !t.Text.Contains(x.atName)));
-                    _mentionline.Subscribe(x.stream.Where(t => t.Text.Contains(x.atName)));
-                    _subscriptions.Add(x.stream.Connect());
+            string user = '@' + _appInfo.User.ScreenName;
+            var stream = _client.GetStreamingStatuses().Publish();
+            _homeline.Subscribe(stream.Where(t => !t.Text.Contains(user)));
+            _mentionline.Subscribe(stream.Where(t => t.Text.Contains(user)));
+            _subscriptions.Add(stream.Connect());
 
-                    PostVerificationInit();
-                });
-        }
-
-        public void Dispose()
-        {
-            _streamingSubscription.DisposeIfNotNull();
-            _subscriptions.Dispose();
-        }
-
-        private void PostVerificationInit()
-        {
             ShowHome = true;
             ShowMentions = true;
             ShowMessages = false;
@@ -194,6 +178,12 @@ namespace PingPong.ViewModels
                 SearchText = AppSettings.StreamSearchTerms;
                 IsStreaming = true;
             }
+        }
+
+        public void Dispose()
+        {
+            _streamingSubscription.DisposeIfNotNull();
+            _subscriptions.Dispose();
         }
 
         private void StartStreaming()

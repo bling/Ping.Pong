@@ -2,13 +2,36 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:cal="http://www.caliburnproject.org"
+             xmlns:conv="clr-namespace:PingPong.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
              d:DesignHeight="120"
              d:DesignWidth="344"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <conv:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter" />
+    </UserControl.Resources>
     <Grid Background="#FF111111">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="States">
+                <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0:0:0.2" />
+                </VisualStateGroup.Transitions>
+                <VisualState x:Name="ShowConfiguration">
+                    <Storyboard>
+                        <DoubleAnimation d:IsOptimized="True"
+                                         Duration="0"
+                                         Storyboard.TargetName="ConfigContent"
+                                         Storyboard.TargetProperty="(FrameworkElement.MaxHeight)"
+                                         To="1000" />
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Normal" />
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="28" />
             <RowDefinition Height="*" />
@@ -22,8 +45,21 @@
                    Text="ping.pong" />
         <Border Background="Transparent" cal:Message.Attach="[Event MouseLeftButtonDown] = [DragMove]" />
         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-            <Button x:Name="Timelines" Content="t" Foreground="{StaticResource UserInfoCountsBrush}" Style="{StaticResource SimpleToggleButtonStyle}" />
-            <Button x:Name="Config" Content="c" Foreground="{StaticResource UserInfoCountsBrush}" Style="{StaticResource SimpleToggleButtonStyle}" />
+            <ToggleButton Margin="0,0,20,0"
+                          cal:Bind.Model="PingPong.AppInfo"
+                          Content="config"
+                          Foreground="{StaticResource UserInfoCountsBrush}"
+                          Style="{StaticResource SimpleToggleButtonStyle}"
+                          Visibility="{Binding User, Converter={StaticResource NotNullToVisibilityConverter}}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <ei:GoToStateAction StateName="ShowConfiguration" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="Unchecked">
+                        <ei:GoToStateAction StateName="Normal" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ToggleButton>
             <Button x:Name="Minimize"
                     Width="20"
                     Content="-"
@@ -43,8 +79,15 @@
         <toolkit:TransitioningContentControl x:Name="ActiveItem"
                                              Grid.Row="1"
                                              VerticalAlignment="Stretch"
-                                             VerticalContentAlignment="Stretch"
                                              HorizontalContentAlignment="Stretch"
-                                             Transition="DownTransition"/>
+                                             VerticalContentAlignment="Stretch"
+                                             Transition="DefaultTransition" />
+        <ContentControl x:Name="ConfigContent"
+                        Grid.Row="1"
+                        MaxHeight="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        cal:Bind.Model="PingPong.ViewModels.ConfigurationViewModel"
+                        cal:View.Model="{Binding}" />
     </Grid>
 </UserControl>
