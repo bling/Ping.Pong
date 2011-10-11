@@ -111,6 +111,7 @@
     <Compile Include="SampleData\TweetSampleDataSource\TweetSampleDataSource.xaml.cs">
       <DependentUpon>TweetSampleDataSource.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModelFactory.cs" />
     <Compile Include="ViewModels\AuthorizationViewModel.cs" />
     <Compile Include="Behaviors\AutoSizeBehavior.cs" />
     <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />

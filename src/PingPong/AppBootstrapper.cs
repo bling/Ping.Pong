@@ -36,6 +36,7 @@ namespace PingPong
             b.RegisterType<ShellViewModel>().As<IShell>().SingleInstance();
             b.RegisterType<TimelinesViewModel>().AsSelf().AsImplementedInterfaces().SingleInstance();
             b.RegisterType<AppInfo>().SingleInstance();
+            b.RegisterType<ViewModelFactory>().SingleInstance().PropertiesAutowired();
 
             _container = b.Build();
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using Caliburn.Micro;
 using PingPong.Core;
 using PingPong.Messages;
@@ -12,21 +11,15 @@ namespace PingPong.ViewModels
     {
         private readonly AppInfo _appInfo;
         private readonly TwitterClient _client;
-        private readonly Func<TimelinesViewModel> _timelinesViewModelFactory;
-        private readonly Func<AuthorizationViewModel> _authorizationViewModelFactory;
-        private readonly Func<InstallViewModel> _installViewModelFactory;
+        private readonly ViewModelFactory _viewModelFactory;
 
         public ShellViewModel(AppInfo appInfo,
                               TwitterClient client,
-                              Func<TimelinesViewModel> timelinesViewModelFactory,
-                              Func<AuthorizationViewModel> authorizationViewModelFactory,
-                              Func<InstallViewModel> installViewModelFactory)
+                              ViewModelFactory viewModelFactory)
         {
             _appInfo = appInfo;
             _client = client;
-            _timelinesViewModelFactory = timelinesViewModelFactory;
-            _authorizationViewModelFactory = authorizationViewModelFactory;
-            _installViewModelFactory = installViewModelFactory;
+            _viewModelFactory = viewModelFactory;
         }
 
         protected override void OnActivate()
@@ -39,7 +32,7 @@ namespace PingPong.ViewModels
             }
             else
             {
-                ActivateItem(_installViewModelFactory());
+                ActivateItem(_viewModelFactory.InstallFactory());
             }
         }
 
@@ -63,12 +56,12 @@ namespace PingPong.ViewModels
                             .DispatcherSubscribe(x =>
                             {
                                 _appInfo.User = x;
-                                ActivateItem(_timelinesViewModelFactory());
+                                ActivateItem(_viewModelFactory.TimelinesFactory());
                             });
                     }
                     else
                     {
-                        ActivateItem(_authorizationViewModelFactory());
+                        ActivateItem(_viewModelFactory.AuthorizationFactory());
                     }
                 }
             }
@@ -99,7 +92,7 @@ namespace PingPong.ViewModels
 
         void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
         {
-            ActivateItem(_timelinesViewModelFactory());
+            ActivateItem(_viewModelFactory.TimelinesFactory());
         }
     }
 }
