@@ -94,7 +94,7 @@ namespace PingPong.ViewModels
             }
         }
 
-        public void Reply(Tweet tweet)
+        public void Reply(ITweetItem tweet)
         {
             StatusText = '@' + tweet.User.ScreenName;
             _outgoing.Tweet = tweet;
@@ -102,7 +102,7 @@ namespace PingPong.ViewModels
             Show();
         }
 
-        public void Retweet(Tweet tweet)
+        public void Retweet(ITweetItem tweet)
         {
             StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
             _outgoing.Tweet = tweet;
@@ -110,7 +110,7 @@ namespace PingPong.ViewModels
             Show();
         }
 
-        public void Quote(Tweet tweet)
+        public void Quote(ITweetItem tweet)
         {
             StatusText = string.Format("RT @{0} {1}", tweet.User.ScreenName, tweet.Text);
             _outgoing.Tweet = tweet;
@@ -118,7 +118,7 @@ namespace PingPong.ViewModels
             Show();
         }
 
-        public void DirectMessage(Tweet tweet)
+        public void DirectMessage(ITweetItem tweet)
         {
             StatusText = string.Empty;
             _outgoing.Tweet = tweet;
@@ -142,7 +142,7 @@ namespace PingPong.ViewModels
         /// <summary>Holds metadata for the next status of the user.</summary>
         private class OutgoingContext
         {
-            public Tweet Tweet { get; set; }
+            public ITweetItem Tweet { get; set; }
             public OutgoingType Type { get; set; }
         }
 

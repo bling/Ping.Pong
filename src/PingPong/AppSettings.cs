@@ -41,5 +41,20 @@ namespace PingPong
             }
             set { IsolatedStorageSettings.ApplicationSettings["pp.stream.terms"] = value; }
         }
+
+        public static bool IsNotificationsEnabled
+        {
+            get
+            {
+                bool value;
+                if (!IsolatedStorageSettings.ApplicationSettings.TryGetValue("pp.notifications.enabled", out value))
+                {
+                    IsNotificationsEnabled = true;
+                    return true;
+                }
+                return value;
+            }
+            set { IsolatedStorageSettings.ApplicationSettings["pp.notifications.enabled"] = value; }
+        }
     }
 }
