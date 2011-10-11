@@ -44,6 +44,9 @@ namespace PingPong.ViewModels
 
         public void OnStatusTextBoxTextInput(TextCompositionEventArgs e)
         {
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+                return;
+            
             switch ((int)e.Text[0])
             {
                 case 27: // esc

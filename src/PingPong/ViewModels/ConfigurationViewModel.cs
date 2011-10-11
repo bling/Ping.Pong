@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using Caliburn.Micro;
 
@@ -31,6 +32,7 @@ namespace PingPong.ViewModels
                 new KeyValuePair<string, Style>("Metro", (Style)Application.Current.Resources["MetroTweetsPanel"]),
                 new KeyValuePair<string, Style>("Dark", (Style)Application.Current.Resources["DarkTweetsPanel"]),
             };
+            SelectedTheme = Themes.FirstOrDefault(x => x.Value == AppInfo.StatusStyle);
         }
     }
 }
