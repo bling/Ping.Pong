@@ -10,9 +10,17 @@ namespace PingPong
     public class NotificationService : IDisposable
     {
         private readonly IDisposable _subscription;
+        private readonly NotificationWindow _window;
 
         public NotificationService(TwitterClient client)
         {
+            _window = new NotificationWindow
+            {
+                Width = 400,
+                Height = 100,
+                Content = new NotificationControl()
+            };
+
             _subscription = client
                 .Sample(TimeSpan.FromSeconds(6))
                 .Where(t => (DateTime.Now - t.CreatedAt) < TimeSpan.FromSeconds(5))
@@ -26,13 +34,9 @@ namespace PingPong
 
         private void ShowWindow(ITweetItem tweet)
         {
-            var nw = new NotificationWindow
-            {
-                Width = 300,
-                Height = 100,
-                Content = new NotificationControl { DataContext = tweet }
-            };
-            nw.Show(5000);
+            _window.Content.DataContext = tweet;
+            _window.Close();
+            _window.Show(5000);
         }
     }
 }

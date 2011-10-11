@@ -25,7 +25,7 @@ namespace PingPong.ViewModels
         private IDisposable _streamingSubscription;
         private RateLimit _rateLimit;
         private List _currentList;
-        private string _searchText;
+        private string streamText;
         private bool _isStreaming;
         private bool _isBusy;
         private DateTime _streamStartTime = DateTime.MinValue;
@@ -77,15 +77,16 @@ namespace PingPong.ViewModels
             }
         }
 
-        public string SearchText
+        public string StreamText
         {
-            get { return _searchText; }
+            get { return this.streamText; }
             set
             {
-                this.SetValue("SearchText", value, ref _searchText);
+                this.SetValue("StreamText", value, ref this.streamText);
                 AppSettings.StreamSearchTerms = value;
             }
         }
+
 
         public bool IsStreaming
         {
@@ -175,7 +176,7 @@ namespace PingPong.ViewModels
 
             if (!string.IsNullOrEmpty(AppSettings.StreamSearchTerms))
             {
-                SearchText = AppSettings.StreamSearchTerms;
+                this.StreamText = AppSettings.StreamSearchTerms;
                 IsStreaming = true;
             }
         }
@@ -193,7 +194,7 @@ namespace PingPong.ViewModels
                 _windowManager.ShowDialog(new ErrorViewModel("You are initiating too many connections in a short period of time.  Twitter doesn't like that :("));
                 IsStreaming = false;
             }
-            else if (string.IsNullOrEmpty(SearchText))
+            else if (string.IsNullOrEmpty(this.StreamText))
             {
                 _windowManager.ShowDialog(new ErrorViewModel("Search terms are required."));
                 IsStreaming = false;
@@ -207,8 +208,8 @@ namespace PingPong.ViewModels
                     .ToArray()
                     .ForEach(t => DeactivateItem(t, true));
 
-                var allTerms = SearchText.Split(' ', ',', ';', '|');
-                var allParts = SearchText.Split(' ', ',', ';');
+                var allTerms = this.StreamText.Split(' ', ',', ';', '|');
+                var allParts = this.StreamText.Split(' ', ',', ';');
                 var ob = _client.GetStreamingFilter(allTerms)
                     .Retry()
                     .Publish();
@@ -236,6 +237,15 @@ namespace PingPong.ViewModels
             line.DisplayName = description;
             setup(line);
             ActivateItem(line);
+        }
+
+        public void Search(string text)
+        {
+            ActivateTimeline(text, line =>
+            {
+                line.CanClose = true;
+                line.Subscribe(_client.GetPollingSearch(text));
+            });
         }
 
         public void MoveLeft(TweetsPanelViewModel source)

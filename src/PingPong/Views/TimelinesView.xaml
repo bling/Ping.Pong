@@ -51,13 +51,14 @@
                               Padding="10,4"
                               Style="{StaticResource SimpleToggleButtonStyle}" />
                 <ComboBox x:Name="Lists"
+                          Background="{StaticResource ImageBorderBrush}"
                           BorderThickness="0"
                           FontFamily="{StaticResource DefaultFontFamily}"
                           FontSize="13.333"
                           Foreground="{StaticResource ButtonForegroundBrush}"
                           Padding="10,4"
                           Style="{StaticResource DarkComboBoxStyle}"
-                          Tag="Lists" Background="{StaticResource ImageBorderBrush}">
+                          Tag="Lists">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock FontFamily="{StaticResource DefaultFontFamily}" Foreground="{StaticResource ButtonForegroundBrush}" Text="{Binding FullName}" />
@@ -78,6 +79,23 @@
                                ToolTipService.ToolTip="remaining API calls this hour" />
                 </Grid>
                 <TextBox x:Name="SearchText"
+                         Width="200"
+                         Margin="0,0,0,1"
+                         HorizontalAlignment="Right"
+                         Background="Transparent"
+                         BorderBrush="#FF0B2739"
+                         CaretBrush="White"
+                         FontFamily="{StaticResource DefaultFontFamily}"
+                         Foreground="{StaticResource ButtonForegroundBrush}" />
+                <Button Width="100"
+                        FontFamily="{StaticResource DefaultFontFamily}"
+                        FontSize="13.333"
+                        Foreground="{StaticResource ButtonForegroundBrush}"
+                        Padding="5,2"
+                        cal:Message.Attach="Search(SearchText.Text)"
+                        Content="Search"
+                        Style="{StaticResource SimpleToggleButtonStyle}" />
+                <TextBox x:Name="StreamText"
                          Width="200"
                          Margin="0,0,0,1"
                          HorizontalAlignment="Right"
