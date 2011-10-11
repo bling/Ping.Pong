@@ -9,7 +9,6 @@ namespace PingPong.ViewModels
     public class TweetsPanelViewModel : Screen
     {
         private readonly TwitterClient _client;
-        private readonly IWindowManager _windowManager;
         private readonly Func<string, UserViewModel> _userViewModelFactory;
         private bool _isBusy;
         private bool _canClose;
@@ -19,6 +18,8 @@ namespace PingPong.ViewModels
 
         /// <summary>Object to get or set metadata on the collection.</summary>
         public object Tag { get; set; }
+
+        public AppInfo AppInfo { get; private set; }
 
         public TweetCollection Tweets { get; private set; }
 
@@ -46,12 +47,12 @@ namespace PingPong.ViewModels
             private set { this.SetValue("ContextualViewModel", value, ref _contextualViewModel); }
         }
 
-        public TweetsPanelViewModel(TwitterClient client, IWindowManager windowManager, Func<string, UserViewModel> userViewModelFactory)
+        public TweetsPanelViewModel(AppInfo appInfo, TwitterClient client, Func<string, UserViewModel> userViewModelFactory)
         {
-            _client = client;
-            _windowManager = windowManager;
-            _userViewModelFactory = userViewModelFactory;
+            AppInfo = appInfo;
             Tweets = new TweetCollection();
+            _client = client;
+            _userViewModelFactory = userViewModelFactory;
         }
 
         public void SubscribeToUserTimeline(string username)
@@ -84,7 +85,7 @@ namespace PingPong.ViewModels
                 .ObserveOnDispatcher()
                 .Do(_ => IsBusy = false)
                 .Do(x => optionalActionOnSubscribe(x))
-                .Subscribe(x => Tweets.Append(x), RaiseOnError, () => IsBusy = false);
+                .Subscribe(x => Tweets.Append(x), () => IsBusy = false);
 
             ((IActivate)this).Activate();
         }
@@ -92,11 +93,6 @@ namespace PingPong.ViewModels
         protected override void OnDeactivate(bool close)
         {
             _subscription.DisposeIfNotNull();
-        }
-
-        private void RaiseOnError(Exception ex)
-        {
-            _windowManager.ShowDialog(new ErrorViewModel(ex.ToString()));
         }
     }
 }
