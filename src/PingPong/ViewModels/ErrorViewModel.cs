@@ -2,7 +2,7 @@
 
 namespace PingPong.ViewModels
 {
-    public class ErrorViewModel : PropertyChangedBase
+    public class ErrorViewModel : Screen
     {
         private string _text;
 

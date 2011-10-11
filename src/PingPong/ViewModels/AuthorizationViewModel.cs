@@ -19,7 +19,7 @@ namespace PingPong.ViewModels
         public string Pin
         {
             get { return _pin; }
-            set { this.SetValue("Pin", value, ref this._pin); }
+            set { this.SetValue("Pin", value, ref _pin); }
         }
 
         public AuthorizationViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
