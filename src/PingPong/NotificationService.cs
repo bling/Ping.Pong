@@ -9,11 +9,13 @@ namespace PingPong
 {
     public class NotificationService : IDisposable
     {
+        private readonly AppInfo _appInfo;
         private readonly IDisposable _subscription;
         private readonly NotificationWindow _window;
 
-        public NotificationService(TwitterClient client)
+        public NotificationService(AppInfo appInfo, TwitterClient client)
         {
+		    _appInfo = appInfo;
             _window = new NotificationWindow
             {
                 Width = 400,
@@ -34,9 +36,12 @@ namespace PingPong
 
         private void ShowWindow(ITweetItem tweet)
         {
-            _window.Content.DataContext = tweet;
-            _window.Close();
-            _window.Show(5000);
+            if (_appInfo.IsNotificationsEnabled)
+            {
+                _window.Content.DataContext = tweet;
+                _window.Close();
+                _window.Show(5000);
+            }
         }
     }
 }

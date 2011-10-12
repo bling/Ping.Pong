@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Caliburn.Micro;
 using PingPong.Models;
 using PingPong.OAuth;
 
@@ -20,7 +19,6 @@ namespace PingPong.Core
         private const string UserStreamingAuthority = "https://userstream.twitter.com";
 
         private readonly Subject<ITweetItem> _subject = new Subject<ITweetItem>();
-        private static readonly ILog _log = LogManager.GetLog(typeof(TwitterClient));
 
         public TwitterClient()
         {
