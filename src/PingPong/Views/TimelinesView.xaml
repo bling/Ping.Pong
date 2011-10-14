@@ -7,8 +7,8 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
-             d:DesignHeight="451"
-             d:DesignWidth="905"
+             d:DesignHeight="432"
+             d:DesignWidth="1049"
              mc:Ignorable="d">
     <Grid x:Name="LayoutRoot" Background="#FF181818">
         <Grid.RowDefinitions>
@@ -16,10 +16,6 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal">
                 <Button cal:Action.Target="PingPong.ViewModels.StatusViewModel"
                         cal:Message.Attach="Show"
@@ -67,7 +63,7 @@
                 </ComboBox>
             </StackPanel>
 
-            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Grid DataContext="{Binding RateLimit}">
                     <TextBlock Margin="5,0"
                                HorizontalAlignment="Center"
@@ -87,41 +83,22 @@
                          CaretBrush="White"
                          FontFamily="{StaticResource DefaultFontFamily}"
                          Foreground="{StaticResource ButtonForegroundBrush}" />
-                <Button Width="100"
+                <Button Width="70"
+                        cal:Message.Attach="Search(SearchText.Text)"
+                        Content="Search"
                         FontFamily="{StaticResource DefaultFontFamily}"
                         FontSize="13.333"
                         Foreground="{StaticResource ButtonForegroundBrush}"
                         Padding="5,2"
-                        cal:Message.Attach="Search(SearchText.Text)"
-                        Content="Search"
                         Style="{StaticResource SimpleToggleButtonStyle}" />
-                <TextBox x:Name="StreamText"
-                         Width="200"
-                         Margin="0,0,0,1"
-                         HorizontalAlignment="Right"
-                         Background="Transparent"
-                         BorderBrush="#FF0B2739"
-                         CaretBrush="White"
-                         FontFamily="{StaticResource DefaultFontFamily}"
-                         Foreground="{StaticResource ButtonForegroundBrush}" />
-                <ToggleButton x:Name="IsStreaming"
-                              Width="100"
-                              FontFamily="{StaticResource DefaultFontFamily}"
-                              FontSize="13.333"
-                              Foreground="{StaticResource ButtonForegroundBrush}"
-                              Padding="5,2"
-                              Style="{StaticResource SimpleToggleButtonStyle}">
-                    <TextBlock x:Name="text" Text="Start Stream">
-                        <i:Interaction.Triggers>
-                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=IsStreaming}" Value="True">
-                                <ei:ChangePropertyAction PropertyName="Text" Value="Stop" />
-                            </ei:DataTrigger>
-                            <ei:DataTrigger Binding="{Binding IsChecked, ElementName=IsStreaming}" Value="False">
-                                <ei:ChangePropertyAction PropertyName="Text" Value="Start Stream" />
-                            </ei:DataTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBlock>
-                </ToggleButton>
+                <Button Width="70"
+                        cal:Message.Attach="StartStreaming(SearchText.Text)"
+                        Content="Stream"
+                        FontFamily="{StaticResource DefaultFontFamily}"
+                        FontSize="13.333"
+                        Foreground="{StaticResource ButtonForegroundBrush}"
+                        Padding="5,2"
+                        Style="{StaticResource SimpleToggleButtonStyle}" />
             </StackPanel>
         </Grid>
         <ItemsControl x:Name="Items" Grid.Row="1">

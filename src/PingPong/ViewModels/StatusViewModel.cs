@@ -53,13 +53,14 @@ namespace PingPong.ViewModels
                     TryClose();
                     break;
                 case 13: // \r
+                    var tb = (TextBox)e.OriginalSource;
+                    
                     if (_outgoing.Type == OutgoingType.Retweet)
                     {
                         _client.Retweet(_outgoing.Tweet.Id);
                     }
                     else
                     {
-                        var tb = (TextBox)e.OriginalSource;
                         string text = tb.Text;
                         int length;
                         _tweetParser.Parse(text, out length);
@@ -86,7 +87,7 @@ namespace PingPong.ViewModels
                     }
 
                     _outgoing.Type = OutgoingType.None;
-                    StatusText = string.Empty;
+                    tb.Text = string.Empty;
                     TryClose();
                     break;
                 default:

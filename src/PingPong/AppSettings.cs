@@ -31,15 +31,15 @@ namespace PingPong
             set { IsolatedStorageSettings.ApplicationSettings["pp.user.secret"] = value; }
         }
 
-        public static string StreamSearchTerms
+        public static string LastSearchTerms
         {
             get
             {
                 string value;
-                IsolatedStorageSettings.ApplicationSettings.TryGetValue("pp.stream.terms", out value);
+                IsolatedStorageSettings.ApplicationSettings.TryGetValue("pp.search.terms", out value);
                 return value;
             }
-            set { IsolatedStorageSettings.ApplicationSettings["pp.stream.terms"] = value; }
+            set { IsolatedStorageSettings.ApplicationSettings["pp.search.terms"] = value; }
         }
 
         public static bool IsNotificationsEnabled

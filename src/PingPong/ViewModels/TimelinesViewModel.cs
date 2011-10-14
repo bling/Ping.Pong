@@ -25,8 +25,7 @@ namespace PingPong.ViewModels
         private IDisposable _streamingSubscription;
         private RateLimit _rateLimit;
         private List _currentList;
-        private string streamText;
-        private bool _isStreaming;
+        private string _searchText;
         private bool _isBusy;
         private DateTime _streamStartTime = DateTime.MinValue;
 
@@ -77,27 +76,13 @@ namespace PingPong.ViewModels
             }
         }
 
-        public string StreamText
+        public string SearchText
         {
-            get { return this.streamText; }
+            get { return _searchText; }
             set
             {
-                this.SetValue("StreamText", value, ref this.streamText);
-                AppSettings.StreamSearchTerms = value;
-            }
-        }
-
-
-        public bool IsStreaming
-        {
-            get { return _isStreaming; }
-            set
-            {
-                this.SetValue("IsStreaming", value, ref _isStreaming);
-                if (value)
-                    StartStreaming();
-                else
-                    _streamingSubscription.DisposeIfNotNull();
+                this.SetValue("SearchText", value, ref _searchText);
+                AppSettings.LastSearchTerms = value;
             }
         }
 
@@ -174,10 +159,10 @@ namespace PingPong.ViewModels
             _subscriptions.Add(_client.GetPollingRateLimitStatus().DispatcherSubscribe(rl => RateLimit = rl));
             _subscriptions.Add(_client.GetLists(_appInfo.User.ScreenName).DispatcherSubscribe(x => Lists.Add(x)));
 
-            if (!string.IsNullOrEmpty(AppSettings.StreamSearchTerms))
+            if (!string.IsNullOrEmpty(AppSettings.LastSearchTerms))
             {
-                this.StreamText = AppSettings.StreamSearchTerms;
-                IsStreaming = true;
+                SearchText = AppSettings.LastSearchTerms;
+                StartStreaming(SearchText);
             }
         }
 
@@ -187,17 +172,15 @@ namespace PingPong.ViewModels
             _subscriptions.Dispose();
         }
 
-        private void StartStreaming()
+        public void StartStreaming(string query)
         {
             if (DateTime.UtcNow - _streamStartTime < StreamThrottleRate)
             {
                 _windowManager.ShowDialog(new ErrorViewModel("You are initiating too many connections in a short period of time.  Twitter doesn't like that :("));
-                IsStreaming = false;
             }
-            else if (string.IsNullOrEmpty(this.StreamText))
+            else if (string.IsNullOrEmpty(query))
             {
                 _windowManager.ShowDialog(new ErrorViewModel("Search terms are required."));
-                IsStreaming = false;
             }
             else
             {
@@ -208,8 +191,8 @@ namespace PingPong.ViewModels
                     .ToArray()
                     .ForEach(t => DeactivateItem(t, true));
 
-                var allTerms = this.StreamText.Split(' ', ',', ';', '|');
-                var allParts = this.StreamText.Split(' ', ',', ';');
+                var allTerms = query.Split(' ', ',', ';', '|');
+                var allParts = query.Split(' ', ',', ';');
                 var ob = _client.GetStreamingFilter(allTerms)
                     .Retry()
                     .Publish();
