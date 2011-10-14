@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 
@@ -53,40 +52,19 @@ namespace PingPong.OAuth
 
         public static IObservable<byte[]> GetBytes(this WebResponse response)
         {
-            return Observable.Create<byte[]>(ob =>
-            {
-                var stream = response.GetResponseStream();
-                var disp = new BooleanDisposable();
-                Observable.Start(() =>
+            var stream = response.GetResponseStream();
+            var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
+            return Observable.Return(new byte[512])
+                .SelectMany(x => reader(x, 0, x.Length), (buffer, count) => new { buffer, count })
+                .Repeat()
+                .TakeWhile(x => x.count > 0)
+                .Select(x =>
                 {
-                    using (stream)
-                    {
-                        try
-                        {
-                            var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
-                            var buffer = new byte[256];
-                            while (!disp.IsDisposed)
-                            {
-                                int bytesRead = reader(buffer, 0, buffer.Length).First();
-                                if (bytesRead == 0)
-                                {
-                                    ob.OnCompleted();
-                                    break;
-                                }
-
-                                var result = new byte[bytesRead];
-                                Buffer.BlockCopy(buffer, 0, result, 0, bytesRead);
-                                ob.OnNext(result);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ob.OnError(ex);
-                        }
-                    }
-                });
-                return disp;
-            });
+                    var result = new byte[x.count];
+                    Buffer.BlockCopy(x.buffer, 0, result, 0, x.count);
+                    return result;
+                })
+                .Finally(stream.Close);
         }
 
         public static IObservable<string> GetLines(this WebResponse response)
