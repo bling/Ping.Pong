@@ -11,17 +11,11 @@ namespace PingPong
     {
         private readonly AppInfo _appInfo;
         private readonly IDisposable _subscription;
-        private readonly NotificationWindow _window;
+        private NotificationWindow _window;
 
         public NotificationService(AppInfo appInfo, TwitterClient client)
         {
-		    _appInfo = appInfo;
-            _window = new NotificationWindow
-            {
-                Width = 400,
-                Height = 100,
-                Content = new NotificationControl()
-            };
+            _appInfo = appInfo;
 
             _subscription = client
                 .Sample(TimeSpan.FromSeconds(6))
@@ -36,6 +30,16 @@ namespace PingPong
 
         private void ShowWindow(ITweetItem tweet)
         {
+            if (_window == null)
+            {
+                _window = new NotificationWindow
+                {
+                    Width = 400,
+                    Height = 100,
+                    Content = new NotificationControl()
+                };
+            }
+          
             if (_appInfo.IsNotificationsEnabled)
             {
                 _window.Content.DataContext = tweet;
