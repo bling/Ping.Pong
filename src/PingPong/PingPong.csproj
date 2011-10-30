@@ -64,6 +64,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>94D65845D8F2C6C570301252323BDDBA5A4D33F1</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>PingPong_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
       <HintPath>..\..\packages\Autofac.2.5.2.830\lib\SL4\Autofac.dll</HintPath>
@@ -167,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="PingPong_TemporaryKey.pfx" />
     <None Include="Properties\AppManifest.xml" />
     <DesignTimeOnly Include="SampleData\TweetSampleDataSource\TweetSampleDataSource.xsd" />
   </ItemGroup>
