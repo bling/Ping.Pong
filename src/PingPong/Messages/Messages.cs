@@ -1,6 +1,6 @@
 ﻿namespace PingPong.Messages
 {
-    public class ShowTimelinesMessage
+    public class AuthenticatedMessage
     {
     }
 }

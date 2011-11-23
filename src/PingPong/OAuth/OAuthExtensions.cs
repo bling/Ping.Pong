@@ -54,7 +54,7 @@ namespace PingPong.OAuth
         {
             var stream = response.GetResponseStream();
             var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
-            return Observable.Return(new byte[512])
+            return Observable.Return(new byte[256])
                 .SelectMany(x => reader(x, 0, x.Length), (buffer, count) => new { buffer, count })
                 .Repeat()
                 .TakeWhile(x => x.count > 0)
@@ -64,6 +64,7 @@ namespace PingPong.OAuth
                     Buffer.BlockCopy(x.buffer, 0, result, 0, x.count);
                     return result;
                 })
+                .Catch((Exception ex) => Observable.Empty<byte[]>())
                 .Finally(stream.Close);
         }
 

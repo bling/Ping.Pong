@@ -20,12 +20,6 @@ namespace PingPong.Core
 
         private readonly Subject<ITweetItem> _subject = new Subject<ITweetItem>();
 
-        public TwitterClient()
-        {
-            if (!AppSettings.HasAuthToken)
-                throw new InvalidOperationException("Not authorized yet.");
-        }
-
         public void Dispose()
         {
             _subject.Dispose();
@@ -33,6 +27,9 @@ namespace PingPong.Core
 
         private OAuthClient CreateClient()
         {
+            if (!AppSettings.HasAuthToken)
+                throw new InvalidOperationException("The current application doesn't have an OAuth token.");
+
             return new OAuthClient(AppBootstrapper.ConsumerKey, AppBootstrapper.ConsumerSecret, AppSettings.UserOAuthToken, AppSettings.UserOAuthTokenSecret);
         }
 

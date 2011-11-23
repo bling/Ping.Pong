@@ -58,7 +58,7 @@ namespace PingPong.ViewModels
                     {
                         AppSettings.UserOAuthToken = response.Token.Key;
                         AppSettings.UserOAuthTokenSecret = response.Token.Secret;
-                        _eventAggregator.Publish(new ShowTimelinesMessage());
+                        _eventAggregator.Publish(new AuthenticatedMessage());
                     },
                     OnError);
         }

@@ -7,7 +7,7 @@ namespace PingPong.ViewModels
 {
     public class ShellViewModel : Conductor<IScreen>.Collection.OneActive,
                                   IShell,
-                                  IHandle<ShowTimelinesMessage>
+                                  IHandle<AuthenticatedMessage>
     {
         private readonly AppInfo _appInfo;
         private readonly TwitterClient _client;
@@ -38,7 +38,11 @@ namespace PingPong.ViewModels
 
         private void OnCheckAndDownloadUpdateCompleted(object sender, CheckAndDownloadUpdateCompletedEventArgs e)
         {
-            if (e.UpdateAvailable)
+            if (e.Error != null)
+            {
+                ActivateItem(new ErrorViewModel(e.Error.ToString()));
+            }
+            else if (e.UpdateAvailable)
             {
                 ActivateItem(new ErrorViewModel("ping.pong has been updated to a newer version...please restart."));
             }
@@ -52,12 +56,7 @@ namespace PingPong.ViewModels
                 {
                     if (AppSettings.HasAuthToken)
                     {
-                        _client.GetAccountVerification()
-                            .DispatcherSubscribe(x =>
-                            {
-                                _appInfo.User = x;
-                                ActivateItem(_viewModelFactory.TimelinesFactory());
-                            });
+                        ((IHandle<AuthenticatedMessage>)this).Handle(null);
                     }
                     else
                     {
@@ -90,9 +89,14 @@ namespace PingPong.ViewModels
             Application.Current.MainWindow.Close();
         }
 
-        void IHandle<ShowTimelinesMessage>.Handle(ShowTimelinesMessage message)
+        void IHandle<AuthenticatedMessage>.Handle(AuthenticatedMessage message)
         {
-            ActivateItem(_viewModelFactory.TimelinesFactory());
+            _client.GetAccountVerification()
+                .DispatcherSubscribe(x =>
+                {
+                    _appInfo.User = x;
+                    ActivateItem(_viewModelFactory.TimelinesFactory());
+                });
         }
     }
 }

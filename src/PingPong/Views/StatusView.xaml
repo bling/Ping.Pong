@@ -5,7 +5,6 @@
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:conv="clr-namespace:PingPong.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:ee="http://schemas.microsoft.com/expression/2010/effects"
              xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -150,7 +149,6 @@
                      FontSize="14"
                      Foreground="#FF8EBCE7"
                      Style="{StaticResource TextBoxStyle}"
-                     Text="{Binding StatusText, Mode=TwoWay}"
                      TextWrapping="Wrap">
                 <i:Interaction.Behaviors>
                     <b:FocusOnLoadBehavior />
