@@ -38,15 +38,15 @@ namespace PingPong.ViewModels
 
         private void OnCheckAndDownloadUpdateCompleted(object sender, CheckAndDownloadUpdateCompletedEventArgs e)
         {
-            if (e.Error != null)
-            {
-                ActivateItem(new ErrorViewModel(e.Error.ToString()));
-            }
-            else if (e.UpdateAvailable)
-            {
-                ActivateItem(new ErrorViewModel("ping.pong has been updated to a newer version...please restart."));
-            }
-            else
+            //if (e.Error != null)
+            //{
+            //    ActivateItem(new ErrorViewModel(e.Error.ToString()));
+            //}
+            //else if (e.UpdateAvailable)
+            //{
+            //    ActivateItem(new ErrorViewModel("ping.pong has been updated to a newer version...please restart."));
+            //}
+            //else
             {
                 if (string.IsNullOrEmpty(AppBootstrapper.ConsumerKey) || string.IsNullOrEmpty(AppBootstrapper.ConsumerSecret))
                 {

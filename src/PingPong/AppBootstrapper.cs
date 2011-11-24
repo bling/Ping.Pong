@@ -49,7 +49,7 @@ namespace PingPong
         protected override void OnUnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
             LogManager.GetLog(GetType()).Error(e.ExceptionObject);
-            _container.Resolve<IWindowManager>().ShowDialog(new ErrorViewModel(e.ToString()));
+            Deployment.Current.Dispatcher.BeginInvoke(() => _container.Resolve<IWindowManager>().ShowDialog(new ErrorViewModel(e.ToString())));
         }
 
         protected override object GetInstance(Type serviceType, string key)

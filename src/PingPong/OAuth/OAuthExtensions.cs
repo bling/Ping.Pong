@@ -52,20 +52,31 @@ namespace PingPong.OAuth
 
         public static IObservable<byte[]> GetBytes(this WebResponse response)
         {
-            var stream = response.GetResponseStream();
-            var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
-            return Observable.Return(new byte[256])
-                .SelectMany(x => reader(x, 0, x.Length), (buffer, count) => new { buffer, count })
-                .Repeat()
-                .TakeWhile(x => x.count > 0)
-                .Select(x =>
+            return Observable.Create<byte[]>(obs =>
+            {
+                var stream = response.GetResponseStream();
+                var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
+                try
                 {
-                    var result = new byte[x.count];
-                    Buffer.BlockCopy(x.buffer, 0, result, 0, x.count);
-                    return result;
-                })
-                .Catch((Exception ex) => Observable.Empty<byte[]>())
-                .Finally(stream.Close);
+                    var buffer = new byte[256];
+                    int count;
+                    while ((count = reader(buffer, 0, buffer.Length).First()) > 0)
+                    {
+                        var copy = new byte[count];
+                        Buffer.BlockCopy(buffer, 0, copy, 0, count);
+                        obs.OnNext(copy);
+                    }
+                }
+                catch (Exception e)
+                {
+                    obs.OnError(e);
+                }
+                finally
+                {
+                    obs.OnCompleted();
+                }
+                return stream;
+            });
         }
 
         public static IObservable<string> GetLines(this WebResponse response)
