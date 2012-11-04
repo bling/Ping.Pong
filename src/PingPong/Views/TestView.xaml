@@ -12,7 +12,8 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <StackPanel>
-            <Button x:Name="Homeline"/>
+            <Button x:Name="Homeline" Content="Home Line"/>
+            <Button x:Name="RateLimit" Content="Rate Limit"/>
         </StackPanel>
     </Grid>
 </UserControl>

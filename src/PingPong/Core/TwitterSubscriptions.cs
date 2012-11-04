@@ -40,7 +40,7 @@ namespace PingPong.Core
                 .Retry();
         }
 
-        public static IObservable<RateLimit> GetPollingRateLimitStatus(this TwitterClient client)
+        public static IObservable<RateLimitStatus> GetPollingRateLimitStatus(this TwitterClient client)
         {
             return CreateTimerObservable().SelectMany(_ => client.GetRateLimitStatus());
         }

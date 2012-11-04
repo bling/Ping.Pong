@@ -23,6 +23,11 @@ namespace PingPong.Models
 
         public static DateTime GetDateTime(this JsonValue json, string key)
         {
+            if (json[key].JsonType == JsonType.Number)
+            {
+                var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                return start.ToLocalTime().AddSeconds(json[key]);
+            }
             return DateTime.ParseExact(json[key], "ddd MMM d HH:mm:ss zzzzz yyyy", CultureInfo.InvariantCulture);
         }
 

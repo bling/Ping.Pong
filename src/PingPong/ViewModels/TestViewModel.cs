@@ -17,7 +17,13 @@ namespace PingPong.ViewModels
         public void Homeline()
         {
             _client.GetHomeTimeline()
-                   .Subscribe(t => Debug.WriteLine(t));
+                   .DispatcherSubscribe(t => Debug.WriteLine(t));
+        }
+
+        public void RateLimit()
+        {
+            _client.GetRateLimitStatus()
+                   .DispatcherSubscribe(rl => Debug.WriteLine(rl));
         }
     }
 }

@@ -23,7 +23,7 @@ namespace PingPong.ViewModels
         private readonly TweetsPanelViewModel _messageline;
         private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
         private IDisposable _streamingSubscription;
-        private RateLimit _rateLimit;
+        private RateLimitStatus _rateLimitStatus;
         private List _currentList;
         private string _searchText;
         private bool _isBusy;
@@ -92,10 +92,10 @@ namespace PingPong.ViewModels
             set { this.SetValue("IsBusy", value, ref _isBusy); }
         }
 
-        public RateLimit RateLimit
+        public RateLimitStatus RateLimitStatus
         {
-            get { return _rateLimit; }
-            private set { this.SetValue("RateLimit", value, ref _rateLimit); }
+            get { return this._rateLimitStatus; }
+            private set { this.SetValue("RateLimit", value, ref this._rateLimitStatus); }
         }
 
         public ObservableCollection<List> Lists { get; private set; }
@@ -156,7 +156,7 @@ namespace PingPong.ViewModels
             ShowMessages = false;
             IsBusy = false;
 
-            _subscriptions.Add(_client.GetPollingRateLimitStatus().DispatcherSubscribe(rl => RateLimit = rl));
+            _subscriptions.Add(_client.GetPollingRateLimitStatus().DispatcherSubscribe(rl => RateLimitStatus = rl));
             _subscriptions.Add(_client.GetLists(_appInfo.User.ScreenName).DispatcherSubscribe(x => Lists.Add(x)));
 
             if (!string.IsNullOrEmpty(AppSettings.LastSearchTerms))
