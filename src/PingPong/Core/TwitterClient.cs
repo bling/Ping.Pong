@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using Caliburn.Micro;
 using PingPong.Models;
 using PingPong.OAuth;
 
@@ -19,6 +20,7 @@ namespace PingPong.Core
         private const string UserStreamingAuthority = "https://userstream.twitter.com";
 
         private readonly Subject<ITweetItem> _subject = new Subject<ITweetItem>();
+        private readonly ILog _log = LogManager.GetLog(typeof(TwitterClient));
 
         public void Dispose()
         {
@@ -110,7 +112,7 @@ namespace PingPong.Core
 
         public IObservable<RateLimitStatus> GetRateLimitStatus()
         {
-            return GetContents(ApiAuthority, "/1.1/application/rate_limit_status.json")
+            return GetContents(ApiAuthority, "/1.1/application/rate_limit_status.json", new { skip_statuses = "1" })
                 .SelectValidJsonValue()
                 .Select(x => new RateLimitStatus(x));
         }
@@ -215,6 +217,8 @@ namespace PingPong.Core
             var client = CreateClient();
             client.Url = authority + path;
             ParseParameters(client, parameters);
+
+            _log.Info("Getting: " + client.Url);
             return client.Get().GetResponseLines();
         }
 
