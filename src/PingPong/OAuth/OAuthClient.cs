@@ -40,7 +40,9 @@ namespace PingPong.OAuth
         private WebRequest CreateWebRequest(MethodType methodType)
         {
             Enforce.NotNullOrEmpty(Url);
-            string requestUrl = (methodType == MethodType.Get) ? Url + "?" + Parameters.ToQueryParameter() : Url;
+            string requestUrl = (methodType == MethodType.Get && Parameters.Count > 0)
+                                    ? Url + "?" + Parameters.ToQueryParameter()
+                                    : Url;
 
             var req = WebRequest.CreateHttp(requestUrl);
             req.Headers[HttpRequestHeader.Authorization] = GetAuthorizationHeader(methodType);

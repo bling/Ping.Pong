@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
 
 namespace PingPong.OAuth
 {
@@ -23,11 +22,11 @@ namespace PingPong.OAuth
         public static string UrlEncode(this string stringToEscape)
         {
             return Uri.EscapeDataString(stringToEscape)
-                .Replace("!", "%21")
-                .Replace("*", "%2A")
-                .Replace("'", "%27")
-                .Replace("(", "%28")
-                .Replace(")", "%29");
+                      .Replace("!", "%21")
+                      .Replace("*", "%2A")
+                      .Replace("'", "%27")
+                      .Replace("(", "%28")
+                      .Replace(")", "%29");
         }
 
         /// <summary>convert urlencoded querystring</summary>
@@ -79,7 +78,7 @@ namespace PingPong.OAuth
                     ob.OnCompleted();
                 }
 
-                return Disposable.Empty;
+                return response;
             });
         }
     }
