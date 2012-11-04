@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -9,7 +8,6 @@ using Action = System.Action;
 
 namespace PingPong
 {
-    [DebuggerStepThrough]
     public static class ExtensionMethods
     {
         public static IObservable<T> SubscribeOnThreadPool<T>(this IObservable<T> observable)

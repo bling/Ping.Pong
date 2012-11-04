@@ -48,8 +48,9 @@ namespace PingPong
 
         protected override void OnUnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
+            e.Handled = true;
             LogManager.GetLog(GetType()).Error(e.ExceptionObject);
-            Deployment.Current.Dispatcher.BeginInvoke(() => _container.Resolve<IWindowManager>().ShowDialog(new ErrorViewModel(e.ToString())));
+            Deployment.Current.Dispatcher.BeginInvoke(() => _container.Resolve<IWindowManager>().ShowDialog(new ErrorViewModel(e.ExceptionObject.ToString())));
         }
 
         protected override object GetInstance(Type serviceType, string key)

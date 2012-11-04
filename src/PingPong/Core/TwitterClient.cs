@@ -172,20 +172,20 @@ namespace PingPong.Core
 
         public IObservable<Tweet> GetMentions(int count = RequestCount)
         {
-            var options = new object[] { new { include_rts = "1" }, new { count }, new { include_entities = "1" } };
-            return GetSnapshot(ApiAuthority, "/statuses/mentions.json", options).SelectTweets(_subject);
+            var options = new object[] { new { count }, new { include_entities = "1" } };
+            return GetSnapshot(ApiAuthority, "/1.1/statuses/mentions_timeline.json", options).SelectTweets(_subject);
         }
 
         public IObservable<DirectMessage> GetDirectMessages(string sinceId = null)
         {
             var options = new object[] { new { since_id = sinceId }, new { include_entities = "1" } };
-            return GetSnapshot(ApiAuthority, "/direct_messages.json", options).SelectDirectMessages(_subject);
+            return GetSnapshot(ApiAuthority, "/1.1/direct_messages.json", options).SelectDirectMessages(_subject);
         }
 
         public IObservable<Tweet> GetFavorites(string sinceId = null)
         {
             var options = new object[] { new { since_id = sinceId }, new { include_entities = "1" } };
-            return GetSnapshot(ApiAuthority, "/favorites.json", options).SelectTweets(_subject);
+            return GetSnapshot(ApiAuthority, "/1.1/favorites/list.json", options).SelectTweets(_subject);
         }
 
         public IObservable<Tweet> GetStreamingSampling()

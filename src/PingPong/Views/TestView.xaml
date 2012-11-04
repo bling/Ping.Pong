@@ -13,6 +13,7 @@
         </Grid.ColumnDefinitions>
         <StackPanel>
             <Button x:Name="Homeline" Content="Home Line"/>
+            <Button x:Name="Mentions" Content="Mentions"/>
             <Button x:Name="RateLimit" Content="Rate Limit"/>
         </StackPanel>
     </Grid>

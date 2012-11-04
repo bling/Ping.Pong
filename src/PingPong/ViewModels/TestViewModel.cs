@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Caliburn.Micro;
 using PingPong.Core;
 
@@ -17,6 +16,12 @@ namespace PingPong.ViewModels
         public void Homeline()
         {
             _client.GetHomeTimeline()
+                   .DispatcherSubscribe(t => Debug.WriteLine(t));
+        }
+
+        public void Mentions()
+        {
+            _client.GetMentions()
                    .DispatcherSubscribe(t => Debug.WriteLine(t));
         }
 
