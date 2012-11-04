@@ -42,14 +42,14 @@ namespace PingPong.Core
             if (inReplyToStatusId != null)
                 client.Parameters["in_reply_to_status_id"] = inReplyToStatusId;
 
-            client.Url = ApiAuthority + "/1/statuses/update.json";
+            client.Url = ApiAuthority + "/1.1/statuses/update.json";
             return client.Post();
         }
 
         public IObservable<WebResponse> Retweet(string statusId)
         {
             var client = CreateClient();
-            client.Url = ApiAuthority + string.Format("/1/statuses/retweet/{0}.json", statusId);
+            client.Url = ApiAuthority + string.Format("/1.1/statuses/retweet/{0}.json", statusId);
             return client.Post();
         }
 
@@ -59,7 +59,7 @@ namespace PingPong.Core
             Enforce.NotNullOrEmpty(text);
 
             var client = CreateClient();
-            client.Url = ApiAuthority + "/1/direct_messages/new.json";
+            client.Url = ApiAuthority + "/1.1/direct_messages/new.json";
             client.Parameters.Add("screen_name", username);
             client.Parameters.Add("text", text);
             return client.Post();
@@ -70,7 +70,7 @@ namespace PingPong.Core
             Enforce.NotNullOrEmpty(screenName);
 
             var client = CreateClient();
-            client.Url = ApiAuthority + "/1/friendships/create.json";
+            client.Url = ApiAuthority + "/1.1/friendships/create.json";
             client.Parameters.Add("screen_name", screenName);
             client.Parameters.Add("follow", "true");
             return client.Post();
@@ -81,14 +81,14 @@ namespace PingPong.Core
             Enforce.NotNullOrEmpty(screenName);
 
             var client = CreateClient();
-            client.Url = ApiAuthority + "/1/friendships/destroy.json";
+            client.Url = ApiAuthority + "/1.1/friendships/destroy.json";
             client.Parameters.Add("screen_name", screenName);
             return client.Post();
         }
 
         public IObservable<List> GetLists(string screenName)
         {
-            return GetContents(ApiAuthority, "/1/lists/all.json", new { screen_name = screenName })
+            return GetContents(ApiAuthority, "/1.1/lists/list.json", new { screen_name = screenName })
                 .SelectJsonArrayToManyJsonValue()
                 .Select(JsonHelper.ToList)
                 .WhereNotNull();
@@ -96,28 +96,28 @@ namespace PingPong.Core
 
         public IObservable<Tweet> GetListStatuses(string id)
         {
-            return GetContents(ApiAuthority, "/1/lists/statuses.json", new { list_id = id }, new { include_entities = "1" }, new { include_rts = "1" })
+            return GetContents(ApiAuthority, "/1.1/lists/statuses.json", new { list_id = id }, new { include_entities = "1" }, new { include_rts = "1" })
                 .SelectJsonArrayToManyJsonValue()
                 .SelectTweets(_subject);
         }
 
         public IObservable<User> GetAccountVerification()
         {
-            return GetContents(ApiAuthority, "/1/account/verify_credentials.json")
+            return GetContents(ApiAuthority, "/1.1/account/verify_credentials.json")
                 .SelectValidJsonValue()
                 .Select(x => new User(x));
         }
 
-        public IObservable<RateLimit> GetRateLimitStatus()
+        public IObservable<RateLimitStatus> GetRateLimitStatus()
         {
-            return GetContents(ApiAuthority, "/1/account/rate_limit_status.json")
+            return GetContents(ApiAuthority, "/1.1/application/rate_limit_status.json")
                 .SelectValidJsonValue()
-                .Select(x => new RateLimit(x));
+                .Select(x => new RateLimitStatus(x));
         }
 
         public IObservable<Relationship> GetRelationship(string sourceScreenName, string targetScreenName)
         {
-            return GetContents(ApiAuthority, "/1/friendships/show.json", new { source_screen_name = sourceScreenName }, new { target_screen_name = targetScreenName })
+            return GetContents(ApiAuthority, "/1.1/friendships/show.json", new { source_screen_name = sourceScreenName }, new { target_screen_name = targetScreenName })
                 .SelectValidJsonValue()
                 .Select(JsonHelper.ToRelationship)
                 .WhereNotNull();
@@ -125,7 +125,7 @@ namespace PingPong.Core
 
         public IObservable<User> GetUserInfo(string screenName)
         {
-            return GetContents(ApiAuthority, "/1/users/show.json", new { include_entities = "1" }, new { screen_name = screenName })
+            return GetContents(ApiAuthority, "/1.1/users/show.json", new { include_entities = "1" }, new { screen_name = screenName })
                 .SelectValidJsonValue()
                 .Select(JsonHelper.ToUser)
                 .WhereNotNull();
@@ -134,24 +134,24 @@ namespace PingPong.Core
         public IObservable<Tweet> GetHomeTimeline(int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { include_rts = "1" }, new { count } };
-            return GetSnapshot(ApiAuthority, "/statuses/home_timeline.json", options).SelectTweets(_subject);
+            return GetSnapshot(ApiAuthority, "/1.1/statuses/home_timeline.json", options).SelectTweets(_subject);
         }
 
         public IObservable<Tweet> GetCurrentUserTimeline(int count = RequestCount)
         {
             var options = new object[] { new { include_entities = "1" }, new { include_rts = "1" }, new { count } };
-            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_subject);
+            return GetSnapshot(ApiAuthority, "/1.1/statuses/user_timeline.json", options).SelectTweets(_subject);
         }
 
         public IObservable<Tweet> GetUserTimeline(string screenName, string sinceId = null)
         {
             var options = new object[] { new { screen_name = screenName }, new { include_entities = "1" }, new { include_rts = "1" }, new { since_id = sinceId } };
-            return GetSnapshot(ApiAuthority, "/1/statuses/user_timeline.json", options).SelectTweets(_subject);
+            return GetSnapshot(ApiAuthority, "/1.1/statuses/user_timeline.json", options).SelectTweets(_subject);
         }
 
         public IObservable<Tweet> GetTweet(string id)
         {
-            return GetContents(ApiAuthority, string.Format("/1/statuses/show/{0}.json", id), new { include_entities = "1" })
+            return GetContents(ApiAuthority, string.Format("/1.1/statuses/show/{0}.json", id), new { include_entities = "1" })
                 .SelectValidJsonValue()
                 .SelectTweets(_subject);
         }
@@ -190,12 +190,12 @@ namespace PingPong.Core
 
         public IObservable<Tweet> GetStreamingSampling()
         {
-            return GetStreaming(StreamingAuthority, "/1/statuses/sample.json", new { delimited = "length" });
+            return GetStreaming(StreamingAuthority, "/1.1/statuses/sample.json", new { delimited = "length" });
         }
 
         public IObservable<Tweet> GetStreamingFilter(params string[] terms)
         {
-            return GetStreaming(StreamingAuthority, "/1/statuses/filter.json", new { track = string.Join(",", terms) });
+            return GetStreaming(StreamingAuthority, "/1.1/statuses/filter.json", new { track = string.Join(",", terms) });
         }
 
         private IObservable<JsonValue> GetSnapshot(string authority, string path, params object[] parameters)
