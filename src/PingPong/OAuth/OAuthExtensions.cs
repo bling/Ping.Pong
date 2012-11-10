@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Text;
 
 namespace PingPong.OAuth
 {
@@ -53,32 +53,46 @@ namespace PingPong.OAuth
 
         public static IObservable<string> GetLines(this WebResponse response)
         {
-            return Observable.Create<string>(ob =>
+            return Observable.Create<string>(obs =>
             {
+                var disposable = new BooleanDisposable();
+                var stream = response.GetResponseStream();
+                var reader = Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead);
                 try
                 {
-                    using (var stream = response.GetResponseStream())
-                    using (var reader = new StreamReader(stream))
+                    var buffer = new byte[256];
+                    int count;
+                    var sb = new StringBuilder();
+                    while (!disposable.IsDisposed && (count = reader(buffer, 0, buffer.Length).First()) > 0)
                     {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
+                        for (int i = 0; i < count; i++)
                         {
-                            Debug.WriteLine(line);
-                            if (!string.IsNullOrWhiteSpace(line))
-                                ob.OnNext(line);
+                            var c = (char)buffer[i];
+                            sb.Append(c);
+                            if (c == '\n' && sb.Length > 0)
+                            {
+                                obs.OnNext(sb.ToString());
+                                sb.Clear();
+                            }
                         }
+                    }
+
+                    if (sb.Length > 0)
+                    {
+                        obs.OnNext(sb.ToString());
                     }
                 }
                 catch (Exception e)
                 {
-                    ob.OnError(e);
+                    obs.OnError(e);
                 }
                 finally
                 {
-                    ob.OnCompleted();
+                    obs.OnCompleted();
+                    response.Dispose();
                 }
 
-                return response;
+                return disposable;
             });
         }
     }
