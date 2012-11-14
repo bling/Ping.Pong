@@ -35,9 +35,8 @@ namespace PingPong.Core
         public static IObservable<Tweet> GetStreamingStatuses(this TwitterClient client)
         {
             return client.GetHomeTimeline()
-                .Merge(client.GetMentions())
-                .Concat(client.GetStreamingHomeline())
-                .Retry();
+                         .Merge(client.GetMentions())
+                         .Concat(client.GetStreamingHomeline());
         }
 
         public static IObservable<RateLimitStatus> GetPollingRateLimitStatus(this TwitterClient client)

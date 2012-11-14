@@ -79,10 +79,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Caliburn.Micro.1.3.1\lib\sl5\Caliburn.Micro.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Hammock.1.2.6\lib\sl4\Microsoft.CSharp.dll</HintPath>
+    <Reference Include="Microsoft.Expression.Interactions">
+      <HintPath>..\..\lib\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Expression.Interactions, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="mscorlib" />
     <Reference Include="System.ComponentModel.Composition, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.ComponentModel.Composition.Initialization, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />

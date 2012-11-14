@@ -1,7 +1,7 @@
 <OutOfBrowserSettings ShortName="ping.pong" EnableGPUAcceleration="True" ShowInstallMenuItem="True">
   <OutOfBrowserSettings.Blurb>ping.pong twitter client</OutOfBrowserSettings.Blurb>
   <OutOfBrowserSettings.WindowSettings>
-    <WindowSettings Title="ping.pong" WindowStyle="None" />
+    <WindowSettings Title="ping.pong" />
   </OutOfBrowserSettings.WindowSettings>
   <OutOfBrowserSettings.SecuritySettings>
     <SecuritySettings ElevatedPermissions="Required" />

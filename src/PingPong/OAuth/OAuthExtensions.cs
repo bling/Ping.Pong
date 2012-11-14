@@ -51,7 +51,7 @@ namespace PingPong.OAuth
             return response.SelectMany(x => x.GetLines());
         }
 
-        public static IObservable<string> GetLines(this WebResponse response)
+        private static IObservable<string> GetLines(this WebResponse response)
         {
             return Observable.Create<string>(obs =>
             {
